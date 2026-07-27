@@ -1,2 +1,3 @@
 # ThermoCore
-A Thermo physics-based simulator
+
+Component-based thermodynamic simulation platform.

@@ -1,0 +1,475 @@
+{
+  "schemaVersion": "1.0",
+  "graphType": "document-dependency",
+  "project": "ThermoCore",
+  "documents": [
+    {
+      "id": "MASTER_INDEX",
+      "file": "MASTER_INDEX.md",
+      "status": "available",
+      "dependsOn": [],
+      "usedBy": [
+        "all"
+      ]
+    },
+    {
+      "id": "ARCHITECTURE_MAP",
+      "file": "ARCHITECTURE_MAP.md",
+      "status": "available",
+      "dependsOn": [
+        "MASTER_INDEX"
+      ],
+      "usedBy": [
+        "all-architecture-work"
+      ]
+    },
+    {
+      "id": "DOCUMENT_DEPENDENCY_GRAPH",
+      "file": "DOCUMENT_DEPENDENCY_GRAPH.md",
+      "status": "available",
+      "dependsOn": [
+        "MASTER_INDEX",
+        "ARCHITECTURE_MAP"
+      ],
+      "usedBy": [
+        "ai-navigation",
+        "developer-onboarding"
+      ]
+    },
+    {
+      "id": "04_MathematicalModel",
+      "file": "04_MathematicalModel.md",
+      "status": "available",
+      "dependsOn": [
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "05_Psychrometrics",
+        "06_SolarCollector",
+        "08_Peltier",
+        "09_SilicaGel",
+        "10_Condenser",
+        "11_HeatRecovery",
+        "12_BatteryAndPowerManagement",
+        "13_FanAndAirflow"
+      ]
+    },
+    {
+      "id": "05_Psychrometrics",
+      "file": "05_Psychrometrics.md",
+      "status": "available",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "26_Constants",
+        "27_Units",
+        "25_NumericalMethods"
+      ],
+      "usedBy": [
+        "06_SolarCollector",
+        "09_SilicaGel",
+        "10_Condenser",
+        "11_HeatRecovery",
+        "13_FanAndAirflow"
+      ]
+    },
+    {
+      "id": "06_SolarCollector",
+      "file": "06_SolarCollector.md",
+      "status": "available",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "25_NumericalMethods",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "09_SilicaGel",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "07_SolarPanel",
+      "file": "07_SolarPanel.md",
+      "status": "available",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "25_NumericalMethods",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "12_BatteryAndPowerManagement",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "08_Peltier",
+      "file": "08_Peltier.md",
+      "status": "available",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "25_NumericalMethods",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "10_Condenser",
+        "12_BatteryAndPowerManagement",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "09_SilicaGel",
+      "file": "09_SilicaGel.md",
+      "status": "available",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "06_SolarCollector",
+        "08_Peltier",
+        "25_NumericalMethods",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "10_Condenser",
+        "14_ControlSystem",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "10_Condenser",
+      "file": "10_Condenser.md",
+      "status": "draft",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "08_Peltier",
+        "09_SilicaGel"
+      ],
+      "usedBy": [
+        "11_HeatRecovery",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "11_HeatRecovery",
+      "file": "11_HeatRecovery.md",
+      "status": "draft",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "10_Condenser"
+      ],
+      "usedBy": [
+        "14_ControlSystem",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "12_BatteryAndPowerManagement",
+      "file": "12_BatteryAndPowerManagement.md",
+      "status": "draft",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "07_SolarPanel",
+        "08_Peltier",
+        "13_FanAndAirflow"
+      ],
+      "usedBy": [
+        "14_ControlSystem",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "13_FanAndAirflow",
+      "file": "13_FanAndAirflow.md",
+      "status": "draft",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "25_NumericalMethods"
+      ],
+      "usedBy": [
+        "06_SolarCollector",
+        "09_SilicaGel",
+        "10_Condenser",
+        "11_HeatRecovery",
+        "14_ControlSystem",
+        "15_SystemTopology"
+      ]
+    },
+    {
+      "id": "14_ControlSystem",
+      "file": "14_ControlSystem.md",
+      "status": "planned",
+      "dependsOn": [
+        "06_SolarCollector",
+        "07_SolarPanel",
+        "08_Peltier",
+        "09_SilicaGel",
+        "10_Condenser",
+        "11_HeatRecovery",
+        "12_BatteryAndPowerManagement",
+        "13_FanAndAirflow"
+      ],
+      "usedBy": [
+        "15_SystemTopology",
+        "16_SimulationEngine"
+      ]
+    },
+    {
+      "id": "15_SystemTopology",
+      "file": "15_SystemTopology.md",
+      "status": "planned",
+      "dependsOn": [
+        "03_PhysicalArchitecture",
+        "14_ControlSystem"
+      ],
+      "usedBy": [
+        "16_SimulationEngine",
+        "19_WebApi",
+        "20_BlazorWeb"
+      ]
+    },
+    {
+      "id": "16_SimulationEngine",
+      "file": "16_SimulationEngine.md",
+      "status": "planned",
+      "dependsOn": [
+        "03_PhysicalArchitecture",
+        "04_MathematicalModel",
+        "15_SystemTopology",
+        "25_NumericalMethods"
+      ],
+      "usedBy": [
+        "19_WebApi",
+        "20_BlazorWeb",
+        "22_TestStrategy",
+        "23_Calibration",
+        "24_Optimization"
+      ]
+    },
+    {
+      "id": "17_Roadmap",
+      "file": "17_Roadmap.md",
+      "status": "available",
+      "dependsOn": [
+        "MASTER_INDEX"
+      ],
+      "usedBy": [
+        "implementation-planning"
+      ]
+    },
+    {
+      "id": "18_CodingRules",
+      "file": "18_CodingRules.md",
+      "status": "available",
+      "dependsOn": [
+        "ARCHITECTURE_MAP"
+      ],
+      "usedBy": [
+        "all-code-generation"
+      ]
+    },
+    {
+      "id": "19_WebApi",
+      "file": "19_WebApi.md",
+      "status": "planned",
+      "dependsOn": [
+        "16_SimulationEngine",
+        "18_CodingRules",
+        "21_DataModel",
+        "29_ResultFormats"
+      ],
+      "usedBy": [
+        "20_BlazorWeb",
+        "30_Deployment"
+      ]
+    },
+    {
+      "id": "20_BlazorWeb",
+      "file": "20_BlazorWeb.md",
+      "status": "planned",
+      "dependsOn": [
+        "19_WebApi",
+        "21_DataModel",
+        "29_ResultFormats"
+      ],
+      "usedBy": [
+        "30_Deployment"
+      ]
+    },
+    {
+      "id": "21_DataModel",
+      "file": "21_DataModel.md",
+      "status": "planned",
+      "dependsOn": [
+        "16_SimulationEngine",
+        "29_ResultFormats"
+      ],
+      "usedBy": [
+        "19_WebApi",
+        "20_BlazorWeb",
+        "23_Calibration"
+      ]
+    },
+    {
+      "id": "22_TestStrategy",
+      "file": "22_TestStrategy.md",
+      "status": "planned",
+      "dependsOn": [
+        "16_SimulationEngine",
+        "18_CodingRules"
+      ],
+      "usedBy": [
+        "all-implementation-work"
+      ]
+    },
+    {
+      "id": "23_Calibration",
+      "file": "23_Calibration.md",
+      "status": "planned",
+      "dependsOn": [
+        "16_SimulationEngine",
+        "21_DataModel",
+        "22_TestStrategy",
+        "28_WeatherModel",
+        "29_ResultFormats"
+      ],
+      "usedBy": [
+        "24_Optimization"
+      ]
+    },
+    {
+      "id": "24_Optimization",
+      "file": "24_Optimization.md",
+      "status": "planned",
+      "dependsOn": [
+        "16_SimulationEngine",
+        "22_TestStrategy",
+        "23_Calibration"
+      ],
+      "usedBy": [
+        "web-scenario-comparison"
+      ]
+    },
+    {
+      "id": "25_NumericalMethods",
+      "file": "25_NumericalMethods.md",
+      "status": "planned",
+      "dependsOn": [
+        "04_MathematicalModel",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "all-dynamic-components",
+        "16_SimulationEngine"
+      ]
+    },
+    {
+      "id": "26_Constants",
+      "file": "26_Constants.md",
+      "status": "planned",
+      "dependsOn": [],
+      "usedBy": [
+        "all-physics-documents"
+      ]
+    },
+    {
+      "id": "27_Units",
+      "file": "27_Units.md",
+      "status": "planned",
+      "dependsOn": [],
+      "usedBy": [
+        "all-physics-documents",
+        "all-api-contracts"
+      ]
+    },
+    {
+      "id": "28_WeatherModel",
+      "file": "28_WeatherModel.md",
+      "status": "planned",
+      "dependsOn": [
+        "05_Psychrometrics",
+        "26_Constants",
+        "27_Units"
+      ],
+      "usedBy": [
+        "16_SimulationEngine",
+        "23_Calibration",
+        "24_Optimization"
+      ]
+    },
+    {
+      "id": "29_ResultFormats",
+      "file": "29_ResultFormats.md",
+      "status": "planned",
+      "dependsOn": [
+        "27_Units"
+      ],
+      "usedBy": [
+        "19_WebApi",
+        "20_BlazorWeb",
+        "21_DataModel",
+        "23_Calibration"
+      ]
+    },
+    {
+      "id": "30_Deployment",
+      "file": "30_Deployment.md",
+      "status": "planned",
+      "dependsOn": [
+        "19_WebApi",
+        "20_BlazorWeb",
+        "21_DataModel"
+      ],
+      "usedBy": [
+        "operations"
+      ]
+    }
+  ],
+  "recommendedReadingPaths": {
+    "newDeveloper": [
+      "MASTER_INDEX",
+      "ARCHITECTURE_MAP",
+      "17_Roadmap",
+      "18_CodingRules",
+      "04_MathematicalModel",
+      "05_Psychrometrics"
+    ],
+    "implementSilicaGel": [
+      "MASTER_INDEX",
+      "18_CodingRules",
+      "04_MathematicalModel",
+      "05_Psychrometrics",
+      "25_NumericalMethods",
+      "26_Constants",
+      "27_Units",
+      "09_SilicaGel"
+    ],
+    "implementCondenser": [
+      "MASTER_INDEX",
+      "18_CodingRules",
+      "04_MathematicalModel",
+      "05_Psychrometrics",
+      "08_Peltier",
+      "09_SilicaGel",
+      "10_Condenser"
+    ],
+    "implementWeb": [
+      "MASTER_INDEX",
+      "ARCHITECTURE_MAP",
+      "18_CodingRules",
+      "16_SimulationEngine",
+      "19_WebApi",
+      "20_BlazorWeb",
+      "21_DataModel",
+      "29_ResultFormats",
+      "30_Deployment"
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+site_name: ThermoCore Documentation
+nav:
+  - Home: docs/README.md

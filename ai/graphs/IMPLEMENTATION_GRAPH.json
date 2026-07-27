@@ -1,0 +1,416 @@
+{
+  "schemaVersion": "1.0",
+  "graphType": "implementation-order",
+  "project": "ThermoCore",
+  "milestones": [
+    {
+      "id": "M01",
+      "name": "Solution bootstrap",
+      "dependsOn": [],
+      "outputs": [
+        "ThermoCore.sln",
+        "ThermoCore.Core",
+        "ThermoCore.Console",
+        "ThermoCore.Core.Tests"
+      ],
+      "requiredDocuments": [
+        "17_Roadmap",
+        "18_CodingRules",
+        "ARCHITECTURE_MAP"
+      ],
+      "acceptance": [
+        "solution builds",
+        "tests run",
+        "Core has no UI dependency"
+      ]
+    },
+    {
+      "id": "M02",
+      "name": "Units and constants",
+      "dependsOn": [
+        "M01"
+      ],
+      "outputs": [
+        "unit conversions",
+        "physical constants",
+        "validation guards"
+      ],
+      "requiredDocuments": [
+        "26_Constants",
+        "27_Units",
+        "18_CodingRules"
+      ],
+      "acceptance": [
+        "all conversions tested",
+        "no duplicate constants"
+      ]
+    },
+    {
+      "id": "M03",
+      "name": "Psychrometric core",
+      "dependsOn": [
+        "M02"
+      ],
+      "outputs": [
+        "MoistAirState",
+        "PsychrometricCalculator",
+        "SaturationPressureProvider"
+      ],
+      "requiredDocuments": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "25_NumericalMethods"
+      ],
+      "acceptance": [
+        "round-trip tests pass",
+        "sensible heating preserves dew point",
+        "supersaturation detected"
+      ]
+    },
+    {
+      "id": "M04",
+      "name": "Conservation infrastructure",
+      "dependsOn": [
+        "M03"
+      ],
+      "outputs": [
+        "ConservationBalance",
+        "BalanceValidator",
+        "Diagnostics"
+      ],
+      "requiredDocuments": [
+        "04_MathematicalModel",
+        "18_CodingRules"
+      ],
+      "acceptance": [
+        "component residuals aggregate",
+        "invalid balance visible"
+      ]
+    },
+    {
+      "id": "M05",
+      "name": "Port and component abstractions",
+      "dependsOn": [
+        "M04"
+      ],
+      "outputs": [
+        "IPhysicalPort",
+        "ISimulationComponent",
+        "ComponentStepResult"
+      ],
+      "requiredDocuments": [
+        "03_PhysicalArchitecture",
+        "ARCHITECTURE_MAP",
+        "18_CodingRules"
+      ],
+      "acceptance": [
+        "typed ports validate",
+        "Evaluate does not mutate"
+      ]
+    },
+    {
+      "id": "M06",
+      "name": "Acyclic simulation engine",
+      "dependsOn": [
+        "M05"
+      ],
+      "outputs": [
+        "SimulationGraph",
+        "GraphValidator",
+        "TopologicalExecutor"
+      ],
+      "requiredDocuments": [
+        "16_SimulationEngine",
+        "25_NumericalMethods"
+      ],
+      "acceptance": [
+        "linear graph runs deterministically",
+        "invalid topology rejected"
+      ]
+    },
+    {
+      "id": "M07",
+      "name": "Generic flow components",
+      "dependsOn": [
+        "M06"
+      ],
+      "outputs": [
+        "Sources",
+        "Sinks",
+        "Mixer",
+        "Splitter"
+      ],
+      "requiredDocuments": [
+        "04_MathematicalModel",
+        "05_Psychrometrics",
+        "13_FanAndAirflow"
+      ],
+      "acceptance": [
+        "mixer conserves air/water/enthalpy",
+        "splitter conserves flow"
+      ]
+    },
+    {
+      "id": "M08",
+      "name": "Solar components",
+      "dependsOn": [
+        "M07"
+      ],
+      "outputs": [
+        "SolarPanel",
+        "SolarCollector"
+      ],
+      "requiredDocuments": [
+        "06_SolarCollector",
+        "07_SolarPanel"
+      ],
+      "acceptance": [
+        "energy balances pass",
+        "humidity ratio unchanged through sensible heating"
+      ]
+    },
+    {
+      "id": "M09",
+      "name": "Peltier component",
+      "dependsOn": [
+        "M08"
+      ],
+      "outputs": [
+        "PeltierModel",
+        "PeltierState",
+        "PeltierControl"
+      ],
+      "requiredDocuments": [
+        "08_Peltier"
+      ],
+      "acceptance": [
+        "Qh=Qc+Pe",
+        "limits enforced",
+        "off-state conduction modelled"
+      ]
+    },
+    {
+      "id": "M10",
+      "name": "Silica gel component",
+      "dependsOn": [
+        "M09"
+      ],
+      "outputs": [
+        "SilicaGelModel",
+        "Isotherm",
+        "KineticModel"
+      ],
+      "requiredDocuments": [
+        "09_SilicaGel"
+      ],
+      "acceptance": [
+        "water conserved",
+        "outlet RH derived",
+        "desorption storage-limited"
+      ]
+    },
+    {
+      "id": "M11",
+      "name": "Condenser and water tank",
+      "dependsOn": [
+        "M10"
+      ],
+      "outputs": [
+        "CondenserModel",
+        "WaterTank"
+      ],
+      "requiredDocuments": [
+        "10_Condenser"
+      ],
+      "acceptance": [
+        "latent heat included",
+        "condensed water limited by vapor and power"
+      ]
+    },
+    {
+      "id": "M12",
+      "name": "Heat recovery and airflow",
+      "dependsOn": [
+        "M11"
+      ],
+      "outputs": [
+        "HeatRecoveryModel",
+        "FanModel",
+        "AirflowNetwork"
+      ],
+      "requiredDocuments": [
+        "11_HeatRecovery",
+        "13_FanAndAirflow"
+      ],
+      "acceptance": [
+        "heat conserved",
+        "pressure drop reported",
+        "fan power calculated"
+      ]
+    },
+    {
+      "id": "M13",
+      "name": "Battery and power management",
+      "dependsOn": [
+        "M12"
+      ],
+      "outputs": [
+        "BatteryModel",
+        "PowerManager"
+      ],
+      "requiredDocuments": [
+        "12_BatteryAndPowerManagement"
+      ],
+      "acceptance": [
+        "SOC bounded",
+        "electrical balance closes",
+        "load shedding explicit"
+      ]
+    },
+    {
+      "id": "M14",
+      "name": "AWG control and topology",
+      "dependsOn": [
+        "M13"
+      ],
+      "outputs": [
+        "AWGController",
+        "AWGV3GraphBuilder"
+      ],
+      "requiredDocuments": [
+        "14_ControlSystem",
+        "15_SystemTopology"
+      ],
+      "acceptance": [
+        "24h simulation runs",
+        "recirculation configurable",
+        "system balances pass"
+      ]
+    },
+    {
+      "id": "M15",
+      "name": "Cyclic graph solver",
+      "dependsOn": [
+        "M14"
+      ],
+      "outputs": [
+        "FixedPointLoopSolver",
+        "Relaxation",
+        "ConvergenceDiagnostics"
+      ],
+      "requiredDocuments": [
+        "16_SimulationEngine",
+        "25_NumericalMethods"
+      ],
+      "acceptance": [
+        "stable loop converges",
+        "non-convergence reported"
+      ]
+    },
+    {
+      "id": "M16",
+      "name": "ASP.NET Core API",
+      "dependsOn": [
+        "M15"
+      ],
+      "outputs": [
+        "ThermoCore.Api",
+        "OpenAPI",
+        "Simulation endpoints"
+      ],
+      "requiredDocuments": [
+        "19_WebApi",
+        "21_DataModel",
+        "29_ResultFormats",
+        "18_CodingRules"
+      ],
+      "acceptance": [
+        "API tests pass",
+        "no physics duplication",
+        "structured validation"
+      ]
+    },
+    {
+      "id": "M17",
+      "name": "Blazor Web MVP",
+      "dependsOn": [
+        "M16"
+      ],
+      "outputs": [
+        "ThermoCore.Web",
+        "configuration editor",
+        "charts",
+        "export"
+      ],
+      "requiredDocuments": [
+        "20_BlazorWeb",
+        "29_ResultFormats"
+      ],
+      "acceptance": [
+        "browser can run simulation",
+        "UI responsive",
+        "results match Console"
+      ]
+    },
+    {
+      "id": "M18",
+      "name": "Persistence and comparison",
+      "dependsOn": [
+        "M17"
+      ],
+      "outputs": [
+        "saved configurations",
+        "saved runs",
+        "comparison"
+      ],
+      "requiredDocuments": [
+        "21_DataModel"
+      ],
+      "acceptance": [
+        "reruns reproducible",
+        "model metadata stored"
+      ]
+    },
+    {
+      "id": "M19",
+      "name": "Calibration",
+      "dependsOn": [
+        "M18"
+      ],
+      "outputs": [
+        "measurement import",
+        "error metrics",
+        "parameter fitting"
+      ],
+      "requiredDocuments": [
+        "23_Calibration",
+        "22_TestStrategy",
+        "28_WeatherModel"
+      ],
+      "acceptance": [
+        "measured and simulated series align",
+        "fit reproducible"
+      ]
+    },
+    {
+      "id": "M20",
+      "name": "Optimization and deployment",
+      "dependsOn": [
+        "M19"
+      ],
+      "outputs": [
+        "parameter sweep",
+        "multi-objective optimization",
+        "container deployment"
+      ],
+      "requiredDocuments": [
+        "24_Optimization",
+        "30_Deployment"
+      ],
+      "acceptance": [
+        "scenario comparison works",
+        "Linux container deploys"
+      ]
+    }
+  ]
+}

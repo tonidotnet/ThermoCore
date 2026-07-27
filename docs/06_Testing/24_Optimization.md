@@ -1,13 +1,52 @@
-# 24_Optimization.md
+# ThermoCore
+## 24_Optimization.md
 
-**Status:** Planned  
-**Documentation quality:** Placeholder only  
-**Do not use for implementation yet.**
+**Version:** 1.0
+**Status:** ReadyForImplementation
 
-## Planned purpose
+# Purpose
 
-Sensitivity, parameter sweeps and multi-objective optimization.
+Defines optimization strategies for maximizing water production while minimizing energy consumption.
 
-## Required action
+## Objective examples
 
-Generate a detailed, implementation-ready specification before coding the related module.
+- Max liters/day
+- Min Wh/liter
+- Max solar utilization
+- Min battery cycling
+- Max condenser effectiveness
+
+## Optimization variables
+
+- Airflow
+- Recirculation ratio
+- Peltier power
+- Collector area
+- Condenser area
+- Silica-gel mass
+
+## Constraints
+
+- Battery limits
+- Thermal limits
+- Physical parameter bounds
+- Stable numerical convergence
+
+## Supported algorithms
+
+- Grid search
+- Random search
+- Nelder–Mead
+- Differential Evolution (future)
+- Bayesian optimization (future)
+
+## Outputs
+
+- Best parameter combination
+- Pareto front (future)
+- Sensitivity ranking
+- Optimization report
+
+## Acceptance criteria
+
+Optimization must always produce reproducible results using the same inputs and random seed (where applicable).

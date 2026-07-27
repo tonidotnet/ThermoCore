@@ -1,0 +1,1 @@
+# ThermoCore.IntegrationTests

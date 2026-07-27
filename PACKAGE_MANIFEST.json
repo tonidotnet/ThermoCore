@@ -1,0 +1,25 @@
+{
+  "package": "ThermoCore_Documentation_Workspace_v1",
+  "containsImplementation": false,
+  "roots": [
+    "docs",
+    "ai"
+  ],
+  "repairedDocuments": [
+    "10_Condenser.md",
+    "11_HeatRecovery.md",
+    "12_BatteryAndPowerManagement.md",
+    "13_FanAndAirflow.md",
+    "25_NumericalMethods.md"
+  ],
+  "newFoundationDocuments": [
+    "26_Constants.md",
+    "27_Units.md"
+  ],
+  "localReplacementRequired": [
+    "04_MathematicalModel.md",
+    "05_Psychrometrics.md",
+    "06_SolarCollector.md",
+    "03_PhysicalArchitecture.md"
+  ]
+}

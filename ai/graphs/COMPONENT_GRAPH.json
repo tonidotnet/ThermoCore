@@ -1,0 +1,318 @@
+{
+  "schemaVersion": "1.0",
+  "graphType": "component-dependency",
+  "project": "ThermoCore",
+  "nodes": [
+    {
+      "id": "ThermoCore.Core.Psychrometrics",
+      "type": "core-service",
+      "dependsOn": [
+        "ThermoCore.Core.Constants",
+        "ThermoCore.Core.Units"
+      ],
+      "usedBy": [
+        "SolarCollector",
+        "Peltier",
+        "SilicaGel",
+        "Condenser",
+        "HeatRecovery",
+        "FanAndAirflow"
+      ],
+      "responsibilities": [
+        "Create consistent moist-air states",
+        "Calculate saturation pressure",
+        "Calculate humidity ratio",
+        "Calculate dew point",
+        "Calculate enthalpy",
+        "Calculate density"
+      ]
+    },
+    {
+      "id": "ThermoCore.Core.SimulationEngine",
+      "type": "core-engine",
+      "dependsOn": [
+        "ThermoCore.Core.Graph",
+        "ThermoCore.Core.NumericalMethods",
+        "ThermoCore.Core.Diagnostics"
+      ],
+      "usedBy": [
+        "ThermoCore.AWG",
+        "ThermoCore.Console",
+        "ThermoCore.Api"
+      ],
+      "responsibilities": [
+        "Execute simulation timesteps",
+        "Evaluate components",
+        "Commit accepted states",
+        "Solve cyclic graphs",
+        "Aggregate balances"
+      ]
+    },
+    {
+      "id": "SolarPanel",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Constants",
+        "ThermoCore.Core.Units"
+      ],
+      "usedBy": [
+        "BatteryAndPowerManagement",
+        "AWGSystemTopology"
+      ],
+      "inputs": [
+        "SolarRadiation",
+        "AmbientState",
+        "ElectricalConstraint",
+        "RearAirInlet"
+      ],
+      "outputs": [
+        "ElectricalPower",
+        "RearAirOutlet",
+        "HeatLoss",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "SolarCollector",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Psychrometrics",
+        "ThermoCore.Core.Constants",
+        "ThermoCore.Core.NumericalMethods"
+      ],
+      "usedBy": [
+        "SilicaGel",
+        "AWGSystemTopology"
+      ],
+      "inputs": [
+        "MoistAirIn",
+        "SolarRadiation",
+        "AmbientState"
+      ],
+      "outputs": [
+        "MoistAirOut",
+        "HeatLoss",
+        "PressureDrop",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "Peltier",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Constants",
+        "ThermoCore.Core.NumericalMethods"
+      ],
+      "usedBy": [
+        "Condenser",
+        "PeltierHotSideHeatExchanger",
+        "BatteryAndPowerManagement"
+      ],
+      "inputs": [
+        "ElectricalPower",
+        "ColdThermalBoundary",
+        "HotThermalBoundary",
+        "ControlSignal"
+      ],
+      "outputs": [
+        "CoolingPower",
+        "HeatingPower",
+        "ColdSideTemperature",
+        "HotSideTemperature",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "SilicaGel",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Psychrometrics",
+        "ThermoCore.Core.Constants",
+        "ThermoCore.Core.NumericalMethods"
+      ],
+      "usedBy": [
+        "Condenser",
+        "AWGControlSystem",
+        "AWGSystemTopology"
+      ],
+      "inputs": [
+        "MoistAirIn",
+        "AmbientState",
+        "ExternalHeat",
+        "ControlSignal"
+      ],
+      "outputs": [
+        "MoistAirOut",
+        "AdsorbedWaterState",
+        "PressureDrop",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "Condenser",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Psychrometrics",
+        "Peltier",
+        "ThermoCore.Core.Constants"
+      ],
+      "usedBy": [
+        "HeatRecovery",
+        "WaterTank",
+        "AWGSystemTopology"
+      ],
+      "inputs": [
+        "MoistAirIn",
+        "AvailableCoolingPower",
+        "SurfaceTemperature"
+      ],
+      "outputs": [
+        "MoistAirOut",
+        "LiquidWaterOut",
+        "HeatRejected",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "HeatRecovery",
+      "type": "physical-component",
+      "dependsOn": [
+        "ThermoCore.Core.Psychrometrics",
+        "ThermoCore.Core.NumericalMethods"
+      ],
+      "usedBy": [
+        "AWGSystemTopology",
+        "AWGControlSystem"
+      ],
+      "inputs": [
+        "HotMoistAirIn",
+        "ColdMoistAirIn"
+      ],
+      "outputs": [
+        "HotMoistAirOut",
+        "ColdMoistAirOut",
+        "RecoveredHeat",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "BatteryAndPowerManagement",
+      "type": "electrical-component",
+      "dependsOn": [
+        "SolarPanel",
+        "ThermoCore.Core.Constants"
+      ],
+      "usedBy": [
+        "Peltier",
+        "FanAndAirflow",
+        "AWGControlSystem"
+      ],
+      "inputs": [
+        "GeneratedPower",
+        "BatteryState",
+        "PowerDemand"
+      ],
+      "outputs": [
+        "DeliveredPower",
+        "BatteryState",
+        "CurtailedPower",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "FanAndAirflow",
+      "type": "flow-component",
+      "dependsOn": [
+        "ThermoCore.Core.Psychrometrics",
+        "ThermoCore.Core.NumericalMethods"
+      ],
+      "usedBy": [
+        "SolarPanel",
+        "SolarCollector",
+        "SilicaGel",
+        "Condenser",
+        "HeatRecovery",
+        "AWGSystemTopology"
+      ],
+      "inputs": [
+        "RequestedFlow",
+        "NetworkPressureDrop",
+        "ElectricalAvailability"
+      ],
+      "outputs": [
+        "ActualFlow",
+        "FanPower",
+        "PressureRise",
+        "Diagnostics"
+      ]
+    },
+    {
+      "id": "AWGControlSystem",
+      "type": "application-controller",
+      "dependsOn": [
+        "SolarPanel",
+        "SolarCollector",
+        "Peltier",
+        "SilicaGel",
+        "Condenser",
+        "HeatRecovery",
+        "BatteryAndPowerManagement",
+        "FanAndAirflow"
+      ],
+      "usedBy": [
+        "AWGSystemTopology"
+      ],
+      "responsibilities": [
+        "Select operating mode",
+        "Control airflow",
+        "Control Peltier power",
+        "Control recirculation",
+        "Apply safety rules",
+        "Optimize water production"
+      ]
+    },
+    {
+      "id": "AWGSystemTopology",
+      "type": "application-graph",
+      "dependsOn": [
+        "ThermoCore.Core.SimulationEngine",
+        "SolarPanel",
+        "SolarCollector",
+        "Peltier",
+        "SilicaGel",
+        "Condenser",
+        "HeatRecovery",
+        "BatteryAndPowerManagement",
+        "FanAndAirflow",
+        "AWGControlSystem"
+      ],
+      "usedBy": [
+        "ThermoCore.Console",
+        "ThermoCore.Api",
+        "ThermoCore.Web"
+      ]
+    }
+  ],
+  "forbiddenDependencies": [
+    {
+      "from": "ThermoCore.Core",
+      "to": "ThermoCore.AWG"
+    },
+    {
+      "from": "ThermoCore.Core",
+      "to": "ThermoCore.Web"
+    },
+    {
+      "from": "ThermoCore.Core",
+      "to": "ThermoCore.Api"
+    },
+    {
+      "from": "ThermoCore.AWG",
+      "to": "ThermoCore.Web"
+    },
+    {
+      "from": "ThermoCore.AWG",
+      "to": "ThermoCore.Api"
+    }
+  ]
+}

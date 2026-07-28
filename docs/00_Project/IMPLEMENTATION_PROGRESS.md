@@ -96,15 +96,15 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Implement first physical models (Peltier, solar collector/PV, condenser).
+Continue physical models: silica gel, heat recovery, analytical Peltier, and result collection.
 ```
 
 ## Recommended next tasks
 
-1. `TEC-001` — Constant-COP Peltier model
-2. `SC-001` — Constant-efficiency solar collector
-3. `PV-001` — Constant-efficiency PV model
-4. `COND-002` — Condenser dew-point cooling
+1. `SG-001`/`SG-003` — Silica-gel state and isotherm
+2. `HR-002` — Heat-recovery sensible effectiveness
+3. `TEC-002` — Analytical thermoelectric Peltier
+4. `COND-006` — Drainage efficiency refinements
 5. `GRAPH-010` — Result collection
 
 ---
@@ -281,7 +281,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Related docs | Test status |
 |---|---|---|---|---|---|---|
 | GEN-001 | Ambient-air source | P1 | Done | GRAPH-008, CORE-010 | `03_PhysicalArchitecture.md` | Passing |
-| GEN-002 | Solar-radiation source | P1 | Blocked | GRAPH-008 | `06_SolarCollector.md`, `07_SolarPanel.md` | NotStarted |
+| GEN-002 | Solar-radiation source | P1 | Done | GRAPH-008 | `06_SolarCollector.md`, `07_SolarPanel.md` | Passing |
 | GEN-003 | Electrical source | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
 | GEN-004 | Environment heat sink | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
 | GEN-005 | Exhaust-air sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
@@ -299,7 +299,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| PV-001 | Constant-efficiency PV model | P1 | Blocked | GEN-002, CORE-012 | `07_SolarPanel.md` | NotStarted |
+| PV-001 | Constant-efficiency PV model | P1 | Done | GEN-002, CORE-012 | `07_SolarPanel.md` | Passing |
 | PV-002 | Temperature-corrected PV model | P1 | Blocked | PV-001 | `07_SolarPanel.md` | NotStarted |
 | PV-003 | Dynamic electrothermal PV model | P2 | Blocked | PV-002, DOC-025 | `07_SolarPanel.md` | NotStarted |
 | PV-004 | Rear-air channel heat transfer | P1 | Blocked | PV-003, CORE-010 | `07_SolarPanel.md` | NotStarted |
@@ -310,7 +310,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| SC-001 | Constant-efficiency collector | P1 | Blocked | GEN-002, GEN-009 | `06_SolarCollector.md` | NotStarted |
+| SC-001 | Constant-efficiency collector | P1 | Done | GEN-002, GEN-009 | `06_SolarCollector.md` | Passing |
 | SC-002 | Optical absorption model | P1 | Blocked | SC-001 | `06_SolarCollector.md` | NotStarted |
 | SC-003 | Dynamic absorber energy balance | P1 | Blocked | SC-002, DOC-025 | `06_SolarCollector.md` | NotStarted |
 | SC-004 | Environmental heat loss | P1 | Blocked | SC-003 | `06_SolarCollector.md` | NotStarted |
@@ -322,7 +322,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| TEC-001 | Constant-COP model | P1 | Blocked | CORE-012, GRAPH-008 | `08_Peltier.md` | NotStarted |
+| TEC-001 | Constant-COP model | P1 | Done | CORE-012, GRAPH-008 | `08_Peltier.md` | Passing |
 | TEC-002 | Analytical thermoelectric model | P1 | Blocked | TEC-001, DOC-025 | `08_Peltier.md` | NotStarted |
 | TEC-003 | Current/power solver | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
 | TEC-004 | External thermal resistances | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
@@ -350,10 +350,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| COND-001 | Expand condenser specification | P0 | Ready | DOC-005A, DOC-008A, DOC-009A | `10_Condenser.md` | Planned |
-| COND-002 | Dew-point and sensible-cooling model | P1 | Blocked | COND-001, CORE-010 | `10_Condenser.md` | NotStarted |
-| COND-003 | Latent condensation model | P1 | Blocked | COND-002, CORE-012 | `10_Condenser.md` | NotStarted |
-| COND-004 | Cooling-power limitation | P1 | Blocked | COND-003, TEC-001 | `10_Condenser.md` | NotStarted |
+| COND-001 | Expand condenser specification | P0 | Done | DOC-005A, DOC-008A, DOC-009A | `10_Condenser.md` | Passing |
+| COND-002 | Dew-point and sensible-cooling model | P1 | Done | COND-001, CORE-010 | `10_Condenser.md` | Passing |
+| COND-003 | Latent condensation model | P1 | Done | COND-002, CORE-012 | `10_Condenser.md` | Passing |
+| COND-004 | Cooling-power limitation | P1 | Done | COND-003, TEC-001 | `10_Condenser.md` | Passing |
 | COND-005 | Heat/mass-transfer effectiveness | P2 | Blocked | COND-003, DOC-025 | `10_Condenser.md` | NotStarted |
 | COND-006 | Drainage efficiency and water output | P1 | Blocked | COND-003 | `10_Condenser.md` | NotStarted |
 | COND-007 | Condenser integration tests | P1 | Blocked | COND-002 to COND-006 | `22_TestStrategy.md` | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. TEC-001 — Constant-COP Peltier
-2. SC-001 — Constant-efficiency collector
-3. PV-001 — Constant-efficiency PV
-4. COND-002 — Condenser cooling/condensation
-5. GRAPH-010 — Result collection
+1. SG-001 — Silica-gel state model
+2. HR-002 — Sensible heat-recovery effectiveness
+3. TEC-002 — Analytical thermoelectric model
+4. GRAPH-010 — Result collection
+5. PWR-002 — Battery SOC model
 ```
 
 ---

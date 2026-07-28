@@ -90,22 +90,22 @@ Use exactly one of the following status values.
 ## Current project phase
 
 ```text
-Phase 0 — Documentation and repository preparation
+Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ```
 
 ## Current highest-priority objective
 
 ```text
-Create the minimum reliable specification set required to start ThermoCore.Core implementation.
+Implement psychrometric core (saturation pressure, humidity ratio, dew point, MoistAirState).
 ```
 
 ## Recommended next tasks
 
-1. `DOC-025` — Complete `25_NumericalMethods.md`
-2. `DOC-026` — Complete `26_Constants.md`
-3. `DOC-027` — Complete `27_Units.md`
-4. `DOC-022` — Complete `22_TestStrategy.md`
-5. `DEV-001` — Bootstrap solution and projects
+1. `CORE-005` — Saturation-pressure provider
+2. `CORE-006` — Vapor pressure and humidity ratio
+3. `CORE-007` — Dew-point calculation
+4. `CORE-008` / `CORE-009` — Enthalpy, specific volume/density
+5. `CORE-010` — Immutable `MoistAirState` factory
 
 ---
 
@@ -201,15 +201,15 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Output | Acceptance criteria |
 |---|---|---|---|---|---|---|
-| REP-001 | Create monorepository | P0 | Ready | DOC-005 | Git repository | Clean initial branch |
-| REP-002 | Add root README | P1 | Planned | REP-001 | `README.md` | Explains ThermoCore and AWG reference app |
+| REP-001 | Create monorepository | P0 | Done | DOC-005 | Git repository | Clean initial branch |
+| REP-002 | Add root README | P1 | Done | REP-001 | `README.md` | Explains ThermoCore and AWG reference app |
 | REP-003 | Select and add license | P1 | Planned | REP-001 | `LICENSE` | License decision documented in ADR |
 | REP-004 | Add contribution guide | P2 | Planned | REP-002, REP-003 | `CONTRIBUTING.md` | Includes development workflow |
 | REP-005 | Add code of conduct | P2 | Planned | REP-001 | `CODE_OF_CONDUCT.md` | Standard open-source policy |
 | REP-006 | Add security policy | P2 | Planned | REP-001 | `SECURITY.md` | Vulnerability reporting |
 | REP-007 | Add change log | P2 | Planned | REP-001 | `CHANGELOG.md` | Keep a release history |
-| REP-008 | Add `.gitignore` | P0 | Ready | REP-001 | `.gitignore` | .NET, IDE and OS exclusions |
-| REP-009 | Add `.editorconfig` | P0 | Ready | REP-001, DOC-018A | `.editorconfig` | Matches coding rules |
+| REP-008 | Add `.gitignore` | P0 | Done | REP-001 | `.gitignore` | .NET, IDE and OS exclusions |
+| REP-009 | Add `.editorconfig` | P0 | Done | REP-001, DOC-018A | `.editorconfig` | Matches coding rules |
 | REP-010 | Add issue templates | P3 | Planned | REP-004 | `.github/ISSUE_TEMPLATE/` | Bug, feature, model validation |
 | REP-011 | Add pull-request template | P2 | Planned | REP-004 | `.github/pull_request_template.md` | Includes test and balance checklist |
 | REP-012 | Add CI workflow | P1 | Planned | DEV-001 | `.github/workflows/build.yml` | Build, test and formatting checks |
@@ -220,13 +220,13 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Project | Documentation | Test status |
 |---|---|---|---|---|---|---|---|
-| DEV-001 | Create solution and base projects | P0 | Blocked | DOC-025, DOC-026, DOC-027, REP-001 | All | DOC-017A, DOC-018A | NotStarted |
-| DEV-002 | Configure nullable and warning policies | P0 | Blocked | DEV-001 | All | DOC-018A | NotStarted |
-| DEV-003 | Configure analyzers and formatting | P1 | Blocked | DEV-001, REP-009 | All | DOC-018A | NotStarted |
+| DEV-001 | Create solution and base projects | P0 | Done | DOC-025, DOC-026, DOC-027, REP-001 | All | DOC-017A, DOC-018A | Passing |
+| DEV-002 | Configure nullable and warning policies | P0 | Done | DEV-001 | All | DOC-018A | Passing |
+| DEV-003 | Configure analyzers and formatting | P1 | Review | DEV-001, REP-009 | All | DOC-018A | Partial |
 | DEV-004 | Add package version strategy | P2 | Blocked | DEV-001 | All | DOC-018A | NotStarted |
-| DEV-005 | Create Core namespace structure | P1 | Blocked | DEV-001 | `ThermoCore.Core` | DOC-002, DOC-018A | NotStarted |
-| DEV-006 | Create AWG namespace structure | P1 | Blocked | DEV-001 | `ThermoCore.AWG` | DOC-002 | NotStarted |
-| DEV-007 | Create test project structure | P0 | Blocked | DEV-001, DOC-022 | Tests | DOC-022 | NotStarted |
+| DEV-005 | Create Core namespace structure | P1 | Done | DEV-001 | `ThermoCore.Core` | DOC-002, DOC-018A | Passing |
+| DEV-006 | Create AWG namespace structure | P1 | Done | DEV-001 | `ThermoCore.AWG` | DOC-002 | Passing |
+| DEV-007 | Create test project structure | P0 | Done | DEV-001, DOC-022 | Tests | DOC-022 | Passing |
 | DEV-008 | Add architecture boundary tests | P1 | Blocked | DEV-001, DEV-005, DEV-006 | Tests | DOC-002, DOC-018A | NotStarted |
 
 ---
@@ -235,10 +235,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related docs | Test status | Completion criteria |
 |---|---|---|---|---|---|---|---|
-| CORE-001 | Implement unit conversions | P0 | Blocked | DEV-001, DOC-027 | `27_Units.md` | NotStarted | All boundary conversions tested |
-| CORE-002 | Implement physical constants | P0 | Blocked | DEV-001, DOC-026 | `26_Constants.md` | NotStarted | Source and unit for each constant |
-| CORE-003 | Implement finite-number validation | P0 | Blocked | DEV-001 | `18_CodingRules.md` | NotStarted | NaN/Infinity rejected |
-| CORE-004 | Implement numeric tolerances | P0 | Blocked | CORE-001, DOC-025 | `25_NumericalMethods.md` | NotStarted | Central tolerance model |
+| CORE-001 | Implement unit conversions | P0 | Done | DEV-001, DOC-027 | `27_Units.md` | Passing | All boundary conversions tested |
+| CORE-002 | Implement physical constants | P0 | Done | DEV-001, DOC-026 | `26_Constants.md` | Passing | Source and unit for each constant |
+| CORE-003 | Implement finite-number validation | P0 | Done | DEV-001 | `18_CodingRules.md` | Passing | NaN/Infinity rejected |
+| CORE-004 | Implement numeric tolerances | P0 | Done | CORE-001, DOC-025 | `25_NumericalMethods.md` | Passing | Central tolerance model |
 | CORE-005 | Implement saturation-pressure provider | P0 | Blocked | CORE-001 to CORE-004 | `05_Psychrometrics.md` | NotStarted | Reference cases pass |
 | CORE-006 | Implement vapor pressure and humidity ratio | P0 | Blocked | CORE-005 | `05_Psychrometrics.md` | NotStarted | Round-trip tests pass |
 | CORE-007 | Implement dew-point calculation | P0 | Blocked | CORE-005, CORE-004 | `05_Psychrometrics.md`, `25_NumericalMethods.md` | NotStarted | Forward/inverse consistency |
@@ -544,7 +544,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 Status:
 
 ```text
-In progress
+Done
 ```
 
 Completion requirements:
@@ -555,27 +555,27 @@ Completion requirements:
 - [x] Roadmap exists
 - [x] Coding rules exist
 - [x] AI context exists
-- [ ] Numerical methods specification ready
-- [ ] Constants specification ready
-- [ ] Units specification ready
-- [ ] Test strategy ready
-- [ ] Repository structure created
+- [x] Numerical methods specification ready
+- [x] Constants specification ready
+- [x] Units specification ready
+- [x] Test strategy ready
+- [x] Repository structure created
 
 ## Milestone M1 — ThermoCore 0.1 Psychrometric Core
 
 Status:
 
 ```text
-Blocked
+In progress
 ```
 
 Completion requirements:
 
-- [ ] Solution builds
+- [x] Solution builds
 - [ ] Psychrometric calculator implemented
 - [ ] MoistAirState implemented
 - [ ] Reference tests passing
-- [ ] Console demo available
+- [x] Console demo available
 
 ## Milestone M2 — ThermoCore 0.2 Simulation Core
 
@@ -664,13 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. DOC-025 — 25_NumericalMethods.md
-2. DOC-026 — 26_Constants.md
-3. DOC-027 — 27_Units.md
-4. DOC-022 — 22_TestStrategy.md
-5. DOC-005 — Final repository and folder structure
-6. REP-001 — Create monorepository
-7. DEV-001 — Create solution and base projects
+1. CORE-005 — Saturation-pressure provider (05_Psychrometrics.md)
+2. CORE-006 — Vapor pressure and humidity ratio
+3. CORE-007 — Dew-point calculation
+4. CORE-010 — Immutable MoistAirState factory
+5. CORE-015 — Psychrometric reference test suite
 ```
 
 ---

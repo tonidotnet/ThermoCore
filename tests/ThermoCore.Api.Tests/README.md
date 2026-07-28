@@ -1,1 +1,0 @@
-# ThermoCore.Api.Tests

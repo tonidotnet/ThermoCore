@@ -1,0 +1,6 @@
+@ThermoCore.Api_HostAddress = http://localhost:5238
+
+GET {{ThermoCore.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

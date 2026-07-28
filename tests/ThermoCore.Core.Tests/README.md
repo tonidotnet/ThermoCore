@@ -1,1 +1,0 @@
-# ThermoCore.Core.Tests

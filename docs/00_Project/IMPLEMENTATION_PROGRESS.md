@@ -101,11 +101,11 @@ Implement psychrometric core (saturation pressure, humidity ratio, dew point, Mo
 
 ## Recommended next tasks
 
-1. `CORE-005` — Saturation-pressure provider
-2. `CORE-006` — Vapor pressure and humidity ratio
-3. `CORE-007` — Dew-point calculation
-4. `CORE-008` / `CORE-009` — Enthalpy, specific volume/density
-5. `CORE-010` — Immutable `MoistAirState` factory
+1. `CORE-012` — Conservation-balance types
+2. `CORE-013` — Diagnostic model
+3. `CORE-014` — Balance validation
+4. `GRAPH-001` — Define physical domains
+5. `GRAPH-002` — Typed port abstractions
 
 ---
 
@@ -239,17 +239,17 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | CORE-002 | Implement physical constants | P0 | Done | DEV-001, DOC-026 | `26_Constants.md` | Passing | Source and unit for each constant |
 | CORE-003 | Implement finite-number validation | P0 | Done | DEV-001 | `18_CodingRules.md` | Passing | NaN/Infinity rejected |
 | CORE-004 | Implement numeric tolerances | P0 | Done | CORE-001, DOC-025 | `25_NumericalMethods.md` | Passing | Central tolerance model |
-| CORE-005 | Implement saturation-pressure provider | P0 | Blocked | CORE-001 to CORE-004 | `05_Psychrometrics.md` | NotStarted | Reference cases pass |
-| CORE-006 | Implement vapor pressure and humidity ratio | P0 | Blocked | CORE-005 | `05_Psychrometrics.md` | NotStarted | Round-trip tests pass |
-| CORE-007 | Implement dew-point calculation | P0 | Blocked | CORE-005, CORE-004 | `05_Psychrometrics.md`, `25_NumericalMethods.md` | NotStarted | Forward/inverse consistency |
-| CORE-008 | Implement moist-air enthalpy | P0 | Blocked | CORE-002, CORE-006 | `05_Psychrometrics.md` | NotStarted | Reference-state consistency |
-| CORE-009 | Implement specific volume and density | P0 | Blocked | CORE-002, CORE-006 | `05_Psychrometrics.md` | NotStarted | Reference cases pass |
-| CORE-010 | Implement immutable `MoistAirState` factory | P0 | Blocked | CORE-005 to CORE-009 | `05_Psychrometrics.md` | NotStarted | Inconsistent states impossible |
-| CORE-011 | Implement moist-air state validation | P0 | Blocked | CORE-010 | `05_Psychrometrics.md`, `18_CodingRules.md` | NotStarted | Supersaturation detected |
+| CORE-005 | Implement saturation-pressure provider | P0 | Done | CORE-001 to CORE-004 | `05_Psychrometrics.md` | Passing | Reference cases pass |
+| CORE-006 | Implement vapor pressure and humidity ratio | P0 | Done | CORE-005 | `05_Psychrometrics.md` | Passing | Round-trip tests pass |
+| CORE-007 | Implement dew-point calculation | P0 | Done | CORE-005, CORE-004 | `05_Psychrometrics.md`, `25_NumericalMethods.md` | Passing | Forward/inverse consistency |
+| CORE-008 | Implement moist-air enthalpy | P0 | Done | CORE-002, CORE-006 | `05_Psychrometrics.md` | Passing | Reference-state consistency |
+| CORE-009 | Implement specific volume and density | P0 | Done | CORE-002, CORE-006 | `05_Psychrometrics.md` | Passing | Reference cases pass |
+| CORE-010 | Implement immutable `MoistAirState` factory | P0 | Done | CORE-005 to CORE-009 | `05_Psychrometrics.md` | Passing | Inconsistent states impossible |
+| CORE-011 | Implement moist-air state validation | P0 | Done | CORE-010 | `05_Psychrometrics.md`, `18_CodingRules.md` | Passing | Supersaturation detected |
 | CORE-012 | Implement conservation-balance types | P0 | Blocked | CORE-001, CORE-002 | `04_MathematicalModel.md` | NotStarted | Energy, water and dry-air residuals |
 | CORE-013 | Implement diagnostic model | P0 | Blocked | DEV-001 | `03_PhysicalArchitecture.md`, `18_CodingRules.md` | NotStarted | Structured diagnostics |
 | CORE-014 | Implement balance validation | P0 | Blocked | CORE-004, CORE-012, CORE-013 | `04_MathematicalModel.md` | NotStarted | Absolute and relative tolerances |
-| CORE-015 | Add psychrometric reference test suite | P0 | Blocked | CORE-005 to CORE-011, DOC-022 | `05_Psychrometrics.md`, `22_TestStrategy.md` | NotStarted | All selected references pass |
+| CORE-015 | Add psychrometric reference test suite | P0 | Done | CORE-005 to CORE-011, DOC-022 | `05_Psychrometrics.md`, `22_TestStrategy.md` | Passing | Selected references pass |
 | CORE-016 | Add deterministic execution tests | P1 | Blocked | CORE-010, DOC-022 | `18_CodingRules.md` | NotStarted | Repeated runs identical |
 
 ---
@@ -572,9 +572,9 @@ In progress
 Completion requirements:
 
 - [x] Solution builds
-- [ ] Psychrometric calculator implemented
-- [ ] MoistAirState implemented
-- [ ] Reference tests passing
+- [x] Psychrometric calculator implemented
+- [x] MoistAirState implemented
+- [x] Reference tests passing
 - [x] Console demo available
 
 ## Milestone M2 — ThermoCore 0.2 Simulation Core
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. CORE-005 — Saturation-pressure provider (05_Psychrometrics.md)
-2. CORE-006 — Vapor pressure and humidity ratio
-3. CORE-007 — Dew-point calculation
-4. CORE-010 — Immutable MoistAirState factory
-5. CORE-015 — Psychrometric reference test suite
+1. CORE-012 — Conservation-balance types
+2. CORE-013 — Diagnostic model
+3. CORE-014 — Balance validation
+4. GRAPH-001 — Physical domains
+5. GRAPH-002 — Typed port abstractions
 ```
 
 ---

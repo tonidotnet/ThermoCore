@@ -101,11 +101,11 @@ Implement psychrometric core (saturation pressure, humidity ratio, dew point, Mo
 
 ## Recommended next tasks
 
-1. `CORE-012` — Conservation-balance types
-2. `CORE-013` — Diagnostic model
-3. `CORE-014` — Balance validation
-4. `GRAPH-001` — Define physical domains
-5. `GRAPH-002` — Typed port abstractions
+1. `GRAPH-007` — Topological sorting
+2. `GRAPH-008` — Acyclic graph execution
+3. `GRAPH-009` — Timestep context
+4. `GEN-007` — Moist-air mixer
+5. `GEN-009` — Sensible heater
 
 ---
 
@@ -246,11 +246,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | CORE-009 | Implement specific volume and density | P0 | Done | CORE-002, CORE-006 | `05_Psychrometrics.md` | Passing | Reference cases pass |
 | CORE-010 | Implement immutable `MoistAirState` factory | P0 | Done | CORE-005 to CORE-009 | `05_Psychrometrics.md` | Passing | Inconsistent states impossible |
 | CORE-011 | Implement moist-air state validation | P0 | Done | CORE-010 | `05_Psychrometrics.md`, `18_CodingRules.md` | Passing | Supersaturation detected |
-| CORE-012 | Implement conservation-balance types | P0 | Blocked | CORE-001, CORE-002 | `04_MathematicalModel.md` | NotStarted | Energy, water and dry-air residuals |
-| CORE-013 | Implement diagnostic model | P0 | Blocked | DEV-001 | `03_PhysicalArchitecture.md`, `18_CodingRules.md` | NotStarted | Structured diagnostics |
-| CORE-014 | Implement balance validation | P0 | Blocked | CORE-004, CORE-012, CORE-013 | `04_MathematicalModel.md` | NotStarted | Absolute and relative tolerances |
+| CORE-012 | Implement conservation-balance types | P0 | Done | CORE-001, CORE-002 | `04_MathematicalModel.md` | Passing | Energy, water and dry-air residuals |
+| CORE-013 | Implement diagnostic model | P0 | Done | DEV-001 | `03_PhysicalArchitecture.md`, `18_CodingRules.md` | Passing | Structured diagnostics |
+| CORE-014 | Implement balance validation | P0 | Done | CORE-004, CORE-012, CORE-013 | `04_MathematicalModel.md` | Passing | Absolute and relative tolerances |
 | CORE-015 | Add psychrometric reference test suite | P0 | Done | CORE-005 to CORE-011, DOC-022 | `05_Psychrometrics.md`, `22_TestStrategy.md` | Passing | Selected references pass |
-| CORE-016 | Add deterministic execution tests | P1 | Blocked | CORE-010, DOC-022 | `18_CodingRules.md` | NotStarted | Repeated runs identical |
+| CORE-016 | Add deterministic execution tests | P1 | Done | CORE-010, DOC-022 | `18_CodingRules.md` | Passing | Repeated runs identical |
 
 ---
 
@@ -258,12 +258,12 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related docs | Test status |
 |---|---|---|---|---|---|---|
-| GRAPH-001 | Define physical domains | P0 | Blocked | CORE-012 | `03_PhysicalArchitecture.md` | NotStarted |
-| GRAPH-002 | Define typed port abstractions | P0 | Blocked | GRAPH-001 | `03_PhysicalArchitecture.md` | NotStarted |
-| GRAPH-003 | Define connection model | P0 | Blocked | GRAPH-002 | `03_PhysicalArchitecture.md` | NotStarted |
-| GRAPH-004 | Define simulation component interface | P0 | Blocked | GRAPH-002, CORE-013 | `03_PhysicalArchitecture.md` | NotStarted |
-| GRAPH-005 | Implement Evaluate/Commit lifecycle | P0 | Blocked | GRAPH-004 | `03_PhysicalArchitecture.md`, `18_CodingRules.md` | NotStarted |
-| GRAPH-006 | Implement graph validation | P0 | Blocked | GRAPH-003, GRAPH-004 | `03_PhysicalArchitecture.md` | NotStarted |
+| GRAPH-001 | Define physical domains | P0 | Done | CORE-012 | `03_PhysicalArchitecture.md` | Passing |
+| GRAPH-002 | Define typed port abstractions | P0 | Done | GRAPH-001 | `03_PhysicalArchitecture.md` | Passing |
+| GRAPH-003 | Define connection model | P0 | Done | GRAPH-002 | `03_PhysicalArchitecture.md` | Passing |
+| GRAPH-004 | Define simulation component interface | P0 | Done | GRAPH-002, CORE-013 | `03_PhysicalArchitecture.md` | Passing |
+| GRAPH-005 | Implement Evaluate/Commit lifecycle | P0 | Done | GRAPH-004 | `03_PhysicalArchitecture.md`, `18_CodingRules.md` | Passing |
+| GRAPH-006 | Implement graph validation | P0 | Done | GRAPH-003, GRAPH-004 | `03_PhysicalArchitecture.md` | Passing |
 | GRAPH-007 | Implement topological sorting | P0 | Blocked | GRAPH-006, DOC-025 | `16_SimulationEngine.md` | NotStarted |
 | GRAPH-008 | Implement acyclic graph execution | P0 | Blocked | GRAPH-005, GRAPH-007 | `16_SimulationEngine.md` | NotStarted |
 | GRAPH-009 | Implement timestep context | P0 | Blocked | GRAPH-008 | `16_SimulationEngine.md` | NotStarted |
@@ -582,17 +582,17 @@ Completion requirements:
 Status:
 
 ```text
-Blocked
+In progress
 ```
 
 Completion requirements:
 
-- [ ] Port model
-- [ ] Component interface
-- [ ] Graph validation
+- [x] Port model
+- [x] Component interface
+- [x] Graph validation
 - [ ] Acyclic execution
-- [ ] Balance aggregation
-- [ ] Determinism tests
+- [x] Balance aggregation
+- [x] Determinism tests
 
 ## Milestone M3 — ThermoCore.AWG 0.5 Engineering Prototype
 
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. CORE-012 — Conservation-balance types
-2. CORE-013 — Diagnostic model
-3. CORE-014 — Balance validation
-4. GRAPH-001 — Physical domains
-5. GRAPH-002 — Typed port abstractions
+1. GRAPH-007 — Topological sorting
+2. GRAPH-008 — Acyclic graph execution
+3. GRAPH-009 — Timestep context
+4. GEN-007 — Moist-air mixer
+5. GEN-009 — Sensible heater
 ```
 
 ---

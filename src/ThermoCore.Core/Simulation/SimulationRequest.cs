@@ -21,9 +21,13 @@ public sealed record SimulationRequest
 
     /// <summary>
     /// Optional external port values keyed as "componentId.portId".
+    /// For torn loops, provide the initial guess at the tear target port key.
     /// </summary>
     public IReadOnlyDictionary<string, object?> ExternalInputs { get; init; }
         = new Dictionary<string, object?>(StringComparer.Ordinal);
+
+    public IReadOnlyList<SimulationLoopDefinition> Loops { get; init; }
+        = Array.Empty<SimulationLoopDefinition>();
 }
 
 public sealed record SimulationStepResult

@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Implement psychrometric core (saturation pressure, humidity ratio, dew point, MoistAirState).
+Implement first physical models (Peltier, solar collector/PV, condenser).
 ```
 
 ## Recommended next tasks
 
-1. `GRAPH-011` — Cancellation support
-2. `GRAPH-013`/`GRAPH-014` — Cyclic detection + fixed-point solver
-3. `GEN-010` — Duct pressure-loss
-4. `AIR-002` — Prescribed-flow fan
-5. `TEC-001` / `SC-001` — First physical models
+1. `TEC-001` — Constant-COP Peltier model
+2. `SC-001` — Constant-efficiency solar collector
+3. `PV-001` — Constant-efficiency PV model
+4. `COND-002` — Condenser dew-point cooling
+5. `GRAPH-010` — Result collection
 
 ---
 
@@ -268,11 +268,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | GRAPH-008 | Implement acyclic graph execution | P0 | Done | GRAPH-005, GRAPH-007 | `16_SimulationEngine.md` | Passing |
 | GRAPH-009 | Implement timestep context | P0 | Done | GRAPH-008 | `16_SimulationEngine.md` | Passing |
 | GRAPH-010 | Implement result collection | P1 | Blocked | GRAPH-008 | `16_SimulationEngine.md`, `29_ResultFormats.md` | NotStarted |
-| GRAPH-011 | Implement cancellation support | P1 | Blocked | GRAPH-008 | `18_CodingRules.md` | NotStarted |
+| GRAPH-011 | Implement cancellation support | P1 | Done | GRAPH-008 | `18_CodingRules.md` | Passing |
 | GRAPH-012 | Implement progress reporting | P2 | Blocked | GRAPH-008 | `16_SimulationEngine.md` | NotStarted |
-| GRAPH-013 | Implement cyclic graph detection | P1 | Blocked | GRAPH-006 | `16_SimulationEngine.md` | NotStarted |
-| GRAPH-014 | Implement fixed-point loop solver | P1 | Blocked | GRAPH-013, DOC-025 | `25_NumericalMethods.md`, `16_SimulationEngine.md` | NotStarted |
-| GRAPH-015 | Implement relaxation and convergence diagnostics | P1 | Blocked | GRAPH-014, CORE-004 | `25_NumericalMethods.md` | NotStarted |
+| GRAPH-013 | Implement cyclic graph detection | P1 | Done | GRAPH-006 | `16_SimulationEngine.md` | Passing |
+| GRAPH-014 | Implement fixed-point loop solver | P1 | Done | GRAPH-013, DOC-025 | `25_NumericalMethods.md`, `16_SimulationEngine.md` | Passing |
+| GRAPH-015 | Implement relaxation and convergence diagnostics | P1 | Done | GRAPH-014, CORE-004 | `25_NumericalMethods.md` | Passing |
 
 ---
 
@@ -281,10 +281,15 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Related docs | Test status |
 |---|---|---|---|---|---|---|
 | GEN-001 | Ambient-air source | P1 | Done | GRAPH-008, CORE-010 | `03_PhysicalArchitecture.md` | Passing |
+| GEN-002 | Solar-radiation source | P1 | Blocked | GRAPH-008 | `06_SolarCollector.md`, `07_SolarPanel.md` | NotStarted |
+| GEN-003 | Electrical source | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
+| GEN-004 | Environment heat sink | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
 | GEN-005 | Exhaust-air sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
+| GEN-006 | Liquid-water sink | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
 | GEN-007 | Moist-air mixer | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md`, `05_Psychrometrics.md` | Passing |
 | GEN-008 | Moist-air splitter | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md` | Passing |
 | GEN-009 | Simple sensible-heater component | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md` | Passing |
+| GEN-010 | Basic duct pressure-loss component | P1 | Done | GRAPH-008, DOC-013A | `13_FanAndAirflow.md` | Passing |
 
 ---
 
@@ -368,9 +373,9 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| AIR-001 | Expand fan and airflow specification | P0 | Ready | DOC-004A, DOC-005A | `13_FanAndAirflow.md` | Planned |
-| AIR-002 | Prescribed-flow fan model | P1 | Blocked | AIR-001, CORE-012 | `13_FanAndAirflow.md` | NotStarted |
-| AIR-003 | Fan power calculation | P1 | Blocked | AIR-002 | `13_FanAndAirflow.md` | NotStarted |
+| AIR-001 | Expand fan and airflow specification | P0 | Done | DOC-004A, DOC-005A | `13_FanAndAirflow.md` | Passing |
+| AIR-002 | Prescribed-flow fan model | P1 | Done | AIR-001, CORE-012 | `13_FanAndAirflow.md` | Passing |
+| AIR-003 | Fan power calculation | P1 | Done | AIR-002 | `13_FanAndAirflow.md` | Passing |
 | AIR-004 | Fan performance curve | P2 | Blocked | AIR-002 | `13_FanAndAirflow.md` | NotStarted |
 | AIR-005 | Airflow network resistance | P2 | Blocked | AIR-004, GEN-010 | `13_FanAndAirflow.md` | NotStarted |
 | AIR-006 | Fan/system operating point | P2 | Blocked | AIR-004, AIR-005, DOC-025 | `13_FanAndAirflow.md` | NotStarted |
@@ -659,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. GRAPH-011 — Cancellation support
-2. GRAPH-013 — Cyclic graph detection
-3. GRAPH-014 — Fixed-point loop solver
-4. GEN-010 — Duct pressure-loss
-5. TEC-001 / SC-001 — First physical component models
+1. TEC-001 — Constant-COP Peltier
+2. SC-001 — Constant-efficiency collector
+3. PV-001 — Constant-efficiency PV
+4. COND-002 — Condenser cooling/condensation
+5. GRAPH-010 — Result collection
 ```
 
 ---

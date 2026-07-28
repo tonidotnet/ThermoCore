@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue physical models: silica gel, heat recovery, analytical Peltier, and result collection.
+Continue physical models: analytical Peltier, energy-limited regeneration, result collection, and battery SOC.
 ```
 
 ## Recommended next tasks
 
-1. `SG-001`/`SG-003` — Silica-gel state and isotherm
-2. `HR-002` — Heat-recovery sensible effectiveness
-3. `TEC-002` — Analytical thermoelectric Peltier
-4. `COND-006` — Drainage efficiency refinements
-5. `GRAPH-010` — Result collection
+1. `TEC-002` — Analytical thermoelectric Peltier
+2. `SG-008` — Energy-limited regeneration
+3. `HR-003` — Counter-flow effectiveness–NTU
+4. `GRAPH-010` — Result collection
+5. `PWR-002` — Battery SOC model
 
 ---
 
@@ -335,13 +335,13 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| SG-001 | Silica-gel state model | P1 | Blocked | CORE-010, CORE-012 | `09_SilicaGel.md` | NotStarted |
-| SG-002 | Isotherm interface | P1 | Blocked | SG-001 | `09_SilicaGel.md` | NotStarted |
-| SG-003 | Generic engineering isotherm | P1 | Blocked | SG-002 | `09_SilicaGel.md` | NotStarted |
-| SG-004 | LDF kinetic model | P1 | Blocked | SG-003, DOC-025 | `09_SilicaGel.md` | NotStarted |
-| SG-005 | Adsorption water balance | P1 | Blocked | SG-004 | `09_SilicaGel.md` | NotStarted |
-| SG-006 | Desorption and storage limits | P1 | Blocked | SG-004 | `09_SilicaGel.md` | NotStarted |
-| SG-007 | Adsorption heat and thermal state | P1 | Blocked | SG-005, SG-006 | `09_SilicaGel.md` | NotStarted |
+| SG-001 | Silica-gel state model | P1 | Done | CORE-010, CORE-012 | `09_SilicaGel.md` | Passing |
+| SG-002 | Isotherm interface | P1 | Done | SG-001 | `09_SilicaGel.md` | Passing |
+| SG-003 | Generic engineering isotherm | P1 | Done | SG-002 | `09_SilicaGel.md` | Passing |
+| SG-004 | LDF kinetic model | P1 | Done | SG-003, DOC-025 | `09_SilicaGel.md` | Passing |
+| SG-005 | Adsorption water balance | P1 | Done | SG-004 | `09_SilicaGel.md` | Passing |
+| SG-006 | Desorption and storage limits | P1 | Done | SG-004 | `09_SilicaGel.md` | Passing |
+| SG-007 | Adsorption heat and thermal state | P1 | Done | SG-005, SG-006 | `09_SilicaGel.md` | Passing |
 | SG-008 | Energy-limited regeneration | P1 | Blocked | SG-007 | `09_SilicaGel.md` | NotStarted |
 | SG-009 | Packed-bed pressure drop | P2 | Blocked | GEN-010 | `09_SilicaGel.md` | NotStarted |
 | SG-010 | Silica-gel integration tests | P1 | Blocked | SG-001 to SG-009 | `22_TestStrategy.md` | NotStarted |
@@ -362,8 +362,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| HR-001 | Expand heat-recovery specification | P1 | Ready | DOC-005A, DOC-010A | `11_HeatRecovery.md` | Planned |
-| HR-002 | Sensible effectiveness model | P1 | Blocked | HR-001, CORE-010 | `11_HeatRecovery.md` | NotStarted |
+| HR-001 | Expand heat-recovery specification | P1 | Done | DOC-005A, DOC-010A | `11_HeatRecovery.md` | Passing |
+| HR-002 | Sensible effectiveness model | P1 | Done | HR-001, CORE-010 | `11_HeatRecovery.md` | Passing |
 | HR-003 | Counter-flow effectiveness–NTU model | P2 | Blocked | HR-002, DOC-025 | `11_HeatRecovery.md` | NotStarted |
 | HR-004 | Hot/cold pressure-drop models | P2 | Blocked | GEN-010 | `11_HeatRecovery.md` | NotStarted |
 | HR-005 | Bypass control | P2 | Blocked | HR-002 | `11_HeatRecovery.md` | NotStarted |
@@ -664,9 +664,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. SG-001 — Silica-gel state model
-2. HR-002 — Sensible heat-recovery effectiveness
-3. TEC-002 — Analytical thermoelectric model
+1. TEC-002 — Analytical thermoelectric model
+2. SG-008 — Energy-limited regeneration
+3. HR-003 — Counter-flow effectiveness–NTU
 4. GRAPH-010 — Result collection
 5. PWR-002 — Battery SOC model
 ```

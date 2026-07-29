@@ -70,6 +70,14 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
 
     public double LastCoolingCop { get; private set; }
 
+    public double LastLoadTemperatureK { get; private set; }
+
+    public double LastSinkTemperatureK { get; private set; }
+
+    public double LastColdFaceTemperatureK { get; private set; }
+
+    public double LastHotFaceTemperatureK { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
@@ -79,6 +87,10 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         LastCurrentA = 0.0;
         LastVoltageV = 0.0;
         LastCoolingCop = 0.0;
+        LastLoadTemperatureK = 0.0;
+        LastSinkTemperatureK = 0.0;
+        LastColdFaceTemperatureK = 0.0;
+        LastHotFaceTemperatureK = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -86,130 +98,146 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         ArgumentNullException.ThrowIfNull(context);
         var diagnostics = new List<SimulationDiagnostic>();
 
-        var coldSideTemperatureK = _fallbackColdSideTemperatureK;
-        var hotSideTemperatureK = _fallbackHotSideTemperatureK;
+        var loadTemperatureK = _fallbackColdSideTemperatureK;
+        var sinkTemperatureK = _fallbackHotSideTemperatureK;
 
         if (context.InputStates.TryGetValue("cold_boundary", out var coldRaw)
             && coldRaw is HeatFlowState coldBoundary)
         {
             FiniteNumber.RequirePositive(coldBoundary.TemperatureK, nameof(coldBoundary.TemperatureK));
-            coldSideTemperatureK = coldBoundary.TemperatureK;
+            loadTemperatureK = coldBoundary.TemperatureK;
         }
 
         if (context.InputStates.TryGetValue("hot_boundary", out var hotRaw)
             && hotRaw is HeatFlowState hotBoundary)
         {
             FiniteNumber.RequirePositive(hotBoundary.TemperatureK, nameof(hotBoundary.TemperatureK));
-            hotSideTemperatureK = hotBoundary.TemperatureK;
+            sinkTemperatureK = hotBoundary.TemperatureK;
         }
 
-        if (coldSideTemperatureK < _parameters.MinimumColdSideTemperatureK)
+        var rCold = _parameters.ColdSideThermalResistanceKPerW;
+        var rHot = _parameters.HotSideThermalResistanceKPerW;
+        var useExternalResistances = rCold > 0.0 || rHot > 0.0;
+
+        var coldFaceTemperatureK = loadTemperatureK;
+        var hotFaceTemperatureK = sinkTemperatureK;
+        var alpha = _parameters.SeebeckCoefficientVPerK;
+        var resistance = _parameters.ElectricalResistanceOhm;
+        var conductance = _parameters.ThermalConductanceWPerK;
+        var tolerances = context.Simulation.NumericalTolerances;
+        var maxIterations = useExternalResistances
+            ? Math.Max(8, Math.Min(tolerances.MaximumIterations, 40))
+            : 1;
+
+        double currentA = 0.0;
+        double voltageV = 0.0;
+        double electricalPowerW = 0.0;
+        double coldSideHeatW = 0.0;
+        double hotSideHeatW = 0.0;
+        var limitedByCurrent = false;
+        var limitedByVoltage = false;
+        var limitedByPower = false;
+        var thermalNotConverged = false;
+
+        var requestedPowerW = _requestedElectricalPowerW;
+        if (_requestedCurrentA is null
+            && context.InputStates.TryGetValue("electrical", out var electricalRaw)
+            && electricalRaw is ElectricalPowerState electrical)
+        {
+            FiniteNumber.RequireNonNegative(electrical.PowerW, nameof(electrical.PowerW));
+            requestedPowerW = electrical.PowerW;
+        }
+
+        for (var iteration = 0; iteration < maxIterations; iteration++)
+        {
+            var deltaTemperatureK = hotFaceTemperatureK - coldFaceTemperatureK;
+
+            SolveElectricalOperatingPoint(
+                alpha,
+                resistance,
+                deltaTemperatureK,
+                requestedPowerW,
+                out currentA,
+                out voltageV,
+                out electricalPowerW,
+                out var iterCurrentLimit,
+                out var iterVoltageLimit,
+                out var iterPowerLimit);
+            limitedByCurrent = iterCurrentLimit;
+            limitedByVoltage = iterVoltageLimit;
+            limitedByPower = iterPowerLimit;
+
+            coldSideHeatW = alpha * currentA * coldFaceTemperatureK
+                - 0.5 * currentA * currentA * resistance
+                - conductance * deltaTemperatureK;
+            hotSideHeatW = coldSideHeatW + electricalPowerW;
+
+            if (!useExternalResistances)
+            {
+                break;
+            }
+
+            var nextColdFace = rCold > 0.0
+                ? loadTemperatureK - coldSideHeatW * rCold
+                : loadTemperatureK;
+            var nextHotFace = rHot > 0.0
+                ? sinkTemperatureK + hotSideHeatW * rHot
+                : sinkTemperatureK;
+
+            nextColdFace = Math.Clamp(nextColdFace, 200.0, 400.0);
+            nextHotFace = Math.Clamp(nextHotFace, 200.0, 450.0);
+
+            var coldResidual = Math.Abs(nextColdFace - coldFaceTemperatureK);
+            var hotResidual = Math.Abs(nextHotFace - hotFaceTemperatureK);
+            coldFaceTemperatureK = 0.5 * (coldFaceTemperatureK + nextColdFace);
+            hotFaceTemperatureK = 0.5 * (hotFaceTemperatureK + nextHotFace);
+
+            if (coldResidual < tolerances.TemperatureK && hotResidual < tolerances.TemperatureK)
+            {
+                coldFaceTemperatureK = nextColdFace;
+                hotFaceTemperatureK = nextHotFace;
+                thermalNotConverged = false;
+                break;
+            }
+
+            thermalNotConverged = iteration == maxIterations - 1;
+        }
+
+        if (thermalNotConverged)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.THERMAL_RESISTANCE_NOT_CONVERGED",
+                DiagnosticSeverity.Warning,
+                "External thermal-resistance fixed-point did not fully converge."));
+        }
+
+        if (coldFaceTemperatureK < _parameters.MinimumColdSideTemperatureK)
         {
             diagnostics.Add(Diagnostic(
                 context,
                 "PELTIER.COLD_SIDE_TEMPERATURE_LIMIT",
                 DiagnosticSeverity.Warning,
-                $"Cold-side temperature {coldSideTemperatureK:F2} K is below configured minimum."));
+                $"Cold-face temperature {coldFaceTemperatureK:F2} K is below configured minimum."));
         }
 
-        if (hotSideTemperatureK > _parameters.MaximumHotSideTemperatureK)
+        if (hotFaceTemperatureK > _parameters.MaximumHotSideTemperatureK)
         {
             diagnostics.Add(Diagnostic(
                 context,
                 "PELTIER.HOT_SIDE_TEMPERATURE_LIMIT",
                 DiagnosticSeverity.Warning,
-                $"Hot-side temperature {hotSideTemperatureK:F2} K exceeds configured maximum."));
+                $"Hot-face temperature {hotFaceTemperatureK:F2} K exceeds configured maximum."));
         }
 
-        var deltaTemperatureK = hotSideTemperatureK - coldSideTemperatureK;
-        if (_parameters.MaximumTemperatureDifferenceK is { } maxDelta
-            && deltaTemperatureK > maxDelta)
+        var faceDeltaT = hotFaceTemperatureK - coldFaceTemperatureK;
+        if (_parameters.MaximumTemperatureDifferenceK is { } maxDelta && faceDeltaT > maxDelta)
         {
             diagnostics.Add(Diagnostic(
                 context,
                 "PELTIER.DELTA_T_LIMIT",
                 DiagnosticSeverity.Warning,
-                $"Hot-cold ΔT {deltaTemperatureK:F2} K exceeds configured maximum {maxDelta:F2} K."));
-        }
-
-        var alpha = _parameters.SeebeckCoefficientVPerK;
-        var resistance = _parameters.ElectricalResistanceOhm;
-        var conductance = _parameters.ThermalConductanceWPerK;
-
-        double currentA;
-        var limitedByCurrent = false;
-        var limitedByVoltage = false;
-        var limitedByPower = false;
-
-        if (_requestedCurrentA is { } fixedCurrent)
-        {
-            currentA = fixedCurrent;
-        }
-        else
-        {
-            var requestedPowerW = _requestedElectricalPowerW;
-            if (context.InputStates.TryGetValue("electrical", out var electricalRaw)
-                && electricalRaw is ElectricalPowerState electrical)
-            {
-                FiniteNumber.RequireNonNegative(electrical.PowerW, nameof(electrical.PowerW));
-                requestedPowerW = electrical.PowerW;
-            }
-
-            if (requestedPowerW > _parameters.MaximumElectricalPowerW)
-            {
-                requestedPowerW = _parameters.MaximumElectricalPowerW;
-                limitedByPower = true;
-            }
-
-            currentA = SolveCurrentFromElectricalPower(alpha, resistance, deltaTemperatureK, requestedPowerW);
-        }
-
-        if (!_parameters.AllowReverseCurrent && currentA < 0.0)
-        {
-            currentA = 0.0;
-            diagnostics.Add(Diagnostic(
-                context,
-                "PELTIER.REVERSE_CURRENT_BLOCKED",
-                DiagnosticSeverity.Information,
-                "Negative current was clamped to zero because reverse operation is disabled."));
-        }
-
-        if (Math.Abs(currentA) > _parameters.MaximumCurrentA)
-        {
-            currentA = Math.Sign(currentA) * _parameters.MaximumCurrentA;
-            limitedByCurrent = true;
-        }
-
-        var voltageV = alpha * deltaTemperatureK + currentA * resistance;
-        if (Math.Abs(voltageV) > _parameters.MaximumVoltageV)
-        {
-            // Enforce voltage limit by reducing current magnitude.
-            var limitedCurrent = (Math.Sign(voltageV) * _parameters.MaximumVoltageV - alpha * deltaTemperatureK)
-                / resistance;
-            if (!_parameters.AllowReverseCurrent && limitedCurrent < 0.0)
-            {
-                limitedCurrent = 0.0;
-            }
-
-            currentA = limitedCurrent;
-            voltageV = alpha * deltaTemperatureK + currentA * resistance;
-            limitedByVoltage = true;
-        }
-
-        var electricalPowerW = voltageV * currentA;
-        if (electricalPowerW > _parameters.MaximumElectricalPowerW)
-        {
-            electricalPowerW = _parameters.MaximumElectricalPowerW;
-            currentA = SolveCurrentFromElectricalPower(alpha, resistance, deltaTemperatureK, electricalPowerW);
-            if (Math.Abs(currentA) > _parameters.MaximumCurrentA)
-            {
-                currentA = Math.Sign(currentA) * _parameters.MaximumCurrentA;
-                limitedByCurrent = true;
-            }
-
-            voltageV = alpha * deltaTemperatureK + currentA * resistance;
-            electricalPowerW = voltageV * currentA;
-            limitedByPower = true;
+                $"Hot-cold face ΔT {faceDeltaT:F2} K exceeds configured maximum {maxDelta:F2} K."));
         }
 
         if (limitedByCurrent)
@@ -239,18 +267,7 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
                 "Electrical power was limited to the configured maximum."));
         }
 
-        var coldSideHeatW = alpha * currentA * coldSideTemperatureK
-            - 0.5 * currentA * currentA * resistance
-            - conductance * deltaTemperatureK;
-
-        var hotSideHeatW = alpha * currentA * hotSideTemperatureK
-            + 0.5 * currentA * currentA * resistance
-            - conductance * deltaTemperatureK;
-
-        // Identity Qh = Qc + Pe should hold analytically; recompute hot side from it for numerical hygiene.
-        hotSideHeatW = coldSideHeatW + electricalPowerW;
-
-        if (currentA == 0.0 && Math.Abs(deltaTemperatureK) > 1e-12)
+        if (currentA == 0.0 && Math.Abs(faceDeltaT) > 1e-12)
         {
             diagnostics.Add(Diagnostic(
                 context,
@@ -278,6 +295,10 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         LastCurrentA = currentA;
         LastVoltageV = voltageV;
         LastCoolingCop = coolingCop;
+        LastLoadTemperatureK = loadTemperatureK;
+        LastSinkTemperatureK = sinkTemperatureK;
+        LastColdFaceTemperatureK = coldFaceTemperatureK;
+        LastHotFaceTemperatureK = hotFaceTemperatureK;
 
         var balance = ConservationBalance.FromRates(
             dryAirMassInputKgPerSecond: 0.0,
@@ -300,17 +321,92 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
                 ["cold_heat"] = new HeatFlowState
                 {
                     HeatFlowW = coldSideHeatW,
-                    TemperatureK = coldSideTemperatureK
+                    TemperatureK = coldFaceTemperatureK
                 },
                 ["hot_heat"] = new HeatFlowState
                 {
                     HeatFlowW = hotSideHeatW,
-                    TemperatureK = hotSideTemperatureK
+                    TemperatureK = hotFaceTemperatureK
                 }
             },
             Balance = balance,
             Diagnostics = diagnostics
         };
+    }
+
+    private void SolveElectricalOperatingPoint(
+        double alpha,
+        double resistance,
+        double deltaTemperatureK,
+        double requestedPowerW,
+        out double currentA,
+        out double voltageV,
+        out double electricalPowerW,
+        out bool limitedByCurrent,
+        out bool limitedByVoltage,
+        out bool limitedByPower)
+    {
+        limitedByCurrent = false;
+        limitedByVoltage = false;
+        limitedByPower = false;
+
+        if (_requestedCurrentA is { } fixedCurrent)
+        {
+            currentA = fixedCurrent;
+        }
+        else
+        {
+            var power = requestedPowerW;
+            if (power > _parameters.MaximumElectricalPowerW)
+            {
+                power = _parameters.MaximumElectricalPowerW;
+                limitedByPower = true;
+            }
+
+            currentA = SolveCurrentFromElectricalPower(alpha, resistance, deltaTemperatureK, power);
+        }
+
+        if (!_parameters.AllowReverseCurrent && currentA < 0.0)
+        {
+            currentA = 0.0;
+        }
+
+        if (Math.Abs(currentA) > _parameters.MaximumCurrentA)
+        {
+            currentA = Math.Sign(currentA) * _parameters.MaximumCurrentA;
+            limitedByCurrent = true;
+        }
+
+        voltageV = alpha * deltaTemperatureK + currentA * resistance;
+        if (Math.Abs(voltageV) > _parameters.MaximumVoltageV)
+        {
+            var limitedCurrent = (Math.Sign(voltageV) * _parameters.MaximumVoltageV - alpha * deltaTemperatureK)
+                / resistance;
+            if (!_parameters.AllowReverseCurrent && limitedCurrent < 0.0)
+            {
+                limitedCurrent = 0.0;
+            }
+
+            currentA = limitedCurrent;
+            voltageV = alpha * deltaTemperatureK + currentA * resistance;
+            limitedByVoltage = true;
+        }
+
+        electricalPowerW = voltageV * currentA;
+        if (electricalPowerW > _parameters.MaximumElectricalPowerW)
+        {
+            electricalPowerW = _parameters.MaximumElectricalPowerW;
+            currentA = SolveCurrentFromElectricalPower(alpha, resistance, deltaTemperatureK, electricalPowerW);
+            if (Math.Abs(currentA) > _parameters.MaximumCurrentA)
+            {
+                currentA = Math.Sign(currentA) * _parameters.MaximumCurrentA;
+                limitedByCurrent = true;
+            }
+
+            voltageV = alpha * deltaTemperatureK + currentA * resistance;
+            electricalPowerW = voltageV * currentA;
+            limitedByPower = true;
+        }
     }
 
     public void Commit(ComponentStepResult result)

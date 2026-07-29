@@ -29,6 +29,18 @@ public sealed record AnalyticalPeltierParameters
     public bool AllowReverseCurrent { get; init; }
 
     /// <summary>
+    /// Total cold-side thermal resistance between process/load temperature and module cold face
+    /// (docs/03_Components/08_Peltier.md §23–§26 / TEC-004).
+    /// </summary>
+    public double ColdSideThermalResistanceKPerW { get; init; }
+
+    /// <summary>
+    /// Total hot-side thermal resistance between module hot face and heat-sink fluid
+    /// (docs/03_Components/08_Peltier.md §23–§24 / TEC-004).
+    /// </summary>
+    public double HotSideThermalResistanceKPerW { get; init; }
+
+    /// <summary>
     /// Provisional engineering defaults suitable for unit tests and early AWG sizing.
     /// Replace with datasheet-calibrated values before predictive use.
     /// </summary>
@@ -43,7 +55,9 @@ public sealed record AnalyticalPeltierParameters
             MaximumElectricalPowerW = 60.0,
             MaximumTemperatureDifferenceK = 70.0,
             MaximumHotSideTemperatureK = 360.0,
-            MinimumColdSideTemperatureK = 250.0
+            MinimumColdSideTemperatureK = 250.0,
+            ColdSideThermalResistanceKPerW = 0.0,
+            HotSideThermalResistanceKPerW = 0.0
         };
 
     public AnalyticalPeltierParameters Validate()
@@ -56,6 +70,8 @@ public sealed record AnalyticalPeltierParameters
         FiniteNumber.RequirePositive(MaximumElectricalPowerW, nameof(MaximumElectricalPowerW));
         FiniteNumber.RequirePositive(MaximumHotSideTemperatureK, nameof(MaximumHotSideTemperatureK));
         FiniteNumber.RequirePositive(MinimumColdSideTemperatureK, nameof(MinimumColdSideTemperatureK));
+        FiniteNumber.RequireNonNegative(ColdSideThermalResistanceKPerW, nameof(ColdSideThermalResistanceKPerW));
+        FiniteNumber.RequireNonNegative(HotSideThermalResistanceKPerW, nameof(HotSideThermalResistanceKPerW));
 
         if (MaximumTemperatureDifferenceK is { } maxDelta)
         {

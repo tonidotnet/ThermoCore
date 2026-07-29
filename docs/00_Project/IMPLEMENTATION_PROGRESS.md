@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue physical models: result collection, battery SOC, and Peltier external thermal resistances.
+Continue physical models: packed-bed pressure drop, condenser drainage refinements, and Peltier safety limits.
 ```
 
 ## Recommended next tasks
 
-1. `GRAPH-010` — Result collection
-2. `PWR-002` — Battery SOC model
-3. `TEC-004` — External thermal resistances
-4. `SG-009` — Packed-bed pressure drop
-5. `COND-006` — Drainage efficiency refinements
+1. `SG-009` — Packed-bed pressure drop
+2. `COND-006` — Drainage efficiency refinements
+3. `TEC-007` — Safety limits and diagnostics
+4. `PWR-005` — Load priority and shedding
+5. `GRAPH-012` — Progress reporting
 
 ---
 
@@ -267,7 +267,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | GRAPH-007 | Implement topological sorting | P0 | Done | GRAPH-006, DOC-025 | `16_SimulationEngine.md` | Passing |
 | GRAPH-008 | Implement acyclic graph execution | P0 | Done | GRAPH-005, GRAPH-007 | `16_SimulationEngine.md` | Passing |
 | GRAPH-009 | Implement timestep context | P0 | Done | GRAPH-008 | `16_SimulationEngine.md` | Passing |
-| GRAPH-010 | Implement result collection | P1 | Blocked | GRAPH-008 | `16_SimulationEngine.md`, `29_ResultFormats.md` | NotStarted |
+| GRAPH-010 | Implement result collection | P1 | Done | GRAPH-008 | `16_SimulationEngine.md`, `29_ResultFormats.md` | Passing |
 | GRAPH-011 | Implement cancellation support | P1 | Done | GRAPH-008 | `18_CodingRules.md` | Passing |
 | GRAPH-012 | Implement progress reporting | P2 | Blocked | GRAPH-008 | `16_SimulationEngine.md` | NotStarted |
 | GRAPH-013 | Implement cyclic graph detection | P1 | Done | GRAPH-006 | `16_SimulationEngine.md` | Passing |
@@ -325,7 +325,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | TEC-001 | Constant-COP model | P1 | Done | CORE-012, GRAPH-008 | `08_Peltier.md` | Passing |
 | TEC-002 | Analytical thermoelectric model | P1 | Done | TEC-001, DOC-025 | `08_Peltier.md` | Passing |
 | TEC-003 | Current/power solver | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
-| TEC-004 | External thermal resistances | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
+| TEC-004 | External thermal resistances | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-005 | Dynamic hot/cold-side state | P2 | Blocked | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
 | TEC-006 | Off-state conduction | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-007 | Safety limits and diagnostics | P1 | Blocked | TEC-003 to TEC-006 | `08_Peltier.md` | NotStarted |
@@ -386,10 +386,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
-| PWR-001 | Expand battery and power specification | P0 | Ready | DOC-004A, DOC-007A, DOC-008A | `12_BatteryAndPowerManagement.md` | Planned |
-| PWR-002 | Battery SOC model | P1 | Blocked | PWR-001, CORE-012 | `12_BatteryAndPowerManagement.md` | NotStarted |
-| PWR-003 | Charge/discharge efficiency | P1 | Blocked | PWR-002 | `12_BatteryAndPowerManagement.md` | NotStarted |
-| PWR-004 | Charge/discharge power limits | P1 | Blocked | PWR-002 | `12_BatteryAndPowerManagement.md` | NotStarted |
+| PWR-001 | Expand battery and power specification | P0 | Done | DOC-004A, DOC-007A, DOC-008A | `12_BatteryAndPowerManagement.md` | Passing |
+| PWR-002 | Battery SOC model | P1 | Done | PWR-001, CORE-012 | `12_BatteryAndPowerManagement.md` | Passing |
+| PWR-003 | Charge/discharge efficiency | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
+| PWR-004 | Charge/discharge power limits | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-005 | Load priority and shedding | P1 | Blocked | PWR-003, PWR-004 | `12_BatteryAndPowerManagement.md` | NotStarted |
 | PWR-006 | PV curtailment | P2 | Blocked | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | NotStarted |
 | PWR-007 | Power-management integration tests | P1 | Blocked | PWR-002 to PWR-006 | `22_TestStrategy.md` | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. GRAPH-010 — Result collection
-2. PWR-002 — Battery SOC model
-3. TEC-004 — External thermal resistances
-4. SG-009 — Packed-bed pressure drop
-5. COND-006 — Drainage efficiency refinements
+1. SG-009 — Packed-bed pressure drop
+2. COND-006 — Drainage efficiency refinements
+3. TEC-007 — Safety limits and diagnostics
+4. PWR-005 — Load priority and shedding
+5. GRAPH-012 — Progress reporting
 ```
 
 ---

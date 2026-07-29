@@ -153,6 +153,24 @@ public sealed record SilicaGelParameters
     /// </summary>
     public double MinimumDesorptionBedTemperatureK { get; init; } = 250.0;
 
+    /// <summary>Reference pressure drop for quadratic flow scaling (SG-009 simple model).</summary>
+    public double ReferencePressureDropPa { get; init; }
+
+    public double ReferenceVolumetricFlowM3PerSecond { get; init; } = 0.01;
+
+    public double PressureDropFlowExponent { get; init; } = 2.0;
+
+    /// <summary>When true and bed geometry is set, use Ergun packed-bed Δp.</summary>
+    public bool EnableErgunPressureDrop { get; init; }
+
+    public double BedVoidFraction { get; init; } = 0.4;
+
+    public double BedCrossSectionAreaM2 { get; init; }
+
+    public double BedLengthM { get; init; }
+
+    public double ParticleDiameterM { get; init; }
+
     public SilicaGelParameters Validate()
     {
         FiniteNumber.RequirePositive(DryAdsorbentMassKg, nameof(DryAdsorbentMassKg));
@@ -169,11 +187,30 @@ public sealed record SilicaGelParameters
         FiniteNumber.RequireNonNegative(AirBedHeatTransferCoefficientWPerK, nameof(AirBedHeatTransferCoefficientWPerK));
         FiniteNumber.RequirePositive(NearEquilibriumLoadingToleranceKgPerKg, nameof(NearEquilibriumLoadingToleranceKgPerKg));
         FiniteNumber.RequirePositive(MinimumDesorptionBedTemperatureK, nameof(MinimumDesorptionBedTemperatureK));
+        FiniteNumber.RequireNonNegative(ReferencePressureDropPa, nameof(ReferencePressureDropPa));
+        FiniteNumber.RequirePositive(ReferenceVolumetricFlowM3PerSecond, nameof(ReferenceVolumetricFlowM3PerSecond));
+        FiniteNumber.RequirePositive(PressureDropFlowExponent, nameof(PressureDropFlowExponent));
+        FiniteNumber.Require(BedVoidFraction, nameof(BedVoidFraction));
+        FiniteNumber.RequireNonNegative(BedCrossSectionAreaM2, nameof(BedCrossSectionAreaM2));
+        FiniteNumber.RequireNonNegative(BedLengthM, nameof(BedLengthM));
+        FiniteNumber.RequireNonNegative(ParticleDiameterM, nameof(ParticleDiameterM));
+
+        if (BedVoidFraction is <= 0.0 or >= 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(BedVoidFraction), "Bed void fraction must be in (0, 1).");
+        }
 
         if (MinimumRegeneratedLoadingKgPerKgDryAdsorbent > MaximumWaterLoadingKgPerKgDryAdsorbent)
         {
             throw new ArgumentException(
                 "Minimum regenerated loading must not exceed maximum water loading.");
+        }
+
+        if (EnableErgunPressureDrop
+            && (BedCrossSectionAreaM2 <= 0.0 || BedLengthM <= 0.0 || ParticleDiameterM <= 0.0))
+        {
+            throw new ArgumentException(
+                "Ergun pressure drop requires positive bed area, length, and particle diameter.");
         }
 
         return this;

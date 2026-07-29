@@ -40,6 +40,23 @@ public sealed record AnalyticalPeltierParameters
     /// </summary>
     public double HotSideThermalResistanceKPerW { get; init; }
 
+    /// <summary>When cooling COP falls below this threshold, emit a diagnostic (TEC-007).</summary>
+    public double MinimumUsefulCoolingCop { get; init; }
+
+    public double MaximumAllowedColdSideHeatFluxWPerM2 { get; init; }
+
+    public double ActiveColdSideAreaM2 { get; init; }
+
+    /// <summary>
+    /// When true, overtemperature / undertemperature trips zero the electrical drive
+    /// (docs/03_Components/08_Peltier.md §65 / TEC-007).
+    /// </summary>
+    public bool EnableProtectionShutdown { get; init; } = true;
+
+    public double HotSideThermalResistanceWarningKPerW { get; init; } = 2.0;
+
+    public double ColdSideThermalResistanceWarningKPerW { get; init; } = 2.0;
+
     /// <summary>
     /// Provisional engineering defaults suitable for unit tests and early AWG sizing.
     /// Replace with datasheet-calibrated values before predictive use.
@@ -57,7 +74,11 @@ public sealed record AnalyticalPeltierParameters
             MaximumHotSideTemperatureK = 360.0,
             MinimumColdSideTemperatureK = 250.0,
             ColdSideThermalResistanceKPerW = 0.0,
-            HotSideThermalResistanceKPerW = 0.0
+            HotSideThermalResistanceKPerW = 0.0,
+            MinimumUsefulCoolingCop = 0.1,
+            MaximumAllowedColdSideHeatFluxWPerM2 = 0.0,
+            ActiveColdSideAreaM2 = 0.0,
+            EnableProtectionShutdown = true
         };
 
     public AnalyticalPeltierParameters Validate()
@@ -72,6 +93,11 @@ public sealed record AnalyticalPeltierParameters
         FiniteNumber.RequirePositive(MinimumColdSideTemperatureK, nameof(MinimumColdSideTemperatureK));
         FiniteNumber.RequireNonNegative(ColdSideThermalResistanceKPerW, nameof(ColdSideThermalResistanceKPerW));
         FiniteNumber.RequireNonNegative(HotSideThermalResistanceKPerW, nameof(HotSideThermalResistanceKPerW));
+        FiniteNumber.RequireNonNegative(MinimumUsefulCoolingCop, nameof(MinimumUsefulCoolingCop));
+        FiniteNumber.RequireNonNegative(MaximumAllowedColdSideHeatFluxWPerM2, nameof(MaximumAllowedColdSideHeatFluxWPerM2));
+        FiniteNumber.RequireNonNegative(ActiveColdSideAreaM2, nameof(ActiveColdSideAreaM2));
+        FiniteNumber.RequireNonNegative(HotSideThermalResistanceWarningKPerW, nameof(HotSideThermalResistanceWarningKPerW));
+        FiniteNumber.RequireNonNegative(ColdSideThermalResistanceWarningKPerW, nameof(ColdSideThermalResistanceWarningKPerW));
 
         if (MaximumTemperatureDifferenceK is { } maxDelta)
         {

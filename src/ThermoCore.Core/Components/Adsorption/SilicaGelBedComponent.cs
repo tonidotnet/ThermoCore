@@ -72,6 +72,8 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
 
     public bool LastDesorptionWasEnergyLimited { get; private set; }
 
+    public double LastPressureDropPa { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
@@ -80,6 +82,7 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         LastEquilibriumLoadingKgPerKg = _state.EquilibriumLoadingKgPerKgDryAdsorbent;
         LastAvailableDesorptionHeatW = 0.0;
         LastDesorptionWasEnergyLimited = false;
+        LastPressureDropPa = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -272,6 +275,28 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
                 humidityOut,
                 inlet.DryAirMassFlowKgPerSecond);
 
+            // Pressure drop applied after psychrometric state at inlet pressure (SG-009).
+            var pressureDropPa = CalculatePressureDropPa(inlet);
+            var outletPressurePa = inlet.PressurePa - pressureDropPa;
+            if (outletPressurePa <= 0.0)
+            {
+                return Error(
+                    context,
+                    "SILICA.NON_POSITIVE_PRESSURE",
+                    "Silica-gel bed outlet pressure would be non-positive after pressure drop.");
+            }
+
+            if (Math.Abs(pressureDropPa) > 1e-12)
+            {
+                outlet = _calculator.CreateFromHumidityRatio(
+                    outletTemperatureK,
+                    outletPressurePa,
+                    humidityOut,
+                    inlet.DryAirMassFlowKgPerSecond);
+            }
+
+            LastPressureDropPa = pressureDropPa;
+
             var enthalpyInW = inlet.DryAirMassFlowKgPerSecond * inlet.SpecificEnthalpyJPerKgDryAir;
             var enthalpyOutW = outlet.DryAirMassFlowKgPerSecond * outlet.SpecificEnthalpyJPerKgDryAir;
             var heatLossW = _parameters.BedHeatLossCoefficientWPerK
@@ -419,6 +444,37 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         return k * Math.Exp(
             -(_parameters.ActivationEnergyJPerMol / gasConstant)
             * ((1.0 / bedTemperatureK) - (1.0 / _parameters.ReferenceKineticTemperatureK)));
+    }
+
+    private double CalculatePressureDropPa(MoistAirState inlet)
+    {
+        var volumetricFlow = inlet.DryAirMassFlowKgPerSecond * inlet.SpecificVolumeM3PerKgDryAir;
+
+        if (_parameters.EnableErgunPressureDrop)
+        {
+            var superficialVelocity = volumetricFlow / _parameters.BedCrossSectionAreaM2;
+            var voidFraction = _parameters.BedVoidFraction;
+            var particleDiameter = _parameters.ParticleDiameterM;
+            var density = inlet.MoistAirDensityKgPerM3;
+            var viscosity = ReferenceThermophysicalProperties.DryAirDynamicViscosityPaS;
+            var oneMinus = 1.0 - voidFraction;
+            var viscous = 150.0 * viscosity * oneMinus * oneMinus
+                / (voidFraction * voidFraction * voidFraction * particleDiameter * particleDiameter)
+                * superficialVelocity;
+            var inertial = 1.75 * density * oneMinus
+                / (voidFraction * voidFraction * voidFraction * particleDiameter)
+                * superficialVelocity * superficialVelocity;
+            return (viscous + inertial) * _parameters.BedLengthM;
+        }
+
+        if (_parameters.ReferencePressureDropPa <= 0.0)
+        {
+            return 0.0;
+        }
+
+        var ratio = volumetricFlow / _parameters.ReferenceVolumetricFlowM3PerSecond;
+        return _parameters.ReferencePressureDropPa
+            * Math.Pow(Math.Abs(ratio), _parameters.PressureDropFlowExponent);
     }
 
     /// <summary>

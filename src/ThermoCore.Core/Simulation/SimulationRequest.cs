@@ -56,9 +56,27 @@ public sealed record SimulationRunResult
     public required IReadOnlyList<SimulationDiagnostic> Diagnostics { get; init; }
 }
 
+/// <summary>
+/// Progress snapshot reported during a simulation run
+/// (docs/04_Simulation/16_SimulationEngine.md §23 / GRAPH-012).
+/// </summary>
+public sealed record SimulationProgress
+{
+    public required long CompletedSteps { get; init; }
+
+    public required long TotalSteps { get; init; }
+
+    public required DateTimeOffset SimulationTimeUtc { get; init; }
+
+    public required string CurrentPhase { get; init; }
+
+    public double FractionComplete => TotalSteps <= 0 ? 0.0 : (double)CompletedSteps / TotalSteps;
+}
+
 public interface ISimulationEngine
 {
     SimulationRunResult Run(
         SimulationRequest request,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IProgress<SimulationProgress>? progress = null);
 }

@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue physical models: packed-bed pressure drop, condenser drainage refinements, and Peltier safety limits.
+Close physical-model integration tests (Peltier, silica gel, condenser), then PV curtailment and remaining P1 component gaps.
 ```
 
 ## Recommended next tasks
 
-1. `SG-009` — Packed-bed pressure drop
-2. `COND-006` — Drainage efficiency refinements
-3. `TEC-007` — Safety limits and diagnostics
-4. `PWR-005` — Load priority and shedding
-5. `GRAPH-012` — Progress reporting
+1. `TEC-008` — Peltier integration tests
+2. `SG-010` — Silica-gel integration tests
+3. `COND-007` — Condenser integration tests
+4. `PWR-006` — PV curtailment
+5. `SC-002` — Optical absorption model
 
 ---
 
@@ -269,7 +269,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | GRAPH-009 | Implement timestep context | P0 | Done | GRAPH-008 | `16_SimulationEngine.md` | Passing |
 | GRAPH-010 | Implement result collection | P1 | Done | GRAPH-008 | `16_SimulationEngine.md`, `29_ResultFormats.md` | Passing |
 | GRAPH-011 | Implement cancellation support | P1 | Done | GRAPH-008 | `18_CodingRules.md` | Passing |
-| GRAPH-012 | Implement progress reporting | P2 | Blocked | GRAPH-008 | `16_SimulationEngine.md` | NotStarted |
+| GRAPH-012 | Implement progress reporting | P2 | Done | GRAPH-008 | `16_SimulationEngine.md` | Passing |
 | GRAPH-013 | Implement cyclic graph detection | P1 | Done | GRAPH-006 | `16_SimulationEngine.md` | Passing |
 | GRAPH-014 | Implement fixed-point loop solver | P1 | Done | GRAPH-013, DOC-025 | `25_NumericalMethods.md`, `16_SimulationEngine.md` | Passing |
 | GRAPH-015 | Implement relaxation and convergence diagnostics | P1 | Done | GRAPH-014, CORE-004 | `25_NumericalMethods.md` | Passing |
@@ -328,8 +328,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | TEC-004 | External thermal resistances | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-005 | Dynamic hot/cold-side state | P2 | Blocked | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
 | TEC-006 | Off-state conduction | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
-| TEC-007 | Safety limits and diagnostics | P1 | Blocked | TEC-003 to TEC-006 | `08_Peltier.md` | NotStarted |
-| TEC-008 | Peltier integration tests | P1 | Blocked | TEC-001 to TEC-007 | `22_TestStrategy.md` | NotStarted |
+| TEC-007 | Safety limits and diagnostics | P1 | Done | TEC-003 to TEC-006 | `08_Peltier.md` | Passing |
+| TEC-008 | Peltier integration tests | P1 | Ready | TEC-001 to TEC-007 | `22_TestStrategy.md` | NotStarted |
 
 ## 16.4 Silica gel
 
@@ -343,8 +343,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | SG-006 | Desorption and storage limits | P1 | Done | SG-004 | `09_SilicaGel.md` | Passing |
 | SG-007 | Adsorption heat and thermal state | P1 | Done | SG-005, SG-006 | `09_SilicaGel.md` | Passing |
 | SG-008 | Energy-limited regeneration | P1 | Done | SG-007 | `09_SilicaGel.md` | Passing |
-| SG-009 | Packed-bed pressure drop | P2 | Blocked | GEN-010 | `09_SilicaGel.md` | NotStarted |
-| SG-010 | Silica-gel integration tests | P1 | Blocked | SG-001 to SG-009 | `22_TestStrategy.md` | NotStarted |
+| SG-009 | Packed-bed pressure drop | P2 | Done | GEN-010 | `09_SilicaGel.md` | Passing |
+| SG-010 | Silica-gel integration tests | P1 | Ready | SG-001 to SG-009 | `22_TestStrategy.md` | NotStarted |
 
 ## 16.5 Condenser
 
@@ -355,8 +355,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | COND-003 | Latent condensation model | P1 | Done | COND-002, CORE-012 | `10_Condenser.md` | Passing |
 | COND-004 | Cooling-power limitation | P1 | Done | COND-003, TEC-001 | `10_Condenser.md` | Passing |
 | COND-005 | Heat/mass-transfer effectiveness | P2 | Blocked | COND-003, DOC-025 | `10_Condenser.md` | NotStarted |
-| COND-006 | Drainage efficiency and water output | P1 | Blocked | COND-003 | `10_Condenser.md` | NotStarted |
-| COND-007 | Condenser integration tests | P1 | Blocked | COND-002 to COND-006 | `22_TestStrategy.md` | NotStarted |
+| COND-006 | Drainage efficiency and water output | P1 | Done | COND-003 | `10_Condenser.md` | Passing |
+| COND-007 | Condenser integration tests | P1 | Ready | COND-002 to COND-006 | `22_TestStrategy.md` | NotStarted |
 
 ## 16.6 Heat recovery
 
@@ -390,8 +390,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | PWR-002 | Battery SOC model | P1 | Done | PWR-001, CORE-012 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-003 | Charge/discharge efficiency | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-004 | Charge/discharge power limits | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
-| PWR-005 | Load priority and shedding | P1 | Blocked | PWR-003, PWR-004 | `12_BatteryAndPowerManagement.md` | NotStarted |
-| PWR-006 | PV curtailment | P2 | Blocked | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | NotStarted |
+| PWR-005 | Load priority and shedding | P1 | Done | PWR-003, PWR-004 | `12_BatteryAndPowerManagement.md` | Passing |
+| PWR-006 | PV curtailment | P2 | Ready | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | NotStarted |
 | PWR-007 | Power-management integration tests | P1 | Blocked | PWR-002 to PWR-006 | `22_TestStrategy.md` | NotStarted |
 
 ---
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. SG-009 — Packed-bed pressure drop
-2. COND-006 — Drainage efficiency refinements
-3. TEC-007 — Safety limits and diagnostics
-4. PWR-005 — Load priority and shedding
-5. GRAPH-012 — Progress reporting
+1. TEC-008 — Peltier integration tests
+2. SG-010 — Silica-gel integration tests
+3. COND-007 — Condenser integration tests
+4. PWR-006 — PV curtailment
+5. SC-002 — Optical absorption model
 ```
 
 ---

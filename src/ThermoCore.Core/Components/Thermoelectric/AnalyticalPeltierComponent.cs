@@ -78,6 +78,8 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
 
     public double LastHotFaceTemperatureK { get; private set; }
 
+    public bool LastProtectionTripped { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
@@ -91,6 +93,7 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         LastSinkTemperatureK = 0.0;
         LastColdFaceTemperatureK = 0.0;
         LastHotFaceTemperatureK = 0.0;
+        LastProtectionTripped = false;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -288,6 +291,95 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         var coolingCop = electricalPowerW > 1e-12 && coldSideHeatW > 0.0
             ? coldSideHeatW / electricalPowerW
             : 0.0;
+
+        // TEC-007 safety diagnostics and optional protection shutdown.
+        var protectionTrip = false;
+        if (hotFaceTemperatureK > _parameters.MaximumHotSideTemperatureK)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.HOT_SIDE_OVERTEMPERATURE",
+                DiagnosticSeverity.Warning,
+                "Hot-face temperature exceeds the configured maximum."));
+            protectionTrip = _parameters.EnableProtectionShutdown;
+        }
+
+        if (coldFaceTemperatureK < _parameters.MinimumColdSideTemperatureK)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.COLD_SIDE_UNDERTEMPERATURE",
+                DiagnosticSeverity.Warning,
+                "Cold-face temperature is below the configured minimum."));
+            protectionTrip = protectionTrip || _parameters.EnableProtectionShutdown;
+        }
+
+        if (_parameters.MinimumUsefulCoolingCop > 0.0
+            && electricalPowerW > 1e-12
+            && coolingCop < _parameters.MinimumUsefulCoolingCop)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.COP_BELOW_USEFUL_THRESHOLD",
+                DiagnosticSeverity.Warning,
+                $"Cooling COP {coolingCop:F3} is below useful threshold {_parameters.MinimumUsefulCoolingCop:F3}."));
+        }
+
+        if (_parameters.MaximumAllowedColdSideHeatFluxWPerM2 > 0.0
+            && _parameters.ActiveColdSideAreaM2 > 0.0
+            && coldSideHeatW > 0.0)
+        {
+            var heatFlux = coldSideHeatW / _parameters.ActiveColdSideAreaM2;
+            if (heatFlux > _parameters.MaximumAllowedColdSideHeatFluxWPerM2)
+            {
+                diagnostics.Add(Diagnostic(
+                    context,
+                    "PELTIER.COLD_SIDE_HEAT_FLUX_LIMIT",
+                    DiagnosticSeverity.Warning,
+                    "Cold-side heat flux exceeds the configured maximum."));
+            }
+        }
+
+        if (_parameters.HotSideThermalResistanceKPerW > _parameters.HotSideThermalResistanceWarningKPerW)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.HOT_SIDE_RESISTANCE_HIGH",
+                DiagnosticSeverity.Information,
+                "Configured hot-side thermal resistance is above the warning threshold."));
+        }
+
+        if (_parameters.ColdSideThermalResistanceKPerW > _parameters.ColdSideThermalResistanceWarningKPerW)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.COLD_SIDE_RESISTANCE_HIGH",
+                DiagnosticSeverity.Information,
+                "Configured cold-side thermal resistance is above the warning threshold."));
+        }
+
+        if (protectionTrip)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.MODULE_DISABLED_BY_PROTECTION",
+                DiagnosticSeverity.Critical,
+                "Module electrical drive was disabled by thermal protection."));
+            requestedPowerW = 0.0;
+            // Re-evaluate passive conduction-only operating point.
+            var deltaOff = hotFaceTemperatureK - coldFaceTemperatureK;
+            currentA = 0.0;
+            voltageV = alpha * deltaOff;
+            electricalPowerW = 0.0;
+            coldSideHeatW = -conductance * deltaOff;
+            hotSideHeatW = coldSideHeatW;
+            coolingCop = 0.0;
+            LastProtectionTripped = true;
+        }
+        else
+        {
+            LastProtectionTripped = false;
+        }
 
         LastColdSideHeatW = coldSideHeatW;
         LastHotSideHeatW = hotSideHeatW;

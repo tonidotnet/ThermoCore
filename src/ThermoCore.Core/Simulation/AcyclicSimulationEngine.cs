@@ -14,6 +14,7 @@ public sealed class AcyclicSimulationEngine : ISimulationEngine
 
     public SimulationRunResult Run(
         SimulationRequest request,
-        CancellationToken cancellationToken = default)
-        => _engine.Run(request, cancellationToken);
+        CancellationToken cancellationToken = default,
+        IProgress<SimulationProgress>? progress = null)
+        => _engine.Run(request, cancellationToken, progress);
 }

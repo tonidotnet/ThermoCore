@@ -25,10 +25,19 @@ public sealed class SimulationEngine : ISimulationEngine
 
     public SimulationRunResult Run(
         SimulationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IProgress<SimulationProgress>? progress = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         ValidateRequest(request);
+
+        progress?.Report(new SimulationProgress
+        {
+            CompletedSteps = 0,
+            TotalSteps = 0,
+            SimulationTimeUtc = request.StartTimeUtc,
+            CurrentPhase = "Validate"
+        });
 
         var graphValidation = request.Graph.Validate();
         if (!graphValidation.IsValid)
@@ -137,6 +146,14 @@ public sealed class SimulationEngine : ISimulationEngine
         var allDiagnostics = new List<SimulationDiagnostic>();
         var committedPortStates = new Dictionary<string, object?>(StringComparer.Ordinal);
 
+        progress?.Report(new SimulationProgress
+        {
+            CompletedSteps = 0,
+            TotalSteps = stepCount,
+            SimulationTimeUtc = request.StartTimeUtc,
+            CurrentPhase = "Execute"
+        });
+
         foreach (var pair in request.ExternalInputs)
         {
             committedPortStates[pair.Key] = pair.Value;
@@ -167,6 +184,14 @@ public sealed class SimulationEngine : ISimulationEngine
             steps.Add(stepResult);
             allDiagnostics.AddRange(stepResult.Diagnostics);
 
+            progress?.Report(new SimulationProgress
+            {
+                CompletedSteps = stepIndex + 1,
+                TotalSteps = stepCount,
+                SimulationTimeUtc = request.StartTimeUtc + elapsed + request.TimeStep,
+                CurrentPhase = stepResult.Committed ? "Execute" : "Failed"
+            });
+
             if (!stepResult.Committed)
             {
                 return new SimulationRunResult
@@ -184,6 +209,14 @@ public sealed class SimulationEngine : ISimulationEngine
                 committedPortStates[pair.Key] = pair.Value;
             }
         }
+
+        progress?.Report(new SimulationProgress
+        {
+            CompletedSteps = stepCount,
+            TotalSteps = stepCount,
+            SimulationTimeUtc = request.StartTimeUtc + request.Duration,
+            CurrentPhase = "Complete"
+        });
 
         return new SimulationRunResult
         {

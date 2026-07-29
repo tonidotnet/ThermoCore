@@ -17,7 +17,10 @@ public sealed class CondenserComponent : ISimulationComponent
     private readonly double _drainageEfficiency;
     private readonly double _fallbackSurfaceTemperatureK;
     private readonly double _fallbackAvailableCoolingPowerW;
+    private readonly double _maximumRetainedFilmKg;
+    private readonly double _filmCarryoverFraction;
     private readonly List<SimulationDiagnostic> _diagnostics = [];
+    private double _retainedFilmKg;
 
     public CondenserComponent(
         string id,
@@ -25,6 +28,8 @@ public sealed class CondenserComponent : ISimulationComponent
         double drainageEfficiency,
         double fallbackSurfaceTemperatureK,
         double fallbackAvailableCoolingPowerW,
+        double maximumRetainedFilmKg = 0.05,
+        double filmCarryoverFraction = 0.0,
         IPsychrometricCalculator? calculator = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -42,12 +47,20 @@ public sealed class CondenserComponent : ISimulationComponent
 
         FiniteNumber.RequirePositive(fallbackSurfaceTemperatureK, nameof(fallbackSurfaceTemperatureK));
         FiniteNumber.RequireNonNegative(fallbackAvailableCoolingPowerW, nameof(fallbackAvailableCoolingPowerW));
+        FiniteNumber.RequireNonNegative(maximumRetainedFilmKg, nameof(maximumRetainedFilmKg));
+        FiniteNumber.Require(filmCarryoverFraction, nameof(filmCarryoverFraction));
+        if (filmCarryoverFraction is < 0.0 or > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(filmCarryoverFraction), "Film carryover fraction must be in [0, 1].");
+        }
 
         Id = id;
         _bypassFactor = bypassFactor;
         _drainageEfficiency = drainageEfficiency;
         _fallbackSurfaceTemperatureK = fallbackSurfaceTemperatureK;
         _fallbackAvailableCoolingPowerW = fallbackAvailableCoolingPowerW;
+        _maximumRetainedFilmKg = maximumRetainedFilmKg;
+        _filmCarryoverFraction = filmCarryoverFraction;
         _calculator = calculator ?? new PsychrometricCalculator();
 
         Ports =
@@ -69,12 +82,24 @@ public sealed class CondenserComponent : ISimulationComponent
 
     public double LastCollectedWaterRateKgPerSecond { get; private set; }
 
+    public double LastUncollectedWaterRateKgPerSecond { get; private set; }
+
+    public double LastRetainedFilmKg { get; private set; }
+
+    public double LastEffectiveDrainageEfficiency { get; private set; }
+
+    public double LastCarryoverWaterRateKgPerSecond { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
         LastTotalCoolingPowerW = 0.0;
         LastCondensedWaterRateKgPerSecond = 0.0;
         LastCollectedWaterRateKgPerSecond = 0.0;
+        LastUncollectedWaterRateKgPerSecond = 0.0;
+        LastRetainedFilmKg = _retainedFilmKg;
+        LastEffectiveDrainageEfficiency = _drainageEfficiency;
+        LastCarryoverWaterRateKgPerSecond = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -143,12 +168,69 @@ public sealed class CondenserComponent : ISimulationComponent
         }
 
         var condensed = Math.Max(0.0, inlet.WaterVaporMassFlowKgPerSecond - outlet.WaterVaporMassFlowKgPerSecond);
-        var collected = _drainageEfficiency * condensed;
+        var dt = context.Simulation.TimeStep.TotalSeconds;
+
+        // Drainage efficiency rises toward 1 as retained film approaches capacity (COND-006).
+        var filmFillFraction = _maximumRetainedFilmKg > 0.0
+            ? Math.Clamp(_retainedFilmKg / _maximumRetainedFilmKg, 0.0, 1.0)
+            : 1.0;
+        var effectiveDrainageEfficiency = _drainageEfficiency
+            + (1.0 - _drainageEfficiency) * filmFillFraction;
+        var collected = effectiveDrainageEfficiency * condensed;
         var uncollected = condensed - collected;
+
+        var proposedFilmKg = _retainedFilmKg + uncollected * dt;
+        var carryoverRate = 0.0;
+        if (_maximumRetainedFilmKg > 0.0 && proposedFilmKg > _maximumRetainedFilmKg)
+        {
+            var overflowKg = proposedFilmKg - _maximumRetainedFilmKg;
+            proposedFilmKg = _maximumRetainedFilmKg;
+            // Overflow beyond film capacity is forced into drainage collection.
+            collected += overflowKg / dt;
+            uncollected = Math.Max(0.0, condensed - collected);
+            diagnostics.Add(new SimulationDiagnostic
+            {
+                Code = "CONDENSER.FILM_CAPACITY_OVERFLOW",
+                Severity = DiagnosticSeverity.Information,
+                Message = "Retained film reached capacity; overflow was drained as collected water.",
+                ComponentId = Id,
+                Values = new Dictionary<string, double>(StringComparer.Ordinal)
+                {
+                    ["overflowKgPerSecond"] = overflowKg / dt
+                }
+            });
+        }
+
+        if (_filmCarryoverFraction > 0.0 && uncollected > 0.0)
+        {
+            carryoverRate = _filmCarryoverFraction * uncollected;
+            uncollected -= carryoverRate;
+            proposedFilmKg = _retainedFilmKg + uncollected * dt;
+            if (_maximumRetainedFilmKg > 0.0)
+            {
+                proposedFilmKg = Math.Min(proposedFilmKg, _maximumRetainedFilmKg);
+            }
+
+            diagnostics.Add(new SimulationDiagnostic
+            {
+                Code = "CONDENSER.FILM_CARRYOVER",
+                Severity = DiagnosticSeverity.Warning,
+                Message = "A fraction of uncollected condensate was carried over with the outlet air stream.",
+                ComponentId = Id,
+                Values = new Dictionary<string, double>(StringComparer.Ordinal)
+                {
+                    ["carryoverKgPerSecond"] = carryoverRate
+                }
+            });
+        }
 
         LastTotalCoolingPowerW = CoolingDemandW(inlet, outlet);
         LastCondensedWaterRateKgPerSecond = condensed;
         LastCollectedWaterRateKgPerSecond = collected;
+        LastUncollectedWaterRateKgPerSecond = uncollected;
+        LastEffectiveDrainageEfficiency = condensed > 0.0 ? collected / condensed : _drainageEfficiency;
+        LastCarryoverWaterRateKgPerSecond = carryoverRate;
+        LastRetainedFilmKg = proposedFilmKg;
 
         if (uncollected > 1e-12)
         {
@@ -160,20 +242,26 @@ public sealed class CondenserComponent : ISimulationComponent
                 ComponentId = Id,
                 Values = new Dictionary<string, double>(StringComparer.Ordinal)
                 {
-                    ["uncollectedKgPerSecond"] = uncollected
+                    ["uncollectedKgPerSecond"] = uncollected,
+                    ["retainedFilmKg"] = proposedFilmKg
                 }
             });
         }
 
         // Air-side enthalpy drop is rejected to the cooling sink. Liquid streams carry mass only
         // in this MVP energy bookkeeping (latent portion is embedded in moist-air enthalpy).
+        // Carryover remains in the moist-air outlet vapor inventory for MVP bookkeeping.
+        var filmStorageChangeKgPerSecond = dt > 0.0
+            ? (proposedFilmKg - _retainedFilmKg) / dt
+            : 0.0;
+
         var balance = ConservationBalance.FromRates(
             dryAirMassInputKgPerSecond: inlet.DryAirMassFlowKgPerSecond,
             dryAirMassOutputKgPerSecond: outlet.DryAirMassFlowKgPerSecond,
             dryAirMassStorageChangeKgPerSecond: 0.0,
             waterMassInputKgPerSecond: inlet.WaterVaporMassFlowKgPerSecond,
-            waterMassOutputKgPerSecond: outlet.WaterVaporMassFlowKgPerSecond + collected,
-            waterMassStorageChangeKgPerSecond: uncollected,
+            waterMassOutputKgPerSecond: outlet.WaterVaporMassFlowKgPerSecond + collected + carryoverRate,
+            waterMassStorageChangeKgPerSecond: filmStorageChangeKgPerSecond,
             energyInputW: inlet.DryAirMassFlowKgPerSecond * inlet.SpecificEnthalpyJPerKgDryAir,
             energyOutputW: outlet.DryAirMassFlowKgPerSecond * outlet.SpecificEnthalpyJPerKgDryAir
                 + LastTotalCoolingPowerW,
@@ -191,6 +279,7 @@ public sealed class CondenserComponent : ISimulationComponent
                     TemperatureK = Math.Min(outlet.TemperatureK, surfaceTemperatureK)
                 }
             },
+            ProposedInternalState = proposedFilmKg,
             Balance = balance,
             Diagnostics = diagnostics
         };
@@ -199,6 +288,11 @@ public sealed class CondenserComponent : ISimulationComponent
     public void Commit(ComponentStepResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
+        if (result.ProposedInternalState is double filmKg)
+        {
+            _retainedFilmKg = filmKg;
+        }
+
         _diagnostics.Clear();
         _diagnostics.AddRange(result.Diagnostics);
     }

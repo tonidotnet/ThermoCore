@@ -17,4 +17,6 @@ public static class ReferenceThermophysicalProperties
 
     /// <summary>Reference vaporization enthalpy at the moist-air enthalpy reference state.</summary>
     public const double ReferenceVaporizationEnthalpyJPerKg = 2_501_000.0;
+    /// <summary>Dry-air dynamic viscosity near room temperature. EngineeringReference.</summary>
+    public const double DryAirDynamicViscosityPaS = 1.81e-5;
 }

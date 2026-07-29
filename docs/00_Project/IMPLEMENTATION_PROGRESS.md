@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Close physical-model integration tests (Peltier, silica gel, condenser), then PV curtailment and remaining P1 component gaps.
+Continue solar-collector fidelity (dynamic absorber balance), then remaining P1 gaps and power-management integration tests.
 ```
 
 ## Recommended next tasks
 
-1. `TEC-008` — Peltier integration tests
-2. `SG-010` — Silica-gel integration tests
-3. `COND-007` — Condenser integration tests
-4. `PWR-006` — PV curtailment
-5. `SC-002` — Optical absorption model
+1. `SC-003` — Dynamic absorber energy balance
+2. `PWR-007` — Power-management integration tests
+3. `PV-002` — Temperature-corrected PV model
+4. `GEN-003` — Electrical source
+5. `TEC-005` — Dynamic hot/cold-side state
 
 ---
 
@@ -282,10 +282,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | GEN-001 | Ambient-air source | P1 | Done | GRAPH-008, CORE-010 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-002 | Solar-radiation source | P1 | Done | GRAPH-008 | `06_SolarCollector.md`, `07_SolarPanel.md` | Passing |
-| GEN-003 | Electrical source | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
-| GEN-004 | Environment heat sink | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
+| GEN-003 | Electrical source | P1 | Ready | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
+| GEN-004 | Environment heat sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-005 | Exhaust-air sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
-| GEN-006 | Liquid-water sink | P1 | Blocked | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
+| GEN-006 | Liquid-water sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-007 | Moist-air mixer | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md`, `05_Psychrometrics.md` | Passing |
 | GEN-008 | Moist-air splitter | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md` | Passing |
 | GEN-009 | Simple sensible-heater component | P0 | Done | CORE-010, CORE-012, GRAPH-008 | `04_MathematicalModel.md` | Passing |
@@ -300,7 +300,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
 | PV-001 | Constant-efficiency PV model | P1 | Done | GEN-002, CORE-012 | `07_SolarPanel.md` | Passing |
-| PV-002 | Temperature-corrected PV model | P1 | Blocked | PV-001 | `07_SolarPanel.md` | NotStarted |
+| PV-002 | Temperature-corrected PV model | P1 | Ready | PV-001 | `07_SolarPanel.md` | NotStarted |
 | PV-003 | Dynamic electrothermal PV model | P2 | Blocked | PV-002, DOC-025 | `07_SolarPanel.md` | NotStarted |
 | PV-004 | Rear-air channel heat transfer | P1 | Blocked | PV-003, CORE-010 | `07_SolarPanel.md` | NotStarted |
 | PV-005 | PV pressure-drop model | P2 | Blocked | PV-004, GEN-010 | `07_SolarPanel.md` | NotStarted |
@@ -311,8 +311,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
 | SC-001 | Constant-efficiency collector | P1 | Done | GEN-002, GEN-009 | `06_SolarCollector.md` | Passing |
-| SC-002 | Optical absorption model | P1 | Blocked | SC-001 | `06_SolarCollector.md` | NotStarted |
-| SC-003 | Dynamic absorber energy balance | P1 | Blocked | SC-002, DOC-025 | `06_SolarCollector.md` | NotStarted |
+| SC-002 | Optical absorption model | P1 | Done | SC-001 | `06_SolarCollector.md` | Passing |
+| SC-003 | Dynamic absorber energy balance | P1 | Ready | SC-002, DOC-025 | `06_SolarCollector.md` | NotStarted |
 | SC-004 | Environmental heat loss | P1 | Blocked | SC-003 | `06_SolarCollector.md` | NotStarted |
 | SC-005 | Stagnation and overtemperature | P1 | Blocked | SC-003, SC-004 | `06_SolarCollector.md` | NotStarted |
 | SC-006 | Collector pressure drop | P2 | Blocked | GEN-010 | `06_SolarCollector.md` | NotStarted |
@@ -326,10 +326,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | TEC-002 | Analytical thermoelectric model | P1 | Done | TEC-001, DOC-025 | `08_Peltier.md` | Passing |
 | TEC-003 | Current/power solver | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-004 | External thermal resistances | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
-| TEC-005 | Dynamic hot/cold-side state | P2 | Blocked | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
+| TEC-005 | Dynamic hot/cold-side state | P2 | Ready | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
 | TEC-006 | Off-state conduction | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-007 | Safety limits and diagnostics | P1 | Done | TEC-003 to TEC-006 | `08_Peltier.md` | Passing |
-| TEC-008 | Peltier integration tests | P1 | Ready | TEC-001 to TEC-007 | `22_TestStrategy.md` | NotStarted |
+| TEC-008 | Peltier integration tests | P1 | Done | TEC-001 to TEC-007 | `22_TestStrategy.md` | Passing |
 
 ## 16.4 Silica gel
 
@@ -344,7 +344,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | SG-007 | Adsorption heat and thermal state | P1 | Done | SG-005, SG-006 | `09_SilicaGel.md` | Passing |
 | SG-008 | Energy-limited regeneration | P1 | Done | SG-007 | `09_SilicaGel.md` | Passing |
 | SG-009 | Packed-bed pressure drop | P2 | Done | GEN-010 | `09_SilicaGel.md` | Passing |
-| SG-010 | Silica-gel integration tests | P1 | Ready | SG-001 to SG-009 | `22_TestStrategy.md` | NotStarted |
+| SG-010 | Silica-gel integration tests | P1 | Done | SG-001 to SG-009 | `22_TestStrategy.md` | Passing |
 
 ## 16.5 Condenser
 
@@ -356,7 +356,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | COND-004 | Cooling-power limitation | P1 | Done | COND-003, TEC-001 | `10_Condenser.md` | Passing |
 | COND-005 | Heat/mass-transfer effectiveness | P2 | Blocked | COND-003, DOC-025 | `10_Condenser.md` | NotStarted |
 | COND-006 | Drainage efficiency and water output | P1 | Done | COND-003 | `10_Condenser.md` | Passing |
-| COND-007 | Condenser integration tests | P1 | Ready | COND-002 to COND-006 | `22_TestStrategy.md` | NotStarted |
+| COND-007 | Condenser integration tests | P1 | Done | COND-002 to COND-006 | `22_TestStrategy.md` | Passing |
 
 ## 16.6 Heat recovery
 
@@ -391,8 +391,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | PWR-003 | Charge/discharge efficiency | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-004 | Charge/discharge power limits | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-005 | Load priority and shedding | P1 | Done | PWR-003, PWR-004 | `12_BatteryAndPowerManagement.md` | Passing |
-| PWR-006 | PV curtailment | P2 | Ready | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | NotStarted |
-| PWR-007 | Power-management integration tests | P1 | Blocked | PWR-002 to PWR-006 | `22_TestStrategy.md` | NotStarted |
+| PWR-006 | PV curtailment | P2 | Done | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | Passing |
+| PWR-007 | Power-management integration tests | P1 | Ready | PWR-002 to PWR-006 | `22_TestStrategy.md` | NotStarted |
 
 ---
 
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. TEC-008 — Peltier integration tests
-2. SG-010 — Silica-gel integration tests
-3. COND-007 — Condenser integration tests
-4. PWR-006 — PV curtailment
-5. SC-002 — Optical absorption model
+1. SC-003 — Dynamic absorber energy balance
+2. PWR-007 — Power-management integration tests
+3. PV-002 — Temperature-corrected PV model
+4. GEN-003 — Electrical source
+5. TEC-005 — Dynamic hot/cold-side state
 ```
 
 ---

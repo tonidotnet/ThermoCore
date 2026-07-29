@@ -303,9 +303,13 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
                 * (bedTemperatureGuessK - _parameters.AmbientTemperatureK);
 
             var bedCapacityJPerK = BedThermalCapacityJPerK(proposedLoading);
+            // Integrate stored thermal energy, then recover temperature from U = C(w)·T.
+            // Using ΔT = Q·dt/C while U = C(w)·T leaves a (C_new−C_old)·T residual when loading changes.
+            var previousStoredEnergyJ = BedThermalCapacityJPerK(_state.WaterLoadingKgPerKgDryAdsorbent)
+                * stateBedTemperatureK;
             var bedEnergyRateW = enthalpyInW - enthalpyOutW + externalHeatW - heatLossW + adsorptionHeatW;
-            // Integrate from the committed state temperature, not the iterating guess.
-            proposedBedTemperatureK = stateBedTemperatureK + bedEnergyRateW * dt / bedCapacityJPerK;
+            var proposedStoredEnergyJ = previousStoredEnergyJ + bedEnergyRateW * dt;
+            proposedBedTemperatureK = proposedStoredEnergyJ / bedCapacityJPerK;
             // Keep the lumped bed within the psychrometric calculator support window.
             proposedBedTemperatureK = Math.Clamp(proposedBedTemperatureK, 230.0, 373.0);
 
@@ -380,13 +384,18 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         var storedEnergyChangeW =
             (proposedState.StoredThermalEnergyJ - _state.StoredThermalEnergyJ) / dt;
 
-        // Adsorption heat is an internal conversion reflected in stream enthalpy and bed storage.
+        // Adsorption heat is an internal thermal generation (desorption is a sink).
+        // Stream enthalpy and bed storage already reflect the transfer; generation closes the balance.
+        var adsorptionGenerationW = Math.Max(0.0, adsorptionHeatW);
+        var desorptionConsumptionW = Math.Max(0.0, -adsorptionHeatW);
         var environmentalHeatLossW = _parameters.BedHeatLossCoefficientWPerK
             * (proposedBedTemperatureK - _parameters.AmbientTemperatureK);
         var energyInputW = inlet.DryAirMassFlowKgPerSecond * inlet.SpecificEnthalpyJPerKgDryAir
-            + externalHeatW;
+            + externalHeatW
+            + adsorptionGenerationW;
         var energyOutputW = outlet.DryAirMassFlowKgPerSecond * outlet.SpecificEnthalpyJPerKgDryAir
-            + environmentalHeatLossW;
+            + environmentalHeatLossW
+            + desorptionConsumptionW;
 
         var balance = ConservationBalance.FromRates(
             dryAirMassInputKgPerSecond: inlet.DryAirMassFlowKgPerSecond,

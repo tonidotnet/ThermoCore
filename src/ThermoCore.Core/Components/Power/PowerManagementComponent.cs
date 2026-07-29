@@ -37,7 +37,7 @@ public sealed record ElectricalLoadDemand
 
 /// <summary>
 /// Allocates generation and battery discharge to prioritized loads, then charges from surplus
-/// (docs/03_Components/12_BatteryAndPowerManagement.md §8–§14 / PWR-005).
+/// and reports PV curtailment (docs/03_Components/12_BatteryAndPowerManagement.md §8–§14 / PWR-005/PWR-006).
 /// </summary>
 public sealed class PowerManagementComponent : ISimulationComponent
 {
@@ -71,7 +71,9 @@ public sealed class PowerManagementComponent : ISimulationComponent
         Ports =
         [
             new PhysicalPort("generation", id, PortDirection.Input, PhysicalDomain.Electricity, isRequired: false),
-            new PhysicalPort("bus", id, PortDirection.Output, PhysicalDomain.Electricity)
+            new PhysicalPort("bus", id, PortDirection.Output, PhysicalDomain.Electricity),
+            // Optional: graph consumers may observe curtailed surplus explicitly (PWR-006).
+            new PhysicalPort("curtailed", id, PortDirection.Output, PhysicalDomain.Electricity, isRequired: false)
         ];
     }
 
@@ -279,7 +281,8 @@ public sealed class PowerManagementComponent : ISimulationComponent
         {
             OutputStates = new Dictionary<string, object?>(StringComparer.Ordinal)
             {
-                ["bus"] = new ElectricalPowerState { PowerW = servedLoadW }
+                ["bus"] = new ElectricalPowerState { PowerW = servedLoadW },
+                ["curtailed"] = new ElectricalPowerState { PowerW = LastCurtailedPowerW }
             },
             ProposedInternalState = batteryResult.ProposedInternalState,
             Balance = balance,

@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue physical models: analytical Peltier, energy-limited regeneration, result collection, and battery SOC.
+Continue physical models: energy-limited silica regeneration, heat-recovery NTU, result collection, and battery SOC.
 ```
 
 ## Recommended next tasks
 
-1. `TEC-002` — Analytical thermoelectric Peltier
-2. `SG-008` — Energy-limited regeneration
-3. `HR-003` — Counter-flow effectiveness–NTU
-4. `GRAPH-010` — Result collection
-5. `PWR-002` — Battery SOC model
+1. `SG-008` — Energy-limited regeneration
+2. `HR-003` — Counter-flow effectiveness–NTU
+3. `GRAPH-010` — Result collection
+4. `PWR-002` — Battery SOC model
+5. `TEC-004` — External thermal resistances
 
 ---
 
@@ -323,11 +323,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
 | TEC-001 | Constant-COP model | P1 | Done | CORE-012, GRAPH-008 | `08_Peltier.md` | Passing |
-| TEC-002 | Analytical thermoelectric model | P1 | Blocked | TEC-001, DOC-025 | `08_Peltier.md` | NotStarted |
-| TEC-003 | Current/power solver | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
+| TEC-002 | Analytical thermoelectric model | P1 | Done | TEC-001, DOC-025 | `08_Peltier.md` | Passing |
+| TEC-003 | Current/power solver | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-004 | External thermal resistances | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
 | TEC-005 | Dynamic hot/cold-side state | P2 | Blocked | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
-| TEC-006 | Off-state conduction | P1 | Blocked | TEC-002 | `08_Peltier.md` | NotStarted |
+| TEC-006 | Off-state conduction | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-007 | Safety limits and diagnostics | P1 | Blocked | TEC-003 to TEC-006 | `08_Peltier.md` | NotStarted |
 | TEC-008 | Peltier integration tests | P1 | Blocked | TEC-001 to TEC-007 | `22_TestStrategy.md` | NotStarted |
 
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. TEC-002 — Analytical thermoelectric model
-2. SG-008 — Energy-limited regeneration
-3. HR-003 — Counter-flow effectiveness–NTU
-4. GRAPH-010 — Result collection
-5. PWR-002 — Battery SOC model
+1. SG-008 — Energy-limited regeneration
+2. HR-003 — Counter-flow effectiveness–NTU
+3. GRAPH-010 — Result collection
+4. PWR-002 — Battery SOC model
+5. TEC-004 — External thermal resistances
 ```
 
 ---

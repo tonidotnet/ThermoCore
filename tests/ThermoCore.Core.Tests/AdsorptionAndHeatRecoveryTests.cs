@@ -186,6 +186,141 @@ public class AdsorptionAndHeatRecoveryTests
         Assert.Equal(0.4, bypassed.LastEffectivenessFraction, precision: 10);
     }
 
+    [Fact]
+    public void SilicaGelBed_EnergyLimitedDesorption_ReducesRateWithoutHeat()
+    {
+        var parameters = DefaultParameters() with
+        {
+            ReferenceMassTransferCoefficientPerSecond = 0.2,
+            BedHeatLossCoefficientWPerK = 0.0,
+            AirBedHeatTransferCoefficientWPerK = 20.0,
+            MinimumDesorptionBedTemperatureK = UnitConversions.CelsiusToKelvin(70.0),
+            EnableEnergyLimitedDesorption = true,
+            AmbientTemperatureK = UnitConversions.CelsiusToKelvin(70.0)
+        };
+        var isotherm = GenericPolynomialIsotherm.CreateLinear(parameters.MaximumWaterLoadingKgPerKgDryAdsorbent);
+        var initial = SilicaGelState.Create(
+            dryAdsorbentMassKg: parameters.DryAdsorbentMassKg,
+            waterLoadingKgPerKgDryAdsorbent: 0.28,
+            bedTemperatureK: UnitConversions.CelsiusToKelvin(70.0),
+            maximumWaterLoadingKgPerKgDryAdsorbent: parameters.MaximumWaterLoadingKgPerKgDryAdsorbent,
+            minimumRegeneratedLoadingKgPerKgDryAdsorbent: parameters.MinimumRegeneratedLoadingKgPerKgDryAdsorbent,
+            effectiveSpecificHeatJPerKgK: parameters.EffectiveSpecificHeatJPerKgK,
+            bedHousingThermalCapacityJPerK: parameters.BedHousingThermalCapacityJPerK);
+
+        var limited = new SilicaGelBedComponent("sg_lim", parameters, isotherm, initial, _calculator);
+        var unlimited = new SilicaGelBedComponent(
+            "sg_unlim",
+            parameters with { EnableEnergyLimitedDesorption = false },
+            isotherm,
+            initial,
+            _calculator);
+
+        var inlet = SampleAir(70, 0.08, 0.02);
+        var limitedResult = EvaluateStandalone(limited, inlet, TimeSpan.FromSeconds(5), externalHeatW: 0.0);
+        var unlimitedResult = EvaluateStandalone(unlimited, inlet, TimeSpan.FromSeconds(5), externalHeatW: 0.0);
+
+        Assert.DoesNotContain(limitedResult.Diagnostics, d => d.Severity >= ThermoCore.Core.Diagnostics.DiagnosticSeverity.Error);
+        Assert.True(limited.LastWaterTransferRateKgPerSecond < 0.0
+            || limited.LastDesorptionWasEnergyLimited
+            || Math.Abs(limited.LastWaterTransferRateKgPerSecond) < Math.Abs(unlimited.LastWaterTransferRateKgPerSecond) + 1e-12);
+        Assert.True(Math.Abs(limited.LastWaterTransferRateKgPerSecond) <= Math.Abs(unlimited.LastWaterTransferRateKgPerSecond) + 1e-12);
+        Assert.True(limited.LastDesorptionWasEnergyLimited
+            || Math.Abs(limited.LastWaterTransferRateKgPerSecond) < Math.Abs(unlimited.LastWaterTransferRateKgPerSecond));
+        Assert.Contains(limitedResult.Diagnostics, d => d.Code == "SILICA.ENERGY_LIMITED_DESORPTION");
+        _ = unlimitedResult;
+    }
+
+    [Fact]
+    public void SilicaGelBed_ExternalHeat_IncreasesDesorptionVsEnergyLimitedBaseline()
+    {
+        var parameters = DefaultParameters() with
+        {
+            ReferenceMassTransferCoefficientPerSecond = 0.15,
+            BedHeatLossCoefficientWPerK = 0.0,
+            AirBedHeatTransferCoefficientWPerK = 15.0,
+            MinimumDesorptionBedTemperatureK = UnitConversions.CelsiusToKelvin(65.0),
+            AmbientTemperatureK = UnitConversions.CelsiusToKelvin(65.0),
+            EnableEnergyLimitedDesorption = true
+        };
+        var isotherm = GenericPolynomialIsotherm.CreateLinear(parameters.MaximumWaterLoadingKgPerKgDryAdsorbent);
+        var initial = SilicaGelState.Create(
+            dryAdsorbentMassKg: parameters.DryAdsorbentMassKg,
+            waterLoadingKgPerKgDryAdsorbent: 0.30,
+            bedTemperatureK: UnitConversions.CelsiusToKelvin(65.0),
+            maximumWaterLoadingKgPerKgDryAdsorbent: parameters.MaximumWaterLoadingKgPerKgDryAdsorbent,
+            minimumRegeneratedLoadingKgPerKgDryAdsorbent: parameters.MinimumRegeneratedLoadingKgPerKgDryAdsorbent,
+            effectiveSpecificHeatJPerKgK: parameters.EffectiveSpecificHeatJPerKgK,
+            bedHousingThermalCapacityJPerK: parameters.BedHousingThermalCapacityJPerK);
+
+        var withoutHeat = new SilicaGelBedComponent("sg0", parameters, isotherm, initial, _calculator);
+        var withHeat = new SilicaGelBedComponent("sg1", parameters, isotherm, initial, _calculator);
+        var inlet = SampleAir(65, 0.08, 0.02);
+
+        EvaluateStandalone(withoutHeat, inlet, TimeSpan.FromSeconds(5), externalHeatW: 0.0);
+        EvaluateStandalone(withHeat, inlet, TimeSpan.FromSeconds(5), externalHeatW: 400.0);
+
+        Assert.True(withHeat.LastAvailableDesorptionHeatW > withoutHeat.LastAvailableDesorptionHeatW);
+        Assert.True(Math.Abs(withHeat.LastWaterTransferRateKgPerSecond) >= Math.Abs(withoutHeat.LastWaterTransferRateKgPerSecond) - 1e-12);
+        Assert.True(withHeat.LastWaterTransferRateKgPerSecond < 0.0 || withoutHeat.LastDesorptionWasEnergyLimited);
+    }
+
+    [Fact]
+    public void CounterFlowNtu_MatchesClosedFormEffectiveness()
+    {
+        Assert.Equal(0.5, SensibleHeatRecoveryComponent.CalculateCounterFlowEffectiveness(1.0, 1.0), precision: 12);
+
+        var ntu = 2.0;
+        var cr = 0.5;
+        var expected = (1.0 - Math.Exp(-ntu * (1.0 - cr))) / (1.0 - cr * Math.Exp(-ntu * (1.0 - cr)));
+        Assert.Equal(expected, SensibleHeatRecoveryComponent.CalculateCounterFlowEffectiveness(ntu, cr), precision: 12);
+    }
+
+    [Fact]
+    public void CounterFlowNtu_TransfersHeatAndReportsNtu()
+    {
+        var hot = SampleAir(50, 0.20, 0.03);
+        var cold = SampleAir(20, 0.40, 0.03);
+        var hotCapacity = hot.DryAirMassFlowKgPerSecond
+            * (ReferenceThermophysicalProperties.DryAirSpecificHeatJPerKgK
+               + hot.HumidityRatioKgPerKgDryAir * ReferenceThermophysicalProperties.WaterVaporSpecificHeatJPerKgK);
+        var coldCapacity = cold.DryAirMassFlowKgPerSecond
+            * (ReferenceThermophysicalProperties.DryAirSpecificHeatJPerKgK
+               + cold.HumidityRatioKgPerKgDryAir * ReferenceThermophysicalProperties.WaterVaporSpecificHeatJPerKgK);
+        var cMin = Math.Min(hotCapacity, coldCapacity);
+        var cr = cMin / Math.Max(hotCapacity, coldCapacity);
+        var ua = cMin; // NTU = 1
+        var expectedEffectiveness = SensibleHeatRecoveryComponent.CalculateCounterFlowEffectiveness(1.0, cr);
+        var hx = SensibleHeatRecoveryComponent.CreateCounterFlowNtu("hr_ntu", ua, calculator: _calculator);
+
+        var result = EvaluateHeatRecovery(hx, hot, cold);
+        Assert.DoesNotContain(result.Diagnostics, d => d.Severity >= ThermoCore.Core.Diagnostics.DiagnosticSeverity.Error);
+        Assert.Equal(HeatRecoveryModelType.CounterFlowNtu, hx.ModelType);
+        Assert.Equal(1.0, hx.LastNtu, precision: 8);
+        Assert.Equal(expectedEffectiveness, hx.LastEffectivenessFraction, precision: 8);
+        Assert.True(hx.LastRecoveredHeatW > 0.0);
+        Assert.Equal(0.0, result.Balance.EnergyResidualJ, precision: 4);
+        Assert.Equal(hot.HumidityRatioKgPerKgDryAir,
+            Assert.IsType<MoistAirState>(result.OutputStates["hot_out"]).HumidityRatioKgPerKgDryAir,
+            precision: 12);
+    }
+
+    [Fact]
+    public void CounterFlowNtu_HigherUa_IncreasesEffectiveness()
+    {
+        var hot = SampleAir(45, 0.25, 0.025);
+        var cold = SampleAir(15, 0.40, 0.02);
+        var low = SensibleHeatRecoveryComponent.CreateCounterFlowNtu("lo", uaWPerK: 10.0, calculator: _calculator);
+        var high = SensibleHeatRecoveryComponent.CreateCounterFlowNtu("hi", uaWPerK: 200.0, calculator: _calculator);
+
+        EvaluateHeatRecovery(low, hot, cold);
+        EvaluateHeatRecovery(high, hot, cold);
+
+        Assert.True(high.LastEffectivenessFraction > low.LastEffectivenessFraction);
+        Assert.True(high.LastRecoveredHeatW > low.LastRecoveredHeatW);
+        Assert.True(high.LastNtu > low.LastNtu);
+    }
+
     private static SilicaGelParameters DefaultParameters()
         => new()
         {
@@ -211,8 +346,22 @@ public class AdsorptionAndHeatRecoveryTests
     private static ComponentStepResult EvaluateStandalone(
         SilicaGelBedComponent bed,
         MoistAirState inlet,
-        TimeSpan timeStep)
+        TimeSpan timeStep,
+        double? externalHeatW = null)
     {
+        var inputs = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["inlet"] = inlet
+        };
+        if (externalHeatW is { } heatW)
+        {
+            inputs["external_heat"] = new HeatFlowState
+            {
+                HeatFlowW = heatW,
+                TemperatureK = inlet.TemperatureK
+            };
+        }
+
         var context = new ComponentStepContext
         {
             Simulation = new SimulationContext
@@ -222,10 +371,7 @@ public class AdsorptionAndHeatRecoveryTests
                 ElapsedTime = TimeSpan.Zero,
                 StepIndex = 0
             },
-            InputStates = new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["inlet"] = inlet
-            }
+            InputStates = inputs
         };
 
         bed.Initialize(context.Simulation);

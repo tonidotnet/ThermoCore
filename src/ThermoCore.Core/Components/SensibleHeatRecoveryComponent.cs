@@ -7,14 +7,22 @@ using ThermoCore.Core.Validation;
 
 namespace ThermoCore.Core.Components;
 
+public enum HeatRecoveryModelType
+{
+    PrescribedEffectiveness,
+    CounterFlowNtu
+}
+
 /// <summary>
-/// Two-stream sensible heat recovery with prescribed effectiveness
-/// (docs/03_Components/11_HeatRecovery.md §4–§6, HR-002).
+/// Two-stream sensible heat recovery with prescribed effectiveness or counter-flow ε–NTU
+/// (docs/03_Components/11_HeatRecovery.md §4–§7, HR-002/HR-003).
 /// </summary>
 public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
 {
     private readonly IPsychrometricCalculator _calculator;
+    private readonly HeatRecoveryModelType _modelType;
     private readonly double _effectivenessFraction;
+    private readonly double _uaWPerK;
     private readonly double _bypassFraction;
     private readonly bool _allowReverseOperation;
     private readonly bool _enableCondensationRiskDiagnostics;
@@ -27,22 +35,52 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         bool allowReverseOperation = false,
         bool enableCondensationRiskDiagnostics = true,
         IPsychrometricCalculator? calculator = null)
+        : this(
+            id,
+            HeatRecoveryModelType.PrescribedEffectiveness,
+            effectivenessFraction,
+            uaWPerK: 0.0,
+            bypassFraction,
+            allowReverseOperation,
+            enableCondensationRiskDiagnostics,
+            calculator)
+    {
+    }
+
+    private SensibleHeatRecoveryComponent(
+        string id,
+        HeatRecoveryModelType modelType,
+        double effectivenessFraction,
+        double uaWPerK,
+        double bypassFraction,
+        bool allowReverseOperation,
+        bool enableCondensationRiskDiagnostics,
+        IPsychrometricCalculator? calculator)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
-        FiniteNumber.Require(effectivenessFraction, nameof(effectivenessFraction));
-        if (effectivenessFraction is < 0.0 or > 1.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(effectivenessFraction), "Effectiveness must be in [0, 1].");
-        }
-
         FiniteNumber.Require(bypassFraction, nameof(bypassFraction));
         if (bypassFraction is < 0.0 or > 1.0)
         {
             throw new ArgumentOutOfRangeException(nameof(bypassFraction), "Bypass fraction must be in [0, 1].");
         }
 
+        if (modelType == HeatRecoveryModelType.PrescribedEffectiveness)
+        {
+            FiniteNumber.Require(effectivenessFraction, nameof(effectivenessFraction));
+            if (effectivenessFraction is < 0.0 or > 1.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(effectivenessFraction), "Effectiveness must be in [0, 1].");
+            }
+        }
+        else
+        {
+            FiniteNumber.RequirePositive(uaWPerK, nameof(uaWPerK));
+        }
+
         Id = id;
+        _modelType = modelType;
         _effectivenessFraction = effectivenessFraction;
+        _uaWPerK = uaWPerK;
         _bypassFraction = bypassFraction;
         _allowReverseOperation = allowReverseOperation;
         _enableCondensationRiskDiagnostics = enableCondensationRiskDiagnostics;
@@ -57,19 +95,48 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         ];
     }
 
+    /// <summary>
+    /// Counter-flow effectiveness–NTU model with overall UA
+    /// (docs/03_Components/11_HeatRecovery.md §7 / HR-003).
+    /// </summary>
+    public static SensibleHeatRecoveryComponent CreateCounterFlowNtu(
+        string id,
+        double uaWPerK,
+        double bypassFraction = 0.0,
+        bool allowReverseOperation = false,
+        bool enableCondensationRiskDiagnostics = true,
+        IPsychrometricCalculator? calculator = null)
+        => new(
+            id,
+            HeatRecoveryModelType.CounterFlowNtu,
+            effectivenessFraction: 0.0,
+            uaWPerK,
+            bypassFraction,
+            allowReverseOperation,
+            enableCondensationRiskDiagnostics,
+            calculator);
+
     public string Id { get; }
 
     public IReadOnlyList<IPhysicalPort> Ports { get; }
+
+    public HeatRecoveryModelType ModelType => _modelType;
 
     public double LastRecoveredHeatW { get; private set; }
 
     public double LastEffectivenessFraction { get; private set; }
 
+    public double LastNtu { get; private set; }
+
+    public double LastCapacityRatio { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
         LastRecoveredHeatW = 0.0;
-        LastEffectivenessFraction = _effectivenessFraction;
+        LastEffectivenessFraction = 0.0;
+        LastNtu = 0.0;
+        LastCapacityRatio = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -95,11 +162,27 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         var hotCapacity = CapacityRateWPerK(hotIn);
         var coldCapacity = CapacityRateWPerK(coldIn);
         var cMin = Math.Min(hotCapacity, coldCapacity);
+        var cMax = Math.Max(hotCapacity, coldCapacity);
+        var capacityRatio = cMax > 0.0 ? cMin / cMax : 0.0;
         var temperatureDifferenceK = hotIn.TemperatureK - coldIn.TemperatureK;
 
+        double baseEffectiveness;
+        double ntu = 0.0;
+        if (_modelType == HeatRecoveryModelType.CounterFlowNtu)
+        {
+            ntu = cMin > 0.0 ? _uaWPerK / cMin : 0.0;
+            baseEffectiveness = CalculateCounterFlowEffectiveness(ntu, capacityRatio);
+        }
+        else
+        {
+            baseEffectiveness = _effectivenessFraction;
+        }
+
         // Bypass reduces the exchanged fraction; MVP applies ε_eff = ε (1 - b) to full streams.
-        var effectiveness = _effectivenessFraction * (1.0 - _bypassFraction);
+        var effectiveness = baseEffectiveness * (1.0 - _bypassFraction);
         LastEffectivenessFraction = effectiveness;
+        LastNtu = ntu;
+        LastCapacityRatio = capacityRatio;
 
         double recoveredHeatW;
         if (temperatureDifferenceK <= 0.0 && !_allowReverseOperation)
@@ -215,6 +298,33 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
     }
 
     public IReadOnlyList<SimulationDiagnostic> GetDiagnostics() => _diagnostics;
+
+    /// <summary>
+    /// Counter-flow effectiveness for given NTU and capacity ratio Cr = Cmin/Cmax.
+    /// </summary>
+    public static double CalculateCounterFlowEffectiveness(double ntu, double capacityRatio)
+    {
+        FiniteNumber.RequireNonNegative(ntu, nameof(ntu));
+        FiniteNumber.Require(capacityRatio, nameof(capacityRatio));
+        if (capacityRatio is < 0.0 or > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(capacityRatio), "Capacity ratio must be in [0, 1].");
+        }
+
+        if (ntu == 0.0)
+        {
+            return 0.0;
+        }
+
+        if (Math.Abs(capacityRatio - 1.0) < 1e-9)
+        {
+            return ntu / (1.0 + ntu);
+        }
+
+        var exponent = -ntu * (1.0 - capacityRatio);
+        var expTerm = Math.Exp(exponent);
+        return (1.0 - expTerm) / (1.0 - capacityRatio * expTerm);
+    }
 
     private static double CapacityRateWPerK(MoistAirState state)
         => state.DryAirMassFlowKgPerSecond

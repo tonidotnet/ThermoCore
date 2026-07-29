@@ -142,6 +142,17 @@ public sealed record SilicaGelParameters
 
     public double NearEquilibriumLoadingToleranceKgPerKg { get; init; } = 1e-4;
 
+    /// <summary>
+    /// When true, desorption magnitude is capped by available heat
+    /// (docs/03_Components/09_SilicaGel.md §65–§66 / SG-008).
+    /// </summary>
+    public bool EnableEnergyLimitedDesorption { get; init; } = true;
+
+    /// <summary>
+    /// Lowest bed temperature allowed when drawing stored thermal energy for desorption.
+    /// </summary>
+    public double MinimumDesorptionBedTemperatureK { get; init; } = 250.0;
+
     public SilicaGelParameters Validate()
     {
         FiniteNumber.RequirePositive(DryAdsorbentMassKg, nameof(DryAdsorbentMassKg));
@@ -157,6 +168,7 @@ public sealed record SilicaGelParameters
         FiniteNumber.RequirePositive(AmbientTemperatureK, nameof(AmbientTemperatureK));
         FiniteNumber.RequireNonNegative(AirBedHeatTransferCoefficientWPerK, nameof(AirBedHeatTransferCoefficientWPerK));
         FiniteNumber.RequirePositive(NearEquilibriumLoadingToleranceKgPerKg, nameof(NearEquilibriumLoadingToleranceKgPerKg));
+        FiniteNumber.RequirePositive(MinimumDesorptionBedTemperatureK, nameof(MinimumDesorptionBedTemperatureK));
 
         if (MinimumRegeneratedLoadingKgPerKgDryAdsorbent > MaximumWaterLoadingKgPerKgDryAdsorbent)
         {

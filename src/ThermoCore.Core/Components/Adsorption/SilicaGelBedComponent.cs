@@ -68,12 +68,18 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
 
     public double LastEquilibriumLoadingKgPerKg { get; private set; }
 
+    public double LastAvailableDesorptionHeatW { get; private set; }
+
+    public bool LastDesorptionWasEnergyLimited { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
         LastWaterTransferRateKgPerSecond = 0.0;
         LastAdsorptionHeatW = 0.0;
         LastEquilibriumLoadingKgPerKg = _state.EquilibriumLoadingKgPerKgDryAdsorbent;
+        LastAvailableDesorptionHeatW = 0.0;
+        LastDesorptionWasEnergyLimited = false;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -118,6 +124,8 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         MoistAirState? outlet = null;
         var limitedByVapor = false;
         var limitedByCapacity = false;
+        var limitedByEnergy = false;
+        var availableDesorptionHeatW = 0.0;
         var minVaporPressurePa = Math.Max(
             12.0,
             _calculator.CalculateSaturationPressurePa(230.0));
@@ -141,6 +149,7 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
 
             limitedByCapacity = Math.Abs(proposedLoading - unconstrainedLoading) > 1e-12;
             limitedByVapor = false;
+            limitedByEnergy = false;
 
             var deltaLoading = proposedLoading - loading;
             var deltaWaterKg = _parameters.DryAdsorbentMassKg * deltaLoading;
@@ -166,6 +175,25 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
                     deltaWaterKg = -Math.Max(0.0, releasableKg);
                     proposedLoading = loading + deltaWaterKg / _parameters.DryAdsorbentMassKg;
                     limitedByCapacity = true;
+                }
+
+                if (_parameters.EnableEnergyLimitedDesorption && deltaWaterKg < 0.0)
+                {
+                    availableDesorptionHeatW = EstimateAvailableDesorptionHeatW(
+                        inlet,
+                        bedTemperatureGuessK,
+                        externalHeatW,
+                        dt);
+
+                    var maxDesorptionRateKgPerSecond = availableDesorptionHeatW
+                        / _parameters.EffectiveHeatOfAdsorptionJPerKgWater;
+                    var desorptionRateKgPerSecond = -deltaWaterKg / dt;
+                    if (desorptionRateKgPerSecond > maxDesorptionRateKgPerSecond)
+                    {
+                        deltaWaterKg = -maxDesorptionRateKgPerSecond * dt;
+                        proposedLoading = loading + deltaWaterKg / _parameters.DryAdsorbentMassKg;
+                        limitedByEnergy = true;
+                    }
                 }
             }
 
@@ -295,6 +323,15 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
                 "Water transfer was limited by adsorbent capacity or regenerated floor."));
         }
 
+        if (limitedByEnergy)
+        {
+            diagnostics.Add(Diagnostic(
+                context,
+                "SILICA.ENERGY_LIMITED_DESORPTION",
+                DiagnosticSeverity.Information,
+                "Desorption rate was limited by available regeneration heat."));
+        }
+
         var drivingForce = equilibriumLoading - _state.WaterLoadingKgPerKgDryAdsorbent;
         var nearEquilibrium = Math.Abs(drivingForce) <= _parameters.NearEquilibriumLoadingToleranceKgPerKg;
         var regime = ClassifyRegime(drivingForce, proposedLoading, nearEquilibrium);
@@ -341,6 +378,8 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         LastWaterTransferRateKgPerSecond = waterTransferRate;
         LastAdsorptionHeatW = adsorptionHeatW;
         LastEquilibriumLoadingKgPerKg = equilibriumLoading;
+        LastAvailableDesorptionHeatW = availableDesorptionHeatW;
+        LastDesorptionWasEnergyLimited = limitedByEnergy;
 
         return new ComponentStepResult
         {
@@ -380,6 +419,44 @@ public sealed class SilicaGelBedComponent : ISimulationComponent
         return k * Math.Exp(
             -(_parameters.ActivationEnergyJPerMol / gasConstant)
             * ((1.0 / bedTemperatureK) - (1.0 / _parameters.ReferenceKineticTemperatureK)));
+    }
+
+    /// <summary>
+    /// Heat available to drive desorption: external heat, air-to-bed sensible gain,
+    /// optional bed thermal drawdown, minus environmental loss
+    /// (docs/03_Components/09_SilicaGel.md §65).
+    /// </summary>
+    private double EstimateAvailableDesorptionHeatW(
+        MoistAirState inlet,
+        double bedTemperatureK,
+        double externalHeatW,
+        double timeStepSeconds)
+    {
+        var capacityRate = inlet.DryAirMassFlowKgPerSecond
+            * (ReferenceThermophysicalProperties.DryAirSpecificHeatJPerKgK
+               + inlet.HumidityRatioKgPerKgDryAir * ReferenceThermophysicalProperties.WaterVaporSpecificHeatJPerKgK);
+
+        var effectiveness = capacityRate <= 0.0 || _parameters.AirBedHeatTransferCoefficientWPerK <= 0.0
+            ? 0.0
+            : 1.0 - Math.Exp(-_parameters.AirBedHeatTransferCoefficientWPerK / capacityRate);
+
+        var airToBedSensibleW = Math.Max(
+            0.0,
+            effectiveness * capacityRate * (inlet.TemperatureK - bedTemperatureK));
+
+        var heatLossW = Math.Max(
+            0.0,
+            _parameters.BedHeatLossCoefficientWPerK * (bedTemperatureK - _parameters.AmbientTemperatureK));
+
+        var bedCapacityJPerK = BedThermalCapacityJPerK(_state.WaterLoadingKgPerKgDryAdsorbent);
+        var drawdownFloorK = Math.Max(
+            _parameters.MinimumDesorptionBedTemperatureK,
+            _parameters.AmbientTemperatureK);
+        var thermalDrawdownW = timeStepSeconds > 0.0
+            ? Math.Max(0.0, bedCapacityJPerK * (bedTemperatureK - drawdownFloorK) / timeStepSeconds)
+            : 0.0;
+
+        return Math.Max(0.0, Math.Max(0.0, externalHeatW) + airToBedSensibleW + thermalDrawdownW - heatLossW);
     }
 
     private double BedThermalCapacityJPerK(double loadingKgPerKg)

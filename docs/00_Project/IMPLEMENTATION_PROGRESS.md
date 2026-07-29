@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue physical models: energy-limited silica regeneration, heat-recovery NTU, result collection, and battery SOC.
+Continue physical models: result collection, battery SOC, and Peltier external thermal resistances.
 ```
 
 ## Recommended next tasks
 
-1. `SG-008` — Energy-limited regeneration
-2. `HR-003` — Counter-flow effectiveness–NTU
-3. `GRAPH-010` — Result collection
-4. `PWR-002` — Battery SOC model
-5. `TEC-004` — External thermal resistances
+1. `GRAPH-010` — Result collection
+2. `PWR-002` — Battery SOC model
+3. `TEC-004` — External thermal resistances
+4. `SG-009` — Packed-bed pressure drop
+5. `COND-006` — Drainage efficiency refinements
 
 ---
 
@@ -342,7 +342,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | SG-005 | Adsorption water balance | P1 | Done | SG-004 | `09_SilicaGel.md` | Passing |
 | SG-006 | Desorption and storage limits | P1 | Done | SG-004 | `09_SilicaGel.md` | Passing |
 | SG-007 | Adsorption heat and thermal state | P1 | Done | SG-005, SG-006 | `09_SilicaGel.md` | Passing |
-| SG-008 | Energy-limited regeneration | P1 | Blocked | SG-007 | `09_SilicaGel.md` | NotStarted |
+| SG-008 | Energy-limited regeneration | P1 | Done | SG-007 | `09_SilicaGel.md` | Passing |
 | SG-009 | Packed-bed pressure drop | P2 | Blocked | GEN-010 | `09_SilicaGel.md` | NotStarted |
 | SG-010 | Silica-gel integration tests | P1 | Blocked | SG-001 to SG-009 | `22_TestStrategy.md` | NotStarted |
 
@@ -364,7 +364,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | HR-001 | Expand heat-recovery specification | P1 | Done | DOC-005A, DOC-010A | `11_HeatRecovery.md` | Passing |
 | HR-002 | Sensible effectiveness model | P1 | Done | HR-001, CORE-010 | `11_HeatRecovery.md` | Passing |
-| HR-003 | Counter-flow effectiveness–NTU model | P2 | Blocked | HR-002, DOC-025 | `11_HeatRecovery.md` | NotStarted |
+| HR-003 | Counter-flow effectiveness–NTU model | P2 | Done | HR-002, DOC-025 | `11_HeatRecovery.md` | Passing |
 | HR-004 | Hot/cold pressure-drop models | P2 | Blocked | GEN-010 | `11_HeatRecovery.md` | NotStarted |
 | HR-005 | Bypass control | P2 | Blocked | HR-002 | `11_HeatRecovery.md` | NotStarted |
 | HR-006 | Heat-recovery integration tests | P1 | Blocked | HR-002 to HR-005 | `22_TestStrategy.md` | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. SG-008 — Energy-limited regeneration
-2. HR-003 — Counter-flow effectiveness–NTU
-3. GRAPH-010 — Result collection
-4. PWR-002 — Battery SOC model
-5. TEC-004 — External thermal resistances
+1. GRAPH-010 — Result collection
+2. PWR-002 — Battery SOC model
+3. TEC-004 — External thermal resistances
+4. SG-009 — Packed-bed pressure drop
+5. COND-006 — Drainage efficiency refinements
 ```
 
 ---

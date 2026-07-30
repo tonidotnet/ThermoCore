@@ -121,7 +121,7 @@ When baseline liters/day is ~0, elasticity falls back to `(y_high - y_low) / ((x
 - Best Wh/liter when electrical proxy is available
 - Full point table (console)
 - Sensitivity ranking by |liters/day elasticity| (OPT-003)
-- Pareto front (future)
+- Bi-objective Pareto front max L/day vs min Wh/L (`AwgParetoFront`, OPT-006)
 
 ---
 
@@ -130,6 +130,7 @@ When baseline liters/day is ~0, elasticity falls back to `(y_high - y_low) / ((x
 1. Same configuration, axes, and timing produce the same sweep ranking.
 2. Invalid parameter combinations fail the point without aborting the sweep.
 3. Liters/day and optional Wh/liter are reported for successful points.
+4. When Wh/liter is available, the non-dominated Pareto set for max L/day and min Wh/L is reported.
 
 ---
 

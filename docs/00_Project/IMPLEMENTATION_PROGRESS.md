@@ -96,14 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Docs portal, sweeps, sensitivity ranking, and expanded config wizard are live. Next: PostgreSQL, multi-objective OPT, or link-check CI.
+Result-series SQLite persistence and Pareto OPT-006 are live. Next: PostgreSQL provider or docs link checker.
 ```
 
 ## Recommended next tasks
 
-1. PostgreSQL provider / full result-series persistence
-2. `OPT-006` multi-objective comparison / Pareto
-3. Docs link checker (DOCSITE-007) and architecture diagram assets
+1. `DATA-005` PostgreSQL provider sharing `IThermoCoreStore`
+2. Docs link checker (DOCSITE-007) and architecture diagram assets
+3. Richer OPT objectives / random search
 
 ---
 
@@ -165,7 +165,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
 | DOC-019A | `19_WebApi.md` | P2 | Done | Implemented | Yes | API v1 MVP implemented |
 | DOC-020A | `20_BlazorWeb.md` | P2 | Done | Implemented | Yes | Blazor MVP pages; wizard/charts remain |
-| DOC-021A | `21_DataModel.md` | P2 | Done | Implemented | Yes | SQLite MVP; PostgreSQL later |
+| DOC-021A | `21_DataModel.md` | P2 | Done | Implemented | Yes | SQLite + series payloads; PostgreSQL later |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
 | DOC-023A | `23_Calibration.md` | P3 | Done | Implemented | Yes | Import/align/metrics MVP; fitting later |
 | DOC-024A | `24_Optimization.md` | P3 | Planned | Missing | Before optimization | Later |
@@ -475,10 +475,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DATA-002 | Define configuration schema versioning | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
 | DATA-003 | Define simulation-run metadata | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
 | DATA-004 | Add SQLite persistence | P3 | Done | DATA-002, DATA-003 | `21_DataModel.md` | Passing |
-| DATA-005 | Add PostgreSQL provider | P3 | Blocked | DATA-004 | `21_DataModel.md` | NotStarted |
-| DATA-006 | Save and reload configurations | P2 | Blocked | DATA-004 | `21_DataModel.md` | NotStarted |
-| DATA-007 | Save result summaries | P2 | Blocked | DATA-004, DOC-029A | `21_DataModel.md` | NotStarted |
-| DATA-008 | Compare simulation runs | P3 | Blocked | DATA-006, DATA-007 | `21_DataModel.md` | NotStarted |
+| DATA-005 | Add PostgreSQL provider | P3 | Ready | DATA-004 | `21_DataModel.md` | NotStarted |
+| DATA-006 | Save and reload configurations | P2 | Done | DATA-004 | `21_DataModel.md` | Passing |
+| DATA-007 | Save result summaries | P2 | Done | DATA-004, DOC-029A | `21_DataModel.md` | Passing |
+| DATA-008 | Compare simulation runs | P3 | Ready | DATA-006, DATA-007 | `21_DataModel.md` | NotStarted |
 
 ---
 
@@ -517,7 +517,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | OPT-003 | Implement sensitivity analysis | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
 | OPT-004 | Implement liters/day objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
 | OPT-005 | Implement Wh/liter objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
-| OPT-006 | Implement multi-objective comparison | P4 | Ready | OPT-003 to OPT-005 | `24_Optimization.md` | NotStarted |
+| OPT-006 | Implement multi-objective comparison | P4 | Done | OPT-003 to OPT-005 | `24_Optimization.md` | Passing |
 | OPT-007 | Add web scenario comparison | P4 | Done | WEB-009 | `20_BlazorWeb.md` | Passing | MVP summary compare; full OPT later |
 
 ---
@@ -662,9 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. PostgreSQL provider / full series persistence
-2. OPT-006 multi-objective comparison
-3. DOCSITE-007 link checker / architecture diagram assets
+1. DATA-005 PostgreSQL provider
+2. DOCSITE-007 link checker / architecture diagram assets
+3. Richer OPT objectives / random search
 ```
 
 ---

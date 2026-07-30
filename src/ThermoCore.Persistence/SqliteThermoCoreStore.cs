@@ -10,13 +10,15 @@ namespace ThermoCore.Persistence;
 /// <summary>SQLite-backed ThermoCore store (DATA-004 MVP).</summary>
 public sealed class SqliteThermoCoreStore : IThermoCoreStore, IDisposable
 {
+    private readonly string _databasePath;
     private readonly string _connectionString;
     private bool _disposed;
 
     public SqliteThermoCoreStore(string databasePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
-        var directory = Path.GetDirectoryName(Path.GetFullPath(databasePath));
+        _databasePath = Path.GetFullPath(databasePath);
+        var directory = Path.GetDirectoryName(_databasePath);
         if (!string.IsNullOrEmpty(directory))
         {
             Directory.CreateDirectory(directory);
@@ -24,7 +26,7 @@ public sealed class SqliteThermoCoreStore : IThermoCoreStore, IDisposable
 
         _connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = databasePath,
+            DataSource = _databasePath,
             Mode = SqliteOpenMode.ReadWriteCreate
         }.ToString();
     }
@@ -82,6 +84,18 @@ public sealed class SqliteThermoCoreStore : IThermoCoreStore, IDisposable
                 final_objective REAL NOT NULL,
                 evaluation_count INTEGER NOT NULL,
                 created_at_utc TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS result_series (
+                id TEXT NOT NULL PRIMARY KEY,
+                simulation_summary_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                unit TEXT NOT NULL,
+                storage_location TEXT NOT NULL,
+                sample_count INTEGER NOT NULL,
+                start_time_utc TEXT NOT NULL,
+                interval_seconds REAL NOT NULL,
+                UNIQUE(simulation_summary_id, channel_id)
             );
             """;
         command.ExecuteNonQuery();
@@ -243,6 +257,187 @@ public sealed class SqliteThermoCoreStore : IThermoCoreStore, IDisposable
         return summary;
     }
 
+    public StoredSimulationSummary? GetSimulationSummary(Guid id)
+    {
+        EnsureCreated();
+        using var connection = Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT id, configuration_version_id, status, succeeded, topology_id, completed_steps,
+                   aggregated_energy_residual_j, aggregated_water_residual_kg, water_balance_passed,
+                   energy_balance_passed, final_water_tank_content_kg, created_at_utc, completed_at_utc
+            FROM simulation_summaries
+            WHERE id = $id;
+            """;
+        command.Parameters.AddWithValue("$id", id.ToString("N"));
+        using var reader = command.ExecuteReader();
+        return reader.Read() ? ReadSummary(reader) : null;
+    }
+
+    public IReadOnlyList<StoredSimulationSummary> ListSimulationSummaries(int take = 50)
+    {
+        EnsureCreated();
+        take = Math.Clamp(take, 1, 500);
+        using var connection = Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT id, configuration_version_id, status, succeeded, topology_id, completed_steps,
+                   aggregated_energy_residual_j, aggregated_water_residual_kg, water_balance_passed,
+                   energy_balance_passed, final_water_tank_content_kg, created_at_utc, completed_at_utc
+            FROM simulation_summaries
+            ORDER BY created_at_utc DESC
+            LIMIT $take;
+            """;
+        command.Parameters.AddWithValue("$take", take);
+        using var reader = command.ExecuteReader();
+        var results = new List<StoredSimulationSummary>();
+        while (reader.Read())
+        {
+            results.Add(ReadSummary(reader));
+        }
+
+        return results;
+    }
+
+    public StoredResultSeriesBundle SaveResultSeries(
+        Guid simulationSummaryId,
+        AwgSimulationRunResult run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        EnsureCreated();
+        if (GetSimulationSummary(simulationSummaryId) is null)
+        {
+            throw new ArgumentException(
+                $"Unknown simulation summary '{simulationSummaryId:N}'.",
+                nameof(simulationSummaryId));
+        }
+
+        var collected = AwgResultExporter.Collect(run);
+        var relativeLocation = Path.Combine(
+            "series",
+            simulationSummaryId.ToString("N") + ".json.gz");
+        var absoluteLocation = Path.Combine(
+            Path.GetDirectoryName(_databasePath) ?? ".",
+            relativeLocation);
+        var values = collected.Channels.ToDictionary(
+            c => c.Definition.Id,
+            c => c.Values,
+            StringComparer.Ordinal);
+        ResultSeriesPayloadCodec.Write(absoluteLocation, values);
+
+        using var connection = Open();
+        using var tx = connection.BeginTransaction();
+        using (var delete = connection.CreateCommand())
+        {
+            delete.Transaction = tx;
+            delete.CommandText = "DELETE FROM result_series WHERE simulation_summary_id = $id;";
+            delete.Parameters.AddWithValue("$id", simulationSummaryId.ToString("N"));
+            delete.ExecuteNonQuery();
+        }
+
+        var descriptors = new List<StoredResultSeriesDescriptor>(collected.Channels.Count);
+        foreach (var channel in collected.Channels)
+        {
+            var id = Guid.NewGuid();
+            using var insert = connection.CreateCommand();
+            insert.Transaction = tx;
+            insert.CommandText =
+                """
+                INSERT INTO result_series
+                (id, simulation_summary_id, channel_id, unit, storage_location, sample_count,
+                 start_time_utc, interval_seconds)
+                VALUES
+                ($id, $summaryId, $channelId, $unit, $location, $count, $start, $interval);
+                """;
+            insert.Parameters.AddWithValue("$id", id.ToString("N"));
+            insert.Parameters.AddWithValue("$summaryId", simulationSummaryId.ToString("N"));
+            insert.Parameters.AddWithValue("$channelId", channel.Definition.Id);
+            insert.Parameters.AddWithValue("$unit", channel.Definition.Unit);
+            insert.Parameters.AddWithValue("$location", relativeLocation.Replace('\\', '/'));
+            insert.Parameters.AddWithValue("$count", channel.Values.Count);
+            insert.Parameters.AddWithValue(
+                "$start",
+                collected.Metadata.StartTimeUtc.ToString("O", CultureInfo.InvariantCulture));
+            insert.Parameters.AddWithValue("$interval", collected.Metadata.TimeStep.TotalSeconds);
+            insert.ExecuteNonQuery();
+
+            descriptors.Add(new StoredResultSeriesDescriptor
+            {
+                Id = id,
+                SimulationSummaryId = simulationSummaryId,
+                ChannelId = channel.Definition.Id,
+                Unit = channel.Definition.Unit,
+                StorageLocation = relativeLocation.Replace('\\', '/'),
+                SampleCount = channel.Values.Count,
+                StartTimeUtc = collected.Metadata.StartTimeUtc,
+                IntervalSeconds = collected.Metadata.TimeStep.TotalSeconds
+            });
+        }
+
+        tx.Commit();
+        return new StoredResultSeriesBundle
+        {
+            SimulationSummaryId = simulationSummaryId,
+            Channels = descriptors,
+            ValuesByChannelId = values
+        };
+    }
+
+    public StoredResultSeriesBundle? GetResultSeries(Guid simulationSummaryId, bool loadValues = true)
+    {
+        EnsureCreated();
+        using var connection = Open();
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT id, simulation_summary_id, channel_id, unit, storage_location, sample_count,
+                   start_time_utc, interval_seconds
+            FROM result_series
+            WHERE simulation_summary_id = $id
+            ORDER BY channel_id;
+            """;
+        command.Parameters.AddWithValue("$id", simulationSummaryId.ToString("N"));
+        using var reader = command.ExecuteReader();
+        var descriptors = new List<StoredResultSeriesDescriptor>();
+        while (reader.Read())
+        {
+            descriptors.Add(new StoredResultSeriesDescriptor
+            {
+                Id = Guid.Parse(reader.GetString(0)),
+                SimulationSummaryId = Guid.Parse(reader.GetString(1)),
+                ChannelId = reader.GetString(2),
+                Unit = reader.GetString(3),
+                StorageLocation = reader.GetString(4),
+                SampleCount = reader.GetInt32(5),
+                StartTimeUtc = DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture),
+                IntervalSeconds = reader.GetDouble(7)
+            });
+        }
+
+        if (descriptors.Count == 0)
+        {
+            return null;
+        }
+
+        IReadOnlyDictionary<string, IReadOnlyList<double>>? values = null;
+        if (loadValues)
+        {
+            var absolute = Path.Combine(
+                Path.GetDirectoryName(_databasePath) ?? ".",
+                descriptors[0].StorageLocation.Replace('/', Path.DirectorySeparatorChar));
+            values = ResultSeriesPayloadCodec.Read(absolute);
+        }
+
+        return new StoredResultSeriesBundle
+        {
+            SimulationSummaryId = simulationSummaryId,
+            Channels = descriptors,
+            ValuesByChannelId = values
+        };
+    }
+
     public StoredCalibrationRun SaveCalibrationRun(
         AwgParameterCalibrationResult calibration,
         string measurementSourcePath,
@@ -360,5 +555,27 @@ public sealed class SqliteThermoCoreStore : IThermoCoreStore, IDisposable
         var connection = new SqliteConnection(_connectionString);
         connection.Open();
         return connection;
+    }
+
+    private static StoredSimulationSummary ReadSummary(SqliteDataReader reader)
+    {
+        return new StoredSimulationSummary
+        {
+            Id = Guid.Parse(reader.GetString(0)),
+            ConfigurationVersionId = Guid.Parse(reader.GetString(1)),
+            Status = reader.GetString(2),
+            Succeeded = reader.GetInt32(3) != 0,
+            TopologyId = reader.GetString(4),
+            CompletedSteps = reader.GetInt32(5),
+            AggregatedEnergyResidualJ = reader.GetDouble(6),
+            AggregatedWaterResidualKg = reader.GetDouble(7),
+            WaterBalancePassed = reader.GetInt32(8) != 0,
+            EnergyBalancePassed = reader.GetInt32(9) != 0,
+            FinalWaterTankContentKg = reader.IsDBNull(10) ? null : reader.GetDouble(10),
+            CreatedAtUtc = DateTimeOffset.Parse(reader.GetString(11), CultureInfo.InvariantCulture),
+            CompletedAtUtc = reader.IsDBNull(12)
+                ? null
+                : DateTimeOffset.Parse(reader.GetString(12), CultureInfo.InvariantCulture)
+        };
     }
 }

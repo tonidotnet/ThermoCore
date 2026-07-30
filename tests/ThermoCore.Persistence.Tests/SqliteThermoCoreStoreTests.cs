@@ -29,6 +29,18 @@ public class SqliteThermoCoreStoreTests
                 AwgSimulationOptions.CreateDefault(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1)));
             var summary = store.SaveSimulationSummary(run, saved.Id);
             Assert.Equal(saved.Id, summary.ConfigurationVersionId);
+            Assert.Equal(summary.Id, store.GetSimulationSummary(summary.Id)!.Id);
+            Assert.Contains(store.ListSimulationSummaries(), s => s.Id == summary.Id);
+
+            var series = store.SaveResultSeries(summary.Id, run);
+            Assert.NotEmpty(series.Channels);
+            var reloaded = store.GetResultSeries(summary.Id);
+            Assert.NotNull(reloaded);
+            Assert.Equal(series.Channels.Count, reloaded!.Channels.Count);
+            Assert.NotNull(reloaded.ValuesByChannelId);
+            Assert.Equal(
+                series.ValuesByChannelId![series.Channels[0].ChannelId].Count,
+                reloaded.ValuesByChannelId![series.Channels[0].ChannelId].Count);
 
             var calibration = new AwgParameterCalibrationResult
             {
@@ -76,6 +88,12 @@ public class SqliteThermoCoreStoreTests
         if (File.Exists(path))
         {
             File.Delete(path);
+        }
+
+        var seriesDir = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".", "series");
+        if (Directory.Exists(seriesDir))
+        {
+            Directory.Delete(seriesDir, recursive: true);
         }
     }
 }

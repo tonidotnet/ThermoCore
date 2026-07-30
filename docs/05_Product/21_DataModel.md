@@ -5,7 +5,7 @@
 **Status:** Implemented  
 **Document Type:** Persistence and application data model specification  
 **Applies To:** ThermoCore.Api, ThermoCore.Web and infrastructure  
-**Notes:** SQLite MVP in `ThermoCore.Persistence` covers configuration versions, simulation summaries, and calibration runs. PostgreSQL and full series storage remain later.
+**Notes:** SQLite MVP in `ThermoCore.Persistence` covers configuration versions, simulation summaries, calibration runs, and full result-series payloads (gzip JSON beside the DB). PostgreSQL remains later.
 
 ---
 
@@ -166,11 +166,11 @@ Binary file
 Object storage
 ```
 
-Recommended MVP:
+Recommended MVP (implemented for SQLite):
 
-- relational metadata;
-- compressed result file for full series;
-- selected downsampled series in database.
+- relational metadata (`result_series` channel descriptors);
+- compressed result file for full series (`series/<summaryId>.json.gz`);
+- selected downsampled series in database (later / hosted).
 
 # 10. Result-series descriptor
 

@@ -13,4 +13,8 @@ public sealed record AwgParameterSweepResult
             .Where(p => p.Succeeded && p.WattHoursPerLiter is > 0)
             .OrderBy(p => p.WattHoursPerLiter!.Value)
             .FirstOrDefault();
+
+    /// <summary>Bi-objective Pareto front (max L/day, min Wh/L) when electrical proxy exists.</summary>
+    public IReadOnlyList<AwgParameterSweepPointResult> ParetoFrontLitersPerDayVsWattHoursPerLiter
+        => AwgParetoFront.LitersPerDayVsWattHoursPerLiter(Points);
 }

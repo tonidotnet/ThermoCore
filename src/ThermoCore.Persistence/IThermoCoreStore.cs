@@ -20,6 +20,19 @@ public interface IThermoCoreStore
         AwgSimulationRunResult run,
         Guid configurationVersionId);
 
+    StoredSimulationSummary? GetSimulationSummary(Guid id);
+
+    IReadOnlyList<StoredSimulationSummary> ListSimulationSummaries(int take = 50);
+
+    /// <summary>
+    /// Persists channel metadata plus a compressed full-series payload for a saved summary.
+    /// </summary>
+    StoredResultSeriesBundle SaveResultSeries(
+        Guid simulationSummaryId,
+        AwgSimulationRunResult run);
+
+    StoredResultSeriesBundle? GetResultSeries(Guid simulationSummaryId, bool loadValues = true);
+
     StoredCalibrationRun SaveCalibrationRun(
         AwgParameterCalibrationResult calibration,
         string measurementSourcePath,

@@ -10,6 +10,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 ### Added
 
 - MkDocs Material documentation portal (`mkdocs.yml`, ADR-002, GitHub Pages workflow)
+- SQLite result-series persistence (gzip channel payloads + descriptors) and `run --db`
+- Bi-objective Pareto front on sweeps (max L/day, min Wh/L) (OPT-006)
 - One-at-a-time sensitivity analysis (`sensitivity`) ranked by liters/day elasticity (OPT-003)
 - Parameter grid sweeps (`sweep`) with liters/day and Wh/liter ranking (OPT-002)
 - Sectioned Blazor AWG configuration wizard (collector, silica, condenser, HR)

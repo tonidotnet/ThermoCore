@@ -97,7 +97,7 @@ internal static class DemoHost
             Usage:
               dotnet run --project src/ThermoCore.Console -- demo
               dotnet run --project src/ThermoCore.Console -- config <path.json>
-              dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>]
+              dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
@@ -122,6 +122,7 @@ internal static class DemoHost
               --duration / -d <sec>     Simulation duration in seconds (default 60)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
               --export <dir>            Write DOC-029 full result export bundle (AWG-017)
+              --db <path>               Persist summary + compressed result series (DATA)
 
             Regress options:
               --dir <path>              Load scenarios from JSON directory (default: built-in catalog)
@@ -383,6 +384,19 @@ internal static class DemoHost
                 System.Console.WriteLine(
                     $"Best Wh/liter: {bestEnergy.WattHoursPerLiter!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
                     $"at {FormatValues(bestEnergy.ParameterValues)}");
+            }
+
+            var pareto = result.ParetoFrontLitersPerDayVsWattHoursPerLiter;
+            if (pareto.Count > 0)
+            {
+                System.Console.WriteLine($"Pareto front (max L/day, min Wh/L): {pareto.Count} point(s)");
+                foreach (var point in pareto)
+                {
+                    System.Console.WriteLine(
+                        $"  L/day={point.LitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                        $"Wh/L={point.WattHoursPerLiter!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
+                        $"at {FormatValues(point.ParameterValues)}");
+                }
             }
 
             return result.Points.Any(p => p.Succeeded) ? ExitSuccess : ExitSimulationFailed;
@@ -772,6 +786,7 @@ internal static class DemoHost
             var durationSeconds = 60.0;
             var timeStepSeconds = 1.0;
             string? exportDirectory = null;
+            string? databasePath = null;
 
             for (var i = 2; i < args.Length; i++)
             {
@@ -805,6 +820,16 @@ internal static class DemoHost
 
                     exportDirectory = args[i];
                 }
+                else if (args[i] is "--db")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --db path.");
+                        return ExitUsageError;
+                    }
+
+                    databasePath = args[i];
+                }
                 else
                 {
                     System.Console.Error.WriteLine($"Unknown run option: {args[i]}");
@@ -825,6 +850,17 @@ internal static class DemoHost
                 var (_, manifest) = AwgResultExporter.ExportBundle(run, exportDirectory);
                 System.Console.WriteLine(
                     $"Exported result package ({manifest.Files.Count} files) to: {exportDirectory}");
+            }
+
+            if (databasePath is not null)
+            {
+                using var store = new SqliteThermoCoreStore(databasePath);
+                store.EnsureCreated();
+                var version = store.SaveConfiguration(document, Path.GetFileNameWithoutExtension(path));
+                var summary = store.SaveSimulationSummary(run, version.Id);
+                var series = store.SaveResultSeries(summary.Id, run);
+                System.Console.WriteLine(
+                    $"Persisted summary {summary.Id:N} with {series.Channels.Count} series channel(s) to {databasePath}");
             }
 
             if (!run.EngineResult.Succeeded)

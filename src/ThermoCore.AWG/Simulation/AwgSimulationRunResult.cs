@@ -1,7 +1,6 @@
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Simulation;
-using ThermoCore.Core.Validation;
 
 namespace ThermoCore.AWG.Simulation;
 
@@ -15,4 +14,6 @@ public sealed record AwgSimulationRunResult
     public required SimulationRunResult EngineResult { get; init; }
 
     public required AwgRunSummary Summary { get; init; }
+
+    public required AwgSystemBalanceReport BalanceReport { get; init; }
 }

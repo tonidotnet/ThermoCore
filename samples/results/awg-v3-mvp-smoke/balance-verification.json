@@ -1,0 +1,17 @@
+﻿{
+  "succeeded": true,
+  "waterBalancePassed": true,
+  "energyBalancePassed": true,
+  "dryAirBalancePassed": true,
+  "maxAbsWaterResidualKg": 8.348356728138384E-18,
+  "maxAbsEnergyResidualJ": 2.8590178771992214E-05,
+  "maxAbsDryAirResidualKg": 0,
+  "aggregatedWaterResidualKg": 2.3245294578089215E-16,
+  "aggregatedEnergyResidualJ": -0.0008122969884425402,
+  "aggregatedDryAirResidualKg": 0,
+  "absoluteWaterToleranceKg": 1E-09,
+  "absoluteEnergyToleranceJ": 1E-05,
+  "absoluteDryAirToleranceKg": 1E-09,
+  "checkedStepCount": 30,
+  "allPassed": true
+}

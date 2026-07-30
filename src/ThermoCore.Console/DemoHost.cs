@@ -82,7 +82,7 @@ internal static class DemoHost
             Run options:
               --duration / -d <sec>     Simulation duration in seconds (default 60)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
-              --export <dir>            Write DOC-029 CSV result bundle to directory (APP-005)
+              --export <dir>            Write DOC-029 full result export bundle (AWG-017)
             """);
     }
 
@@ -140,12 +140,13 @@ internal static class DemoHost
                 TimeSpan.FromSeconds(timeStepSeconds));
             var run = new AwgSimulationRunner().Run(document.System, document.InitialState, options);
 
-            System.Console.WriteLine(AwgRunSummaryFormatter.Format(run.Summary));
+            System.Console.WriteLine(AwgRunSummaryFormatter.Format(run.Summary, run.BalanceReport));
 
             if (exportDirectory is not null)
             {
-                AwgResultExporter.ExportCsv(run, exportDirectory);
-                System.Console.WriteLine($"Exported CSV results to: {exportDirectory}");
+                var (_, manifest) = AwgResultExporter.ExportBundle(run, exportDirectory);
+                System.Console.WriteLine(
+                    $"Exported result package ({manifest.Files.Count} files) to: {exportDirectory}");
             }
 
             if (!run.EngineResult.Succeeded)

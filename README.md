@@ -31,3 +31,11 @@ dotnet run --project src/ThermoCore.Console
 ## Documentation
 
 Start at `README_FIRST.md`, then `docs/00_Project/DOCUMENT_INVENTORY.md` and `docs/00_Project/IMPLEMENTATION_PROGRESS.md`.
+
+## License
+
+Apache License 2.0 — see `LICENSE` and `docs/ADR/ADR-001-OpenSourceLicense.md`.
+
+## Contributing
+
+See `CONTRIBUTING.md`.

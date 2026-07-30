@@ -1,0 +1,18 @@
+﻿{
+  "dryAirMassInputKg": 4.200000000000002,
+  "dryAirMassOutputKg": 4.200000000000002,
+  "dryAirMassStorageChangeKg": 0,
+  "dryAirMassResidualKg": 0,
+  "waterMassInputKg": 0.029736905022116157,
+  "waterMassOutputKg": 0.023859722389044793,
+  "waterMassStorageChangeKg": 0.005877182633071132,
+  "waterMassResidualKg": 2.3245294578089215E-16,
+  "energyInputJ": 245242.78589564972,
+  "energyOutputJ": 177381.97459181162,
+  "storedEnergyChangeJ": 67860.81211613509,
+  "energyResidualJ": -0.0008122969884425402,
+  "electricalEnergyInputJ": 6575.248129356678,
+  "electricalEnergyOutputJ": 2152.0481293566777,
+  "storedElectricalEnergyChangeJ": 4423.199999998324,
+  "electricalEnergyResidualJ": 1.6771082300692797E-09
+}

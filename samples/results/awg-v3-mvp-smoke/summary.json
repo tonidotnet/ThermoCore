@@ -1,0 +1,24 @@
+﻿{
+  "succeeded": true,
+  "status": 1,
+  "maxAbsEnergyResidualJ": 2.8590178771992214E-05,
+  "maxAbsWaterResidualKg": 8.348356728138384E-18,
+  "maxAbsDryAirResidualKg": 0,
+  "aggregatedEnergyResidualJ": -0.0008122969884425402,
+  "aggregatedWaterResidualKg": 2.3245294578089215E-16,
+  "warningCount": 30,
+  "errorCount": 0,
+  "scalarMetrics": {
+    "steps.total": 30,
+    "steps.captured": 30,
+    "balance.energy.residualAbsMaxJ": 2.8590178771992214E-05,
+    "balance.water.residualAbsMaxKg": 8.348356728138384E-18,
+    "integral.condenser.liquid_out.massFlow": 0,
+    "balance.water.maximumAbsoluteResidualKg": 8.348356728138384E-18,
+    "balance.energy.maximumAbsoluteResidualJ": 2.8590178771992214E-05,
+    "balance.dryAir.maximumAbsoluteResidualKg": 0,
+    "water.collected.totalKg": 0,
+    "water.collected.totalLitersApprox": 0,
+    "water.production.averageKgPerDay": 0
+  }
+}

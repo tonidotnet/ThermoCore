@@ -96,16 +96,15 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-CSV export, weather-driven 24h AWG runs, and heat-recovery topology are in place. Next: full result dataset export and balance verification, then repo/OSS readiness.
+Full DOC-029 export packages and system balance verification are available. Next: regression scenarios and remaining OSS polish.
 ```
 
 ## Recommended next tasks
 
-1. `AWG-017` — Export first full result dataset
-2. `AWG-018` / `AWG-019` — Verify system water and energy balances
-3. Repository/OSS readiness (license, CI)
-4. `APP-006` — Regression scenarios
-5. PV rear-air channel / combined HR+recirculation (deferred MVP limits)
+1. `APP-006` — Regression scenarios (needs DOC-022 or lightweight scenario pack)
+2. Remaining OSS polish (`REP-005`/`REP-006`/`REP-007`, PR template)
+3. PV rear-air channel / combined HR+recirculation (deferred MVP limits)
+4. API/Web after Core/AWG acceptance hardening
 
 ---
 
@@ -115,10 +114,10 @@ CSV export, weather-driven 24h AWG runs, and heat-recovery topology are in place
 |---|---:|---:|---:|---:|---:|
 | Documentation foundations | 12 | 8 | 0 | 4 | 0 |
 | AI workspace | 10 | 10 | 0 | 0 | 0 |
-| Repository setup | 12 | 0 | 0 | 3 | 9 |
+| Repository setup | 12 | 7 | 0 | 0 | 5 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 16 | 0 | 0 | 3 |
+| ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -203,8 +202,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | REP-001 | Create monorepository | P0 | Done | DOC-005 | Git repository | Clean initial branch |
 | REP-002 | Add root README | P1 | Done | REP-001 | `README.md` | Explains ThermoCore and AWG reference app |
-| REP-003 | Select and add license | P1 | Planned | REP-001 | `LICENSE` | License decision documented in ADR |
-| REP-004 | Add contribution guide | P2 | Planned | REP-002, REP-003 | `CONTRIBUTING.md` | Includes development workflow |
+| REP-003 | Select and add license | P1 | Done | REP-001 | `LICENSE` | Apache-2.0 + ADR-001 |
+| REP-004 | Add contribution guide | P2 | Done | REP-002, REP-003 | `CONTRIBUTING.md` | Includes development workflow |
 | REP-005 | Add code of conduct | P2 | Planned | REP-001 | `CODE_OF_CONDUCT.md` | Standard open-source policy |
 | REP-006 | Add security policy | P2 | Planned | REP-001 | `SECURITY.md` | Vulnerability reporting |
 | REP-007 | Add change log | P2 | Planned | REP-001 | `CHANGELOG.md` | Keep a release history |
@@ -212,7 +211,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | REP-009 | Add `.editorconfig` | P0 | Done | REP-001, DOC-018A | `.editorconfig` | Matches coding rules |
 | REP-010 | Add issue templates | P3 | Planned | REP-004 | `.github/ISSUE_TEMPLATE/` | Bug, feature, model validation |
 | REP-011 | Add pull-request template | P2 | Planned | REP-004 | `.github/pull_request_template.md` | Includes test and balance checklist |
-| REP-012 | Add CI workflow | P1 | Planned | DEV-001 | `.github/workflows/build.yml` | Build, test and formatting checks |
+| REP-012 | Add CI workflow | P1 | Done | DEV-001 | `.github/workflows/build.yml` | Build + test on .NET 10 |
 
 ---
 
@@ -416,9 +415,9 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AWG-014 | Implement water-tank state | P1 | Done | CORE-012, COND-006 | `15_SystemTopology.md` | Passing |
 | AWG-015 | Integrate cyclic recirculation solver | P1 | Done | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | Passing |
 | AWG-016 | Run first 24-hour simulation | P1 | Done | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | Passing |
-| AWG-017 | Export first full result dataset | P1 | Ready | AWG-016, DOC-029A | `29_ResultFormats.md` | NotStarted |
-| AWG-018 | Verify system water balance | P0 | Ready | AWG-016 | `04_MathematicalModel.md` | NotStarted |
-| AWG-019 | Verify system energy balance | P0 | Ready | AWG-016 | `04_MathematicalModel.md` | NotStarted |
+| AWG-017 | Export first full result dataset | P1 | Done | AWG-016, DOC-029A | `29_ResultFormats.md` | Passing |
+| AWG-018 | Verify system water balance | P0 | Done | AWG-016 | `04_MathematicalModel.md` | Passing |
+| AWG-019 | Verify system energy balance | P0 | Done | AWG-016 | `04_MathematicalModel.md` | Passing |
 
 ---
 
@@ -488,7 +487,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Output |
 |---|---|---|---|---|---|
-| OSS-001 | Finalize open-source license | P1 | Planned | REP-003 | ADR and LICENSE |
+| OSS-001 | Finalize open-source license | P1 | Done | REP-003 | ADR and LICENSE |
 | OSS-002 | Create public project README | P1 | Planned | REP-002, DOC-002 | GitHub landing page |
 | OSS-003 | Add architecture diagram assets | P2 | Planned | OSS-002 | `docs/Images/` |
 | OSS-004 | Create first-good-issue backlog | P3 | Planned | REP-010 | GitHub issues |
@@ -613,7 +612,7 @@ Completion requirements:
 - [ ] Battery
 - [ ] AWG controller
 - [ ] 24-hour simulation
-- [ ] Water and energy balances
+- [x] Water and energy balances
 
 ## Milestone M4 — ThermoCore.Web 0.7 MVP
 
@@ -664,11 +663,10 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. AWG-017 — Export first full result dataset
-2. AWG-018 / AWG-019 — Verify system water and energy balances
-3. Repository/OSS readiness (license, CI)
-4. APP-006 — Regression scenarios
-5. PV rear-air / combined heat-recovery+recirculation (MVP currently exclusive)
+1. APP-006 — Regression scenarios (DOC-022 or lightweight scenario pack)
+2. Remaining OSS polish (CODE_OF_CONDUCT, SECURITY, CHANGELOG, PR template)
+3. PV rear-air / combined heat-recovery+recirculation (MVP currently exclusive)
+4. API/Web after AWG acceptance hardening
 ```
 
 ---

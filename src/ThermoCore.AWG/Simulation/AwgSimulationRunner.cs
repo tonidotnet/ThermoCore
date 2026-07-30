@@ -1,6 +1,5 @@
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Simulation;
-using ThermoCore.Core.Validation;
 
 namespace ThermoCore.AWG.Simulation;
 
@@ -43,12 +42,14 @@ public sealed class AwgSimulationRunner
             cancellationToken);
 
         var summary = AwgRunSummaryBuilder.Build(built, options, engineResult);
+        var balanceReport = AwgSystemBalanceVerifier.Verify(engineResult);
         return new AwgSimulationRunResult
         {
             BuiltSystem = built,
             Options = options,
             EngineResult = engineResult,
-            Summary = summary
+            Summary = summary,
+            BalanceReport = balanceReport
         };
     }
 }

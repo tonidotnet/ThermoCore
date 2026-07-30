@@ -1,0 +1,782 @@
+﻿[
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 0,
+    "simulationTime": "00:00:00"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 0
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 0,
+    "values": {
+      "idealCoolingW": 346.3196213126058,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 1,
+    "simulationTime": "00:00:01"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 1
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 1,
+    "values": {
+      "idealCoolingW": 350.5755104608059,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 2,
+    "simulationTime": "00:00:02"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 2
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 2,
+    "values": {
+      "idealCoolingW": 354.8151392808436,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 3,
+    "simulationTime": "00:00:03"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 3
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 3,
+    "values": {
+      "idealCoolingW": 359.0385832201189,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 4,
+    "simulationTime": "00:00:04"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 4
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 4,
+    "values": {
+      "idealCoolingW": 363.2459172892681,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 5,
+    "simulationTime": "00:00:05"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 5
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 5,
+    "values": {
+      "idealCoolingW": 367.4372160651829,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 6,
+    "simulationTime": "00:00:06"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 6
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 6,
+    "values": {
+      "idealCoolingW": 371.6125536940225,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 7,
+    "simulationTime": "00:00:07"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 7
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 7,
+    "values": {
+      "idealCoolingW": 375.7720038941865,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 8,
+    "simulationTime": "00:00:08"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 8
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 8,
+    "values": {
+      "idealCoolingW": 379.91563995928084,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 9,
+    "simulationTime": "00:00:09"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 9
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 9,
+    "values": {
+      "idealCoolingW": 384.0435347610445,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 10,
+    "simulationTime": "00:00:10"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 10
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 10,
+    "values": {
+      "idealCoolingW": 388.15576075227017,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 11,
+    "simulationTime": "00:00:11"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 11
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 11,
+    "values": {
+      "idealCoolingW": 392.25238996967994,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 12,
+    "simulationTime": "00:00:12"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 12
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 12,
+    "values": {
+      "idealCoolingW": 396.33349403680796,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 13,
+    "simulationTime": "00:00:13"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 13
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 13,
+    "values": {
+      "idealCoolingW": 400.3991441668375,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 14,
+    "simulationTime": "00:00:14"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 14
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 14,
+    "values": {
+      "idealCoolingW": 404.4494111654198,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 15,
+    "simulationTime": "00:00:15"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 15
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 15,
+    "values": {
+      "idealCoolingW": 408.48436543348436,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 16,
+    "simulationTime": "00:00:16"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 16
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 16,
+    "values": {
+      "idealCoolingW": 412.504076970005,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 17,
+    "simulationTime": "00:00:17"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 17
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 17,
+    "values": {
+      "idealCoolingW": 416.5086153747737,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 18,
+    "simulationTime": "00:00:18"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 18
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 18,
+    "values": {
+      "idealCoolingW": 420.4980498511216,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 19,
+    "simulationTime": "00:00:19"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 19
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 19,
+    "values": {
+      "idealCoolingW": 424.4724492086466,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 20,
+    "simulationTime": "00:00:20"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 20
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 20,
+    "values": {
+      "idealCoolingW": 428.431881865896,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 21,
+    "simulationTime": "00:00:21"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 21
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 21,
+    "values": {
+      "idealCoolingW": 432.3764158530485,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 22,
+    "simulationTime": "00:00:22"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 22
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 22,
+    "values": {
+      "idealCoolingW": 436.30611881456525,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 23,
+    "simulationTime": "00:00:23"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 23
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 23,
+    "values": {
+      "idealCoolingW": 440.22105801182073,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 24,
+    "simulationTime": "00:00:24"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 24
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 24,
+    "values": {
+      "idealCoolingW": 444.12130032571235,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 25,
+    "simulationTime": "00:00:25"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 25
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 25,
+    "values": {
+      "idealCoolingW": 448.0069122592632,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 26,
+    "simulationTime": "00:00:26"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 26
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 26,
+    "values": {
+      "idealCoolingW": 451.87795994017597,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 27,
+    "simulationTime": "00:00:27"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 27
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 27,
+    "values": {
+      "idealCoolingW": 455.7345091233976,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 28,
+    "simulationTime": "00:00:28"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 28
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 28,
+    "values": {
+      "idealCoolingW": 459.57662519365766,
+      "availableCoolingW": 200
+    }
+  },
+  {
+    "code": "SILICA.VAPOR_AVAILABILITY_LIMIT",
+    "severity": 0,
+    "message": "Water transfer was limited by available inlet vapor.",
+    "componentId": "silica-gel-bed",
+    "stepIndex": 29,
+    "simulationTime": "00:00:29"
+  },
+  {
+    "code": "CONDENSER.NO_CONDENSATION",
+    "severity": 0,
+    "message": "Surface temperature is at or above inlet dew point; sensible cooling only.",
+    "componentId": "condenser",
+    "stepIndex": 29
+  },
+  {
+    "code": "CONDENSER.COOLING_POWER_LIMITED",
+    "severity": 1,
+    "message": "Available cooling power limits outlet approach to the ideal apparatus state.",
+    "componentId": "condenser",
+    "stepIndex": 29,
+    "values": {
+      "idealCoolingW": 463.4043731679654,
+      "availableCoolingW": 200
+    }
+  }
+]

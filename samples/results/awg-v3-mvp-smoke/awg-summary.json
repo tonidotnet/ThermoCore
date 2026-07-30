@@ -1,0 +1,36 @@
+﻿{
+  "succeeded": true,
+  "topologyId": "awg-v3-mvp",
+  "topologyVersion": "1.0",
+  "graphFingerprint": "9a5a81ee5ceea474955bcbdb9531871dd09172f5dc8f725a8390cad3a24d4c53",
+  "componentCount": 14,
+  "connectionCount": 12,
+  "completedSteps": 30,
+  "duration": "00:00:30",
+  "timeStep": "00:00:01",
+  "aggregatedEnergyResidualJ": -0.0008122969884425402,
+  "aggregatedWaterResidualKg": 2.3245294578089215E-16,
+  "aggregatedDryAirResidualKg": 0,
+  "warningCount": 30,
+  "errorCount": 0,
+  "finalMoistAirTemperaturesC": {
+    "MP-01": 25,
+    "MP-03": 25,
+    "MP-05": 28.570220212773506,
+    "MP-06": 32.09231567130661,
+    "MP-07": 32.09231567130661,
+    "MP-08": 22.15349012300925,
+    "MP-10": 22.15349012300925
+  },
+  "finalHumidityRatiosKgPerKg": {
+    "MP-01": 0.009878873878156884,
+    "MP-03": 0.009878873878156884,
+    "MP-05": 0.009878873878156884,
+    "MP-06": 8.356948970459278E-05,
+    "MP-07": 8.356948970459278E-05,
+    "MP-08": 8.356948970459278E-05,
+    "MP-10": 8.356948970459278E-05
+  },
+  "finalWaterTankContentKg": 0,
+  "finalWaterTankLevelFraction": 0
+}

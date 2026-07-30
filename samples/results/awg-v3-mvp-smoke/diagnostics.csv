@@ -1,0 +1,91 @@
+﻿step_index,simulation_time_utc,severity,code,component_id,port_id,message,numeric_context_json
+0,2026-01-01T00:00:00.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+0,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+0,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":346.31962131260582}"
+1,2026-01-01T00:00:01.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+1,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+1,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":350.5755104608059}"
+2,2026-01-01T00:00:02.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+2,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+2,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":354.8151392808436}"
+3,2026-01-01T00:00:03.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+3,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+3,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":359.03858322011888}"
+4,2026-01-01T00:00:04.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+4,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+4,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":363.24591728926811}"
+5,2026-01-01T00:00:05.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+5,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+5,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":367.43721606518289}"
+6,2026-01-01T00:00:06.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+6,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+6,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":371.61255369402249}"
+7,2026-01-01T00:00:07.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+7,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+7,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":375.77200389418653}"
+8,2026-01-01T00:00:08.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+8,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+8,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":379.91563995928084}"
+9,2026-01-01T00:00:09.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+9,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+9,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":384.0435347610445}"
+10,2026-01-01T00:00:10.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+10,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+10,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":388.15576075227017}"
+11,2026-01-01T00:00:11.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+11,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+11,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":392.25238996967994}"
+12,2026-01-01T00:00:12.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+12,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+12,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":396.33349403680796}"
+13,2026-01-01T00:00:13.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+13,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+13,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":400.39914416683752}"
+14,2026-01-01T00:00:14.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+14,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+14,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":404.4494111654198}"
+15,2026-01-01T00:00:15.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+15,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+15,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":408.48436543348436}"
+16,2026-01-01T00:00:16.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+16,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+16,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":412.50407697000497}"
+17,2026-01-01T00:00:17.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+17,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+17,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":416.50861537477368}"
+18,2026-01-01T00:00:18.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+18,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+18,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":420.49804985112161}"
+19,2026-01-01T00:00:19.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+19,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+19,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":424.47244920864659}"
+20,2026-01-01T00:00:20.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+20,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+20,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":428.431881865896}"
+21,2026-01-01T00:00:21.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+21,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+21,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":432.37641585304851}"
+22,2026-01-01T00:00:22.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+22,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+22,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":436.30611881456525}"
+23,2026-01-01T00:00:23.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+23,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+23,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":440.22105801182073}"
+24,2026-01-01T00:00:24.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+24,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+24,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":444.12130032571235}"
+25,2026-01-01T00:00:25.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+25,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+25,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":448.00691225926317}"
+26,2026-01-01T00:00:26.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+26,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+26,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":451.87795994017597}"
+27,2026-01-01T00:00:27.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+27,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+27,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":455.73450912339757}"
+28,2026-01-01T00:00:28.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+28,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+28,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":459.57662519365766}"
+29,2026-01-01T00:00:29.0000000Z,Information,SILICA.VAPOR_AVAILABILITY_LIMIT,silica-gel-bed,,Water transfer was limited by available inlet vapor.,
+29,2026-01-01T00:00:00.0000000Z,Information,CONDENSER.NO_CONDENSATION,condenser,,Surface temperature is at or above inlet dew point; sensible cooling only.,
+29,2026-01-01T00:00:00.0000000Z,Warning,CONDENSER.COOLING_POWER_LIMITED,condenser,,Available cooling power limits outlet approach to the ideal apparatus state.,"{""availableCoolingW"":200,""idealCoolingW"":463.40437316796539}"

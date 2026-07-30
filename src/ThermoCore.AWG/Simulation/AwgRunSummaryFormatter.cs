@@ -3,7 +3,7 @@ namespace ThermoCore.AWG.Simulation;
 /// <summary>Formats an <see cref="AwgRunSummary"/> for console output.</summary>
 public static class AwgRunSummaryFormatter
 {
-    public static string Format(AwgRunSummary summary)
+    public static string Format(AwgRunSummary summary, AwgSystemBalanceReport? balanceReport = null)
     {
         ArgumentNullException.ThrowIfNull(summary);
         var lines = new List<string>
@@ -17,6 +17,16 @@ public static class AwgRunSummaryFormatter
             $"Residuals: E={summary.AggregatedEnergyResidualJ:E3} J  W={summary.AggregatedWaterResidualKg:E3} kg  DA={summary.AggregatedDryAirResidualKg:E3} kg",
             $"Diagnostics: warnings={summary.WarningCount} errors={summary.ErrorCount}"
         };
+
+        if (balanceReport is not null)
+        {
+            lines.Add(
+                $"Balance check: water={(balanceReport.WaterBalancePassed ? "PASS" : "FAIL")} " +
+                $"(max|{balanceReport.MaxAbsWaterResidualKg:E3}| kg)  " +
+                $"energy={(balanceReport.EnergyBalancePassed ? "PASS" : "FAIL")} " +
+                $"(max|{balanceReport.MaxAbsEnergyResidualJ:E3}| J)  " +
+                $"dry-air={(balanceReport.DryAirBalancePassed ? "PASS" : "FAIL")}");
+        }
 
         if (summary.FinalBusPowerW is { } bus)
         {

@@ -1,0 +1,9 @@
+﻿{
+  "resultFormatVersion": "1.0",
+  "startTimeUtc": "2026-01-01T00:00:00+00:00",
+  "duration": "00:00:30",
+  "timeStep": "00:00:01",
+  "capturedStepCount": 30,
+  "totalStepCount": 30,
+  "capturePolicy": 0
+}

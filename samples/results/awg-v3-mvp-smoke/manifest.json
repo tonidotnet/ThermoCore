@@ -1,0 +1,65 @@
+﻿{
+  "packageType": "ThermoCoreSimulationExport",
+  "packageVersion": "1.0",
+  "simulationId": "a4e1c822fc344121b22719f656f5aae6",
+  "createdAtUtc": "2026-07-30T08:34:47.6822047+00:00",
+  "resultFormatVersion": "1.0",
+  "files": [
+    {
+      "path": "README.txt",
+      "sha256": "d0bcc863449504600fd5af850ce68cc9e4cbdbcef3b22b5bd0d0630a75ad85dd"
+    },
+    {
+      "path": "aggregated-balance.json",
+      "sha256": "b61ebe6db9bee26a124c9523ee214acd6207004b530f07c6604bd73488770b22"
+    },
+    {
+      "path": "awg-summary.json",
+      "sha256": "b6fb5c57418828b734fb1d35a4f4660797653b8d1c08b03a206f4f506e996594"
+    },
+    {
+      "path": "balance-verification.json",
+      "sha256": "43f40a6777a97889145b887bb8fe65af9ff80df51e2b4b161447eb7c0ed7c2c7"
+    },
+    {
+      "path": "balances.csv",
+      "sha256": "d62184256a11452193b7610b7569ae7c745749ec890df9e78d40f8356452c3ba"
+    },
+    {
+      "path": "channels.json",
+      "sha256": "d919d1df9050d96d541f49891803dcfeea34912e325cf7c5b5c1414a369a4fbe"
+    },
+    {
+      "path": "configuration.json",
+      "sha256": "cb41daf9802c70647ab4df60549359a29cab27c560002eb8540c5dbd7cc0c683"
+    },
+    {
+      "path": "diagnostics.csv",
+      "sha256": "c0dac76eabdc896a1d8b6179d123f98ab50e7a22b7422e9297b565a315f60dac"
+    },
+    {
+      "path": "diagnostics.json",
+      "sha256": "bdcbb8de8fe1876c456d54fd9a469cde4497ab2646276c1f917eebe7930e5829"
+    },
+    {
+      "path": "metadata.json",
+      "sha256": "bd4f6ed8892616acbfd656962a1bb7039db7826b3679a843cd783646b4adef55"
+    },
+    {
+      "path": "series-long.csv",
+      "sha256": "089b32441c16851ff4c0e65d619a4a23ca43f6090e1ab3f82d51516c3651e4fb"
+    },
+    {
+      "path": "series-wide.csv",
+      "sha256": "e4474a17076c1f4f8c58fc597a789e1716df98e8010d5b865c47e174a8c98827"
+    },
+    {
+      "path": "summary.csv",
+      "sha256": "62bc9653a8a9c1fc15f6cd2320da1644b0eff3773974871a10b056d6f1ffaf49"
+    },
+    {
+      "path": "summary.json",
+      "sha256": "7e3b734faa5f31847538d9f1744185efeba25f1ec95fac225a23ce4810ba0fe8"
+    }
+  ]
+}

@@ -67,6 +67,11 @@ public sealed class InProcessThermoCoreApiClient : IThermoCoreApiClient
         }
     }
 
+    public Task<IReadOnlyList<SimulationStatusResponse>> ListSimulationsAsync(
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<SimulationStatusResponse>>(
+            _jobs.List().Select(ToStatus).ToArray());
+
     public Task<SimulationStatusResponse?> GetSimulationAsync(
         string simulationId,
         CancellationToken cancellationToken = default)

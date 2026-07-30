@@ -1,0 +1,191 @@
+@page "/simulations/compare"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+
+<PageTitle>Compare simulations — ThermoCore</PageTitle>
+
+<h1>Compare simulations</h1>
+<p>Select two completed jobs from this process and compare summary metrics side by side.</p>
+
+@if (jobs.Count == 0)
+{
+    <p class="text-muted">No simulations in memory yet. <a href="configurations">Configure and run</a> one first.</p>
+}
+else
+{
+    <div class="row g-3 col-lg-10 mb-3">
+        <div class="col-md-5">
+            <label class="form-label">Simulation A</label>
+            <select class="form-select" @bind="idA" @bind:after="RefreshAsync">
+                <option value="">—</option>
+                @foreach (var job in completedJobs)
+                {
+                    <option value="@job.SimulationId">@job.SimulationId[..Math.Min(8, job.SimulationId.Length)]… (@job.Status)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Simulation B</label>
+            <select class="form-select" @bind="idB" @bind:after="RefreshAsync">
+                <option value="">—</option>
+                @foreach (var job in completedJobs)
+                {
+                    <option value="@job.SimulationId">@job.SimulationId[..Math.Min(8, job.SimulationId.Length)]… (@job.Status)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-outline-primary w-100" @onclick="LoadJobsAsync">Refresh list</button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+
+    @if (summaryA is not null && summaryB is not null)
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>A</th>
+                    <th>B</th>
+                    <th>Δ (B − A)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Succeeded</td>
+                    <td>@BoolText(summaryA.Succeeded)</td>
+                    <td>@BoolText(summaryB.Succeeded)</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Topology</td>
+                    <td>@summaryA.TopologyId</td>
+                    <td>@summaryB.TopologyId</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Completed steps</td>
+                    <td>@summaryA.CompletedSteps</td>
+                    <td>@summaryB.CompletedSteps</td>
+                    <td>@(summaryB.CompletedSteps - summaryA.CompletedSteps)</td>
+                </tr>
+                <tr>
+                    <td>Water balance</td>
+                    <td>@PassFail(summaryA.WaterBalancePassed)</td>
+                    <td>@PassFail(summaryB.WaterBalancePassed)</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Energy balance</td>
+                    <td>@PassFail(summaryA.EnergyBalancePassed)</td>
+                    <td>@PassFail(summaryB.EnergyBalancePassed)</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Water residual (kg)</td>
+                    <td>@summaryA.AggregatedWaterResidualKg.ToString("E3")</td>
+                    <td>@summaryB.AggregatedWaterResidualKg.ToString("E3")</td>
+                    <td>@((summaryB.AggregatedWaterResidualKg - summaryA.AggregatedWaterResidualKg).ToString("E3"))</td>
+                </tr>
+                <tr>
+                    <td>Energy residual (J)</td>
+                    <td>@summaryA.AggregatedEnergyResidualJ.ToString("E3")</td>
+                    <td>@summaryB.AggregatedEnergyResidualJ.ToString("E3")</td>
+                    <td>@((summaryB.AggregatedEnergyResidualJ - summaryA.AggregatedEnergyResidualJ).ToString("E3"))</td>
+                </tr>
+                <tr>
+                    <td>Tank content (kg)</td>
+                    <td>@(summaryA.FinalWaterTankContentKg?.ToString("F4") ?? "—")</td>
+                    <td>@(summaryB.FinalWaterTankContentKg?.ToString("F4") ?? "—")</td>
+                    <td>@DeltaOptional(summaryA.FinalWaterTankContentKg, summaryB.FinalWaterTankContentKg)</td>
+                </tr>
+                <tr>
+                    <td>Warnings / errors</td>
+                    <td>@summaryA.WarningCount / @summaryA.ErrorCount</td>
+                    <td>@summaryB.WarningCount / @summaryB.ErrorCount</td>
+                    <td>—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted">
+            A: <code>@idA</code> · B: <code>@idB</code>
+        </p>
+    }
+}
+
+@code {
+    private IReadOnlyList<SimulationStatusResponse> jobs = Array.Empty<SimulationStatusResponse>();
+    private string idA = string.Empty;
+    private string idB = string.Empty;
+    private SimulationSummaryResponse? summaryA;
+    private SimulationSummaryResponse? summaryB;
+    private string? error;
+
+    private IEnumerable<SimulationStatusResponse> completedJobs
+        => jobs.Where(j => j.Status is "Completed" or "Failed");
+
+    protected override async Task OnInitializedAsync()
+        => await LoadJobsAsync();
+
+    private async Task LoadJobsAsync()
+    {
+        error = null;
+        jobs = await Api.ListSimulationsAsync();
+        await RefreshAsync();
+    }
+
+    private async Task RefreshAsync()
+    {
+        error = null;
+        summaryA = null;
+        summaryB = null;
+
+        if (string.IsNullOrWhiteSpace(idA) || string.IsNullOrWhiteSpace(idB))
+        {
+            return;
+        }
+
+        if (string.Equals(idA, idB, StringComparison.Ordinal))
+        {
+            error = "Select two different simulations.";
+            return;
+        }
+
+        try
+        {
+            summaryA = await Api.GetSummaryAsync(idA);
+            summaryB = await Api.GetSummaryAsync(idB);
+            if (summaryA is null || summaryB is null)
+            {
+                error = "Summary is available only for completed or failed jobs.";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private static string BoolText(bool value) => value ? "yes" : "no";
+
+    private static string PassFail(bool value) => value ? "PASS" : "FAIL";
+
+    private static string DeltaOptional(double? a, double? b)
+    {
+        if (a is null || b is null)
+        {
+            return "—";
+        }
+
+        return (b.Value - a.Value).ToString("F4");
+    }
+}

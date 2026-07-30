@@ -8,5 +8,7 @@ public interface ISimulationJobStore
 
     SimulationJob? Get(string simulationId);
 
+    IReadOnlyList<SimulationJob> List();
+
     bool TryCancel(string simulationId, out string? conflictReason);
 }

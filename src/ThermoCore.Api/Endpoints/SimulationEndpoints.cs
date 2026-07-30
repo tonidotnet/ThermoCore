@@ -52,6 +52,16 @@ public static class SimulationEndpoints
             .WithName("CreateSimulation")
             .WithTags("Simulations");
 
+        app.MapGet("/api/v1/simulations", (ISimulationJobStore store) =>
+            {
+                var jobs = store.List()
+                    .Select(ToStatus)
+                    .ToArray();
+                return Results.Ok(new SimulationListResponse { Simulations = jobs });
+            })
+            .WithName("ListSimulations")
+            .WithTags("Simulations");
+
         app.MapGet("/api/v1/simulations/{simulationId}", (string simulationId, ISimulationJobStore store) =>
             {
                 var job = store.Get(simulationId);

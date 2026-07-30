@@ -96,14 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-API/Web MVP and multi-tear HR+recirculation are live. Next: calibration datasets, comparison page, or Linux deploy.
+Calibration import/metrics, compare page, and Linux Web container are live. Next: parameter fitting, persistence, or docs site.
 ```
 
 ## Recommended next tasks
 
-1. Deeper calibration / validation datasets
-2. Simulation comparison page / fuller wizard sections
-3. Linux deployment (M4 remaining)
+1. `CAL-006` parameter fitting (bounded optimization)
+2. Persistence / data model (`DATA-001`+)
+3. Fuller configuration wizard sections / docs site
 
 ---
 
@@ -167,14 +167,14 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-020A | `20_BlazorWeb.md` | P2 | Done | Implemented | Yes | Blazor MVP pages; wizard/charts remain |
 | DOC-021A | `21_DataModel.md` | P2 | Planned | Missing | Before persistence | Create after result model |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
-| DOC-023A | `23_Calibration.md` | P3 | Planned | Missing | Before calibration tooling | Later |
+| DOC-023A | `23_Calibration.md` | P3 | Done | Implemented | Yes | Import/align/metrics MVP; fitting later |
 | DOC-024A | `24_Optimization.md` | P3 | Planned | Missing | Before optimization | Later |
 | DOC-025 | `25_NumericalMethods.md` | P0 | Ready | Missing | Yes | Highest-priority next document |
 | DOC-026 | `26_Constants.md` | P0 | Ready | Missing | Yes | Required before physics coding |
 | DOC-027 | `27_Units.md` | P0 | Ready | Missing | Yes | Required before API and Core types |
 | DOC-028A | `28_WeatherModel.md` | P2 | Done | Implemented | Yes | Weather providers + AWG wiring |
 | DOC-029A | `29_ResultFormats.md` | P2 | Done | Implemented | Yes | CSV export (APP-005) |
-| DOC-030A | `30_Deployment.md` | P3 | Planned | Missing | Before public deployment | Later |
+| DOC-030A | `30_Deployment.md` | P3 | Done | Implemented | Yes | Linux Docker Web MVP |
 
 ---
 
@@ -505,12 +505,12 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related doc | Test status |
 |---|---|---|---|---|---|---|
-| CAL-001 | Create calibration specification | P3 | Planned | AWG-016, DATA-001 | `23_Calibration.md` | Planned |
-| CAL-002 | Define measurement CSV schema | P3 | Blocked | CAL-001 | `23_Calibration.md` | NotStarted |
-| CAL-003 | Implement measurement import | P3 | Blocked | CAL-002 | `23_Calibration.md` | NotStarted |
-| CAL-004 | Implement time-series alignment | P3 | Blocked | CAL-003 | `23_Calibration.md` | NotStarted |
-| CAL-005 | Implement RMSE and bias | P3 | Blocked | CAL-004 | `23_Calibration.md` | NotStarted |
-| CAL-006 | Implement parameter fitting | P3 | Blocked | CAL-005, DOC-025 | `23_Calibration.md` | NotStarted |
+| CAL-001 | Create calibration specification | P3 | Done | AWG-016 | `23_Calibration.md` | Passing |
+| CAL-002 | Define measurement CSV schema | P3 | Done | CAL-001 | `23_Calibration.md` | Passing |
+| CAL-003 | Implement measurement import | P3 | Done | CAL-002 | `23_Calibration.md` | Passing |
+| CAL-004 | Implement time-series alignment | P3 | Done | CAL-003 | `23_Calibration.md` | Passing |
+| CAL-005 | Implement RMSE and bias | P3 | Done | CAL-004 | `23_Calibration.md` | Passing |
+| CAL-006 | Implement parameter fitting | P3 | Ready | CAL-005, DOC-025 | `23_Calibration.md` | NotStarted |
 | CAL-007 | Store calibrated parameter provenance | P3 | Blocked | CAL-006, DATA-003 | `23_Calibration.md` | NotStarted |
 | OPT-001 | Create optimization specification | P3 | Planned | CAL-001 | `24_Optimization.md` | Planned |
 | OPT-002 | Implement parameter sweeps | P3 | Blocked | OPT-001, AWG-016 | `24_Optimization.md` | NotStarted |
@@ -518,7 +518,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | OPT-004 | Implement liters/day objective | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
 | OPT-005 | Implement Wh/liter objective | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
 | OPT-006 | Implement multi-objective comparison | P4 | Blocked | OPT-003 to OPT-005 | `24_Optimization.md` | NotStarted |
-| OPT-007 | Add web scenario comparison | P4 | Blocked | OPT-006, WEB-009 | `24_Optimization.md` | NotStarted |
+| OPT-007 | Add web scenario comparison | P4 | Done | WEB-009 | `20_BlazorWeb.md` | Passing | MVP summary compare; full OPT later |
 
 ---
 
@@ -618,7 +618,7 @@ Completion requirements:
 Status:
 
 ```text
-In progress
+Done
 ```
 
 Completion requirements:
@@ -628,7 +628,7 @@ Completion requirements:
 - [x] Simulation jobs
 - [x] Result charts
 - [x] CSV/JSON export
-- [ ] Linux deployment
+- [x] Linux deployment
 
 ## Milestone M5 — ThermoCore 1.0 Validated Release
 
@@ -662,9 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. Calibration / validation datasets
-2. Simulation comparison page / fuller wizard sections
-3. Linux deployment (M4 remaining)
+1. CAL-006 parameter fitting
+2. DATA-001 persistence / data model
+3. Docs site / fuller wizard sections
 ```
 
 ---

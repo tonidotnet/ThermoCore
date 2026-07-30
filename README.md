@@ -44,6 +44,13 @@ dotnet run --project src/ThermoCore.Api
 
 # Blazor UI (in-process application services)
 dotnet run --project src/ThermoCore.Web
+
+# Measurement validation (CAL)
+dotnet run --project src/ThermoCore.Console -- validate samples/calibration/awg-mvp-ambient-smoke.csv --duration 3 --dt 1 --max-rmse 1e-6
+
+# Linux container (Web)
+docker compose up --build
+# http://localhost:8080
 ```
 
 ## Documentation

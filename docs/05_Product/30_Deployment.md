@@ -2,9 +2,10 @@
 ## 30_Deployment.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Deployment and operations specification  
-**Applies To:** Documentation site, API, Web and later worker services
+**Applies To:** Documentation site, API, Web and later worker services  
+**Notes:** MVP Linux container for ThermoCore.Web via root `Dockerfile` / `docker-compose.yml`. Hosted DB/auth remain later.
 
 ---
 
@@ -86,7 +87,14 @@ thermocore-worker
 thermocore-docs
 ```
 
-MVP may use only `thermocore-web`.
+MVP uses only `thermocore-web` (root `Dockerfile`):
+
+```bash
+docker compose up --build
+# listens on http://localhost:8080
+```
+
+The image publishes `ThermoCore.Web` with in-process application services (no separate API container required for local/self-hosted MVP).
 
 # 7. Configuration sources
 

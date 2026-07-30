@@ -66,6 +66,7 @@ GET  /api/v1/models
 POST /api/v1/psychrometrics/calculate
 POST /api/v1/configurations/validate
 POST /api/v1/simulations
+GET  /api/v1/simulations
 GET  /api/v1/simulations/{simulationId}
 POST /api/v1/simulations/{simulationId}/cancel
 GET  /api/v1/simulations/{simulationId}/summary

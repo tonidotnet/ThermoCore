@@ -1,0 +1,13 @@
+timestamp_utc,channel_id,value,unit
+2026-01-01T00:00:00.0000000Z,ambient-source.outlet.temperature,298.15,K
+2026-01-01T00:00:01.0000000Z,ambient-source.outlet.temperature,298.15,K
+2026-01-01T00:00:02.0000000Z,ambient-source.outlet.temperature,298.15,K
+2026-01-01T00:00:00.0000000Z,ambient-source.outlet.relativeHumidity,0.5,1
+2026-01-01T00:00:01.0000000Z,ambient-source.outlet.relativeHumidity,0.5,1
+2026-01-01T00:00:02.0000000Z,ambient-source.outlet.relativeHumidity,0.5,1
+2026-01-01T00:00:00.0000000Z,ambient-source.outlet.dryAirMassFlow,0.02,kg/s
+2026-01-01T00:00:01.0000000Z,ambient-source.outlet.dryAirMassFlow,0.02,kg/s
+2026-01-01T00:00:02.0000000Z,ambient-source.outlet.dryAirMassFlow,0.02,kg/s
+2026-01-01T00:00:00.0000000Z,solar-radiation.outlet.irradiance,800,W/m^2
+2026-01-01T00:00:01.0000000Z,solar-radiation.outlet.irradiance,800,W/m^2
+2026-01-01T00:00:02.0000000Z,solar-radiation.outlet.irradiance,800,W/m^2

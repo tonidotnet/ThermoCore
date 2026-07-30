@@ -71,6 +71,11 @@ public sealed class InMemorySimulationJobStore : ISimulationJobStore
         return _jobs.TryGetValue(simulationId, out var job) ? job : null;
     }
 
+    public IReadOnlyList<SimulationJob> List()
+        => _jobs.Values
+            .OrderByDescending(j => j.CreatedAtUtc)
+            .ToArray();
+
     public bool TryCancel(string simulationId, out string? conflictReason)
     {
         conflictReason = null;

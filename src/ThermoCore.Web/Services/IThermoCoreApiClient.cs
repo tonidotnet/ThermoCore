@@ -20,6 +20,9 @@ public interface IThermoCoreApiClient
         CreateSimulationRequest request,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<SimulationStatusResponse>> ListSimulationsAsync(
+        CancellationToken cancellationToken = default);
+
     Task<SimulationStatusResponse?> GetSimulationAsync(
         string simulationId,
         CancellationToken cancellationToken = default);

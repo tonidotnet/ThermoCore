@@ -9,6 +9,10 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Measurement CSV import, timestamp alignment, and RMSE/MAE/bias comparison (CAL-002…005)
+- Sample validation dataset under `samples/calibration/` and console `validate` command
+- Blazor simulation comparison page and `GET /api/v1/simulations` list
+- Linux Docker image / compose for `ThermoCore.Web`
 - `ThermoCore.Application` shared job/result services used by API and Blazor
 - API result endpoints: series, diagnostics, export (csv/json/zip) plus configurable resource limits
 - Blazor MVP: home, psychrometrics, AWG configuration editor, simulation start/progress/cancel/summary/diagnostics/charts/export

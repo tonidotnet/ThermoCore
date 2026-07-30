@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using ThermoCore.AWG.Calibration;
 using ThermoCore.AWG.Configuration;
 using ThermoCore.AWG.Regression;
 using ThermoCore.AWG.Simulation;
@@ -52,6 +53,11 @@ internal static class DemoHost
             return RunRegressionScenarios(args);
         }
 
+        if (args.Length >= 2 && args[0] is "validate" or "--validate")
+        {
+            return RunMeasurementValidation(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -76,6 +82,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- config <path.json>
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
+              dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -84,6 +91,7 @@ internal static class DemoHost
               config <path>             Load AWG JSON configuration and build the V3 graph
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
               regress                   Run DOC-022 / APP-006 regression scenarios
+              validate <csv>            Compare simulation channels to measurement CSV (CAL)
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
 
@@ -94,7 +102,135 @@ internal static class DemoHost
 
             Regress options:
               --dir <path>              Load scenarios from JSON directory (default: built-in catalog)
+
+            Validate options:
+              --config <path>           AWG configuration JSON (default: MVP without electrical)
+              --duration / -d <sec>     Simulation duration (default 30)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
+              --max-rmse <value>        Fail if overall RMSE exceeds threshold
             """);
+    }
+
+    private static int RunMeasurementValidation(string[] args)
+    {
+        try
+        {
+            var measurementPath = args[1];
+            string? configurationPath = null;
+            var durationSeconds = 30.0;
+            var timeStepSeconds = 1.0;
+            double? maxRmse = null;
+
+            for (var i = 2; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--max-rmse")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out var threshold)
+                        || threshold < 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --max-rmse value.");
+                        return ExitUsageError;
+                    }
+
+                    maxRmse = threshold;
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown validate option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var result = new AwgMeasurementValidationRunner().ValidateFromFiles(
+                measurementPath,
+                configurationPath,
+                durationSeconds,
+                timeStepSeconds);
+
+            System.Console.WriteLine(AwgRunSummaryFormatter.Format(result.Run.Summary, result.Run.BalanceReport));
+            System.Console.WriteLine();
+            System.Console.WriteLine($"Measurement source: {result.Report.MeasurementSourcePath}");
+            System.Console.WriteLine(
+                $"Compared channels: {result.Report.Channels.Count}  missing: {result.Report.MissingChannels.Count}");
+            System.Console.WriteLine(
+                $"Overall RMSE: {result.Report.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)}");
+
+            foreach (var channel in result.Report.Channels)
+            {
+                System.Console.WriteLine(
+                    $"  {channel.ChannelId}: RMSE={channel.Metrics.Rmse.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"MAE={channel.Metrics.Mae.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"bias={channel.Metrics.Bias.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"n={channel.MatchedSampleCount}");
+            }
+
+            foreach (var missing in result.Report.MissingChannels)
+            {
+                System.Console.WriteLine($"  missing channel: {missing}");
+            }
+
+            foreach (var warning in result.Report.Warnings)
+            {
+                System.Console.WriteLine($"  warning: {warning}");
+            }
+
+            if (!result.Run.EngineResult.Succeeded)
+            {
+                return ExitSimulationFailed;
+            }
+
+            if (result.Report.Channels.Count == 0)
+            {
+                System.Console.Error.WriteLine("No channels were compared.");
+                return ExitSimulationFailed;
+            }
+
+            if (maxRmse is { } limit && result.Report.OverallRmse > limit)
+            {
+                System.Console.Error.WriteLine(
+                    $"Overall RMSE {result.Report.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)} exceeds limit {limit.ToString("G6", CultureInfo.InvariantCulture)}.");
+                return ExitSimulationFailed;
+            }
+
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (
+            ex is FileNotFoundException or FormatException or ArgumentException or AwgConfigurationException)
+        {
+            System.Console.Error.WriteLine($"Validation error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
     }
 
     private static int RunRegressionScenarios(string[] args)

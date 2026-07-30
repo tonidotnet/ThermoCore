@@ -3,3 +3,5 @@ obj/
 .vs/
 .idea/
 *.user
+**/App_Data/
+site/

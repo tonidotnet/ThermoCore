@@ -3,6 +3,13 @@
   <ItemGroup>
     <ProjectReference Include="..\ThermoCore.Core\ThermoCore.Core.csproj" />
     <ProjectReference Include="..\ThermoCore.AWG\ThermoCore.AWG.csproj" />
+    <ProjectReference Include="..\ThermoCore.Persistence\ThermoCore.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

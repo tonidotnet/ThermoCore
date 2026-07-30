@@ -49,4 +49,17 @@ public interface IThermoCoreApiClient
         string simulationId,
         string format,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PersistedSimulationListItem>> ListPersistedSimulationsAsync(
+        int take = 50,
+        CancellationToken cancellationToken = default);
+
+    Task<SimulationSummaryResponse?> GetPersistedSummaryAsync(
+        string summaryId,
+        CancellationToken cancellationToken = default);
+
+    Task<SimulationCompareResponse?> ComparePersistedAsync(
+        string summaryIdA,
+        string summaryIdB,
+        CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using ThermoCore.Api.Contracts;
 using ThermoCore.Api.Services;
 using ThermoCore.AWG.Configuration;
@@ -12,65 +15,111 @@ public class InProcessApiClientTests
     [Fact]
     public async Task Psychrometrics_And_ShortSimulation_WorkThroughClient()
     {
-        await using var provider = BuildProvider();
-        var client = provider.GetRequiredService<IThermoCoreApiClient>();
-
-        var health = await client.GetHealthAsync();
-        Assert.Equal("Healthy", health.Status);
-
-        var psycho = await client.CalculatePsychrometricsAsync(new PsychrometricCalculateRequest
+        var dbPath = Path.Combine(Path.GetTempPath(), "thermocore-web-test-" + Guid.NewGuid().ToString("N") + ".db");
+        await using var provider = BuildProvider(dbPath);
+        try
         {
-            TemperatureC = 25,
-            RelativeHumidityPercent = 50,
-            AbsolutePressurePa = 101_325
-        });
-        Assert.True(psycho.HumidityRatioKgPerKgDryAir > 0);
+            var client = provider.GetRequiredService<IThermoCoreApiClient>();
 
-        var created = await client.CreateSimulationAsync(new CreateSimulationRequest
-        {
-            Configuration = AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false),
-            DurationSeconds = 2,
-            TimeStepSeconds = 1
-        });
+            var health = await client.GetHealthAsync();
+            Assert.Equal("Healthy", health.Status);
 
-        SimulationStatusResponse? status = null;
-        for (var i = 0; i < 50; i++)
-        {
-            status = await client.GetSimulationAsync(created.SimulationId);
-            if (status?.Status is "Completed" or "Failed" or "Cancelled")
+            var psycho = await client.CalculatePsychrometricsAsync(new PsychrometricCalculateRequest
             {
-                break;
+                TemperatureC = 25,
+                RelativeHumidityPercent = 50,
+                AbsolutePressurePa = 101_325
+            });
+            Assert.True(psycho.HumidityRatioKgPerKgDryAir > 0);
+
+            var created = await client.CreateSimulationAsync(new CreateSimulationRequest
+            {
+                Configuration = AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false),
+                DurationSeconds = 2,
+                TimeStepSeconds = 1
+            });
+
+            SimulationStatusResponse? status = null;
+            for (var i = 0; i < 50; i++)
+            {
+                status = await client.GetSimulationAsync(created.SimulationId);
+                if (status?.Status is "Completed" or "Failed" or "Cancelled")
+                {
+                    break;
+                }
+
+                await Task.Delay(100);
             }
 
-            await Task.Delay(100);
+            Assert.NotNull(status);
+            Assert.Equal("Completed", status.Status);
+
+            var summary = await client.GetSummaryAsync(created.SimulationId);
+            Assert.NotNull(summary);
+            Assert.True(summary.Succeeded);
+
+            var series = await client.GetSeriesAsync(created.SimulationId, pageSize: 5);
+            Assert.NotNull(series);
+            Assert.True(series.TotalChannels > 0);
+
+            var export = await client.ExportAsync(created.SimulationId, "json");
+            Assert.NotNull(export);
+            Assert.True(export.Value.Content.Length > 0);
+
+            // Allow background persist to finish.
+            for (var i = 0; i < 20; i++)
+            {
+                var persisted = await client.ListPersistedSimulationsAsync();
+                if (persisted.Count > 0)
+                {
+                    break;
+                }
+
+                await Task.Delay(50);
+            }
+
+            var listed = await client.ListPersistedSimulationsAsync();
+            Assert.NotEmpty(listed);
         }
-
-        Assert.NotNull(status);
-        Assert.Equal("Completed", status.Status);
-
-        var summary = await client.GetSummaryAsync(created.SimulationId);
-        Assert.NotNull(summary);
-        Assert.True(summary.Succeeded);
-
-        var series = await client.GetSeriesAsync(created.SimulationId, pageSize: 5);
-        Assert.NotNull(series);
-        Assert.True(series.TotalChannels > 0);
-
-        var export = await client.ExportAsync(created.SimulationId, "json");
-        Assert.NotNull(export);
-        Assert.True(export.Value.Content.Length > 0);
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
     }
 
-    private static ServiceProvider BuildProvider()
+    private static ServiceProvider BuildProvider(string sqlitePath)
     {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Persistence:Provider"] = "Sqlite",
+                ["Persistence:SqlitePath"] = sqlitePath
+            })
+            .Build();
+
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddSingleton<IHostEnvironment>(new TestHostEnvironment());
         services.AddSingleton(ApiResourceLimits.Default);
         services.AddSingleton<IPsychrometricCalculator, PsychrometricCalculator>();
         services.AddSingleton<PsychrometricApiService>();
         services.AddSingleton<ConfigurationValidationService>();
+        services.AddThermoCorePersistence(configuration, new TestHostEnvironment());
         services.AddSingleton<ISimulationJobStore, InMemorySimulationJobStore>();
         services.AddSingleton<SimulationResultQueryService>();
         services.AddSingleton<IThermoCoreApiClient, InProcessThermoCoreApiClient>();
         return services.BuildServiceProvider();
+    }
+
+    private sealed class TestHostEnvironment : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = Environments.Development;
+        public string ApplicationName { get; set; } = "ThermoCore.Web.Tests";
+        public string ContentRootPath { get; set; } = Path.GetTempPath();
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }

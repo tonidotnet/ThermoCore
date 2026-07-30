@@ -96,14 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Result-series SQLite persistence and Pareto OPT-006 are live. Next: PostgreSQL provider or docs link checker.
+All Ready code/infra items are Done (Postgres, persisted compare, docs link check). Next: OSS diagrams or OPT polish.
 ```
 
 ## Recommended next tasks
 
-1. `DATA-005` PostgreSQL provider sharing `IThermoCoreStore`
-2. Docs link checker (DOCSITE-007) and architecture diagram assets
-3. Richer OPT objectives / random search
+1. `OSS-003` architecture diagram assets
+2. Richer OPT objectives / random search
+3. DOC metadata automation (`DOC-007`/`DOC-011`)
 
 ---
 
@@ -132,12 +132,12 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-002 | Maintain architecture map | P1 | Done | DOC-001 | `ARCHITECTURE_MAP.md` | Draft | NotApplicable | Must reflect actual project dependencies |
 | DOC-003 | Maintain document dependency graph | P1 | Done | DOC-001, DOC-002 | `DOCUMENT_DEPENDENCY_GRAPH.md` | Draft | NotApplicable | Update with implementation order |
 | DOC-004 | Maintain implementation tracker | P0 | Done | DOC-001, DOC-002, DOC-003 | `IMPLEMENTATION_PROGRESS.md` | Draft | NotApplicable | This document |
-| DOC-005 | Define repository and folder structure | P0 | Ready | DOC-001, DOC-002 | Repository root | Missing | NotApplicable | Use monorepo initially |
-| DOC-006 | Move existing documents into final folders | P1 | Blocked | DOC-005 | `docs/` | Missing | NotApplicable | Do not regenerate existing files |
+| DOC-005 | Define repository and folder structure | P0 | Done | DOC-001, DOC-002 | Repository root | Implemented | NotApplicable | Monorepo `src/` `tests/` `docs/` `ai/` |
+| DOC-006 | Move existing documents into final folders | P1 | Done | DOC-005 | `docs/` | Implemented | NotApplicable | Documents already under numbered folders |
 | DOC-007 | Add standard document metadata header | P2 | Planned | DOC-006 | All documentation | Missing | NotApplicable | Prefer additive metadata, no full rewrite |
-| DOC-008 | Validate internal document links | P2 | Blocked | DOC-006 | All documentation | Missing | NotApplicable | Can later be automated in CI |
-| DOC-009 | Create implementation-ready document template | P1 | Ready | DOC-007 | `ai/templates/EngineeringDocumentTemplate.md` | Missing | NotApplicable | Used for all new engineering specs |
-| DOC-010 | Create architecture decision record template | P1 | Ready | DOC-005 | `docs/ADR/ADR_TEMPLATE.md` | Missing | NotApplicable | Required before major coding decisions |
+| DOC-008 | Validate internal document links | P2 | Done | DOC-006 | All documentation | Implemented | NotApplicable | Lychee offline check on MkDocs `site/` |
+| DOC-009 | Create implementation-ready document template | P1 | Done | DOC-007 | `ai/templates/docs/EngineeringDocumentTemplate.md` | Implemented | NotApplicable | Template path under `ai/templates/docs/` |
+| DOC-010 | Create architecture decision record template | P1 | Done | DOC-005 | `ai/templates/docs/ADR_Template.md` | Implemented | NotApplicable | ADR-001/002 already authored |
 | DOC-011 | Create document status automation concept | P3 | Planned | DOC-006, DOC-008 | `tools/` | Missing | NotApplicable | Optional script reads front matter |
 | DOC-012 | Create MkDocs navigation map | P2 | Done | DOC-006 | `mkdocs.yml` | Implemented | NotApplicable | Material nav curated |
 
@@ -154,24 +154,24 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-007A | `07_SolarPanel.md` | P1 | Done | ReadyForImplementation | Before panel coding | Keep current detailed version |
 | DOC-008A | `08_Peltier.md` | P1 | Done | ReadyForImplementation | Before Peltier coding | Keep current detailed version |
 | DOC-009A | `09_SilicaGel.md` | P1 | Done | ReadyForImplementation | Before silica-gel coding | Keep current detailed version |
-| DOC-010A | `10_Condenser.md` | P1 | Ready | Outline | Yes | Expand to same level as 08/09 |
-| DOC-011A | `11_HeatRecovery.md` | P1 | Ready | Outline | Before heat-recovery coding | Expand |
-| DOC-012A | `12_BatteryAndPowerManagement.md` | P1 | Ready | Outline | Before battery coding | Expand |
-| DOC-013A | `13_FanAndAirflow.md` | P1 | Ready | Outline | Before airflow coding | Expand |
+| DOC-010A | `10_Condenser.md` | P1 | Done | ReadyForImplementation | Yes | Spec present; component coding Done |
+| DOC-011A | `11_HeatRecovery.md` | P1 | Done | ReadyForImplementation | Before heat-recovery coding | Spec present; HR path Done |
+| DOC-012A | `12_BatteryAndPowerManagement.md` | P1 | Done | ReadyForImplementation | Before battery coding | Spec present |
+| DOC-013A | `13_FanAndAirflow.md` | P1 | Done | ReadyForImplementation | Before airflow coding | Spec present |
 | DOC-014A | `14_ControlSystem.md` | P1 | Done | ReadyForImplementation | Before AWG control coding | Detailed control + observation/parameter contracts |
 | DOC-015A | `15_SystemTopology.md` | P1 | Done | ReadyForImplementation | Before AWG integration | Detailed topology + Core type mapping |
-| DOC-016A | `16_SimulationEngine.md` | P0 | Planned | Missing | Before engine implementation | Create detailed spec |
+| DOC-016A | `16_SimulationEngine.md` | P0 | Done | ReadyForImplementation | Before engine implementation | Engine implemented |
 | DOC-017A | `17_Roadmap.md` | P0 | Done | ReadyForImplementation | Yes | Maintain |
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
 | DOC-019A | `19_WebApi.md` | P2 | Done | Implemented | Yes | API v1 MVP implemented |
 | DOC-020A | `20_BlazorWeb.md` | P2 | Done | Implemented | Yes | Blazor MVP pages; wizard/charts remain |
-| DOC-021A | `21_DataModel.md` | P2 | Done | Implemented | Yes | SQLite + series payloads; PostgreSQL later |
+| DOC-021A | `21_DataModel.md` | P2 | Done | Implemented | Yes | SQLite + PostgreSQL stores; series payloads |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
 | DOC-023A | `23_Calibration.md` | P3 | Done | Implemented | Yes | Import/align/metrics MVP; fitting later |
-| DOC-024A | `24_Optimization.md` | P3 | Planned | Missing | Before optimization | Later |
-| DOC-025 | `25_NumericalMethods.md` | P0 | Ready | Missing | Yes | Highest-priority next document |
-| DOC-026 | `26_Constants.md` | P0 | Ready | Missing | Yes | Required before physics coding |
-| DOC-027 | `27_Units.md` | P0 | Ready | Missing | Yes | Required before API and Core types |
+| DOC-024A | `24_Optimization.md` | P3 | Done | Implemented | Before optimization | Sweeps/sensitivity/Pareto Done |
+| DOC-025 | `25_NumericalMethods.md` | P0 | Done | ReadyForImplementation | Yes | Spec present; numerics in Core |
+| DOC-026 | `26_Constants.md` | P0 | Done | ReadyForImplementation | Yes | Spec present; constants in Core |
+| DOC-027 | `27_Units.md` | P0 | Done | ReadyForImplementation | Yes | Spec present; units in Core |
 | DOC-028A | `28_WeatherModel.md` | P2 | Done | Implemented | Yes | Weather providers + AWG wiring |
 | DOC-029A | `29_ResultFormats.md` | P2 | Done | Implemented | Yes | CSV export (APP-005) |
 | DOC-030A | `30_Deployment.md` | P3 | Done | Implemented | Yes | Linux Docker Web MVP |
@@ -475,10 +475,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DATA-002 | Define configuration schema versioning | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
 | DATA-003 | Define simulation-run metadata | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
 | DATA-004 | Add SQLite persistence | P3 | Done | DATA-002, DATA-003 | `21_DataModel.md` | Passing |
-| DATA-005 | Add PostgreSQL provider | P3 | Ready | DATA-004 | `21_DataModel.md` | NotStarted |
+| DATA-005 | Add PostgreSQL provider | P3 | Done | DATA-004 | `21_DataModel.md` | Passing |
 | DATA-006 | Save and reload configurations | P2 | Done | DATA-004 | `21_DataModel.md` | Passing |
 | DATA-007 | Save result summaries | P2 | Done | DATA-004, DOC-029A | `21_DataModel.md` | Passing |
-| DATA-008 | Compare simulation runs | P3 | Ready | DATA-006, DATA-007 | `21_DataModel.md` | NotStarted |
+| DATA-008 | Compare simulation runs | P3 | Done | DATA-006, DATA-007 | `21_DataModel.md` | Passing |
 
 ---
 
@@ -497,7 +497,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOCSITE-004 | Add MathJax/KaTeX support | P2 | Done | DOCSITE-002 | Equation rendering |
 | DOCSITE-005 | Add search and navigation | P2 | Done | DOCSITE-002 | Usable portal |
 | DOCSITE-006 | Add GitHub Pages deployment | P2 | Done | DOCSITE-002, REP-012 | Public docs |
-| DOCSITE-007 | Validate all links in CI | P2 | Ready | DOC-008, DOCSITE-002 | Link checker |
+| DOCSITE-007 | Validate all links in CI | P2 | Done | DOC-008, DOCSITE-002 | Link checker |
 
 ---
 
@@ -662,9 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. DATA-005 PostgreSQL provider
-2. DOCSITE-007 link checker / architecture diagram assets
-3. Richer OPT objectives / random search
+1. OSS-003 architecture diagram assets
+2. Richer OPT objectives / random search
+3. DOC-007 / DOC-011 metadata automation
 ```
 
 ---

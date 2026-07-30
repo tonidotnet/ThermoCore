@@ -12,6 +12,7 @@ builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<ApiResourceLi
 builder.Services.AddSingleton<IPsychrometricCalculator, PsychrometricCalculator>();
 builder.Services.AddSingleton<PsychrometricApiService>();
 builder.Services.AddSingleton<ConfigurationValidationService>();
+builder.Services.AddThermoCorePersistence(builder.Configuration, builder.Environment);
 builder.Services.AddSingleton<ISimulationJobStore, InMemorySimulationJobStore>();
 builder.Services.AddSingleton<SimulationResultQueryService>();
 
@@ -24,6 +25,7 @@ app.MapModelsEndpoints();
 app.MapPsychrometricsEndpoints();
 app.MapConfigurationEndpoints();
 app.MapSimulationEndpoints();
+app.MapPersistedSimulationEndpoints();
 
 app.Run();
 

@@ -10,11 +10,15 @@ public sealed class InMemorySimulationJobStore : ISimulationJobStore
     private readonly ConcurrentDictionary<string, SimulationJob> _jobs = new(StringComparer.Ordinal);
     private readonly AwgSimulationRunner _runner = new();
     private readonly ApiResourceLimits _limits;
+    private readonly SimulationRunPersistenceService _persistence;
     private int _activeJobs;
 
-    public InMemorySimulationJobStore(ApiResourceLimits limits)
+    public InMemorySimulationJobStore(
+        ApiResourceLimits limits,
+        SimulationRunPersistenceService? persistence = null)
     {
         _limits = limits ?? ApiResourceLimits.Default;
+        _persistence = persistence ?? SimulationRunPersistenceService.Disabled;
     }
 
     public CreateSimulationResponse Enqueue(CreateSimulationRequest request)
@@ -183,6 +187,11 @@ public sealed class InMemorySimulationJobStore : ISimulationJobStore
                     {
                         var last = result.EngineResult.Steps[^1];
                         job.SimulationTimeUtc = job.Options.StartTimeUtc + last.ElapsedTime + job.Options.TimeStep;
+                    }
+
+                    if (job.Status is SimulationJobStatus.Completed or SimulationJobStatus.Failed)
+                    {
+                        _ = _persistence.TryPersistCompletedJob(job);
                     }
                 }
             }

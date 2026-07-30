@@ -9,6 +9,9 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- PostgreSQL `IThermoCoreStore` provider with `BYTEA` series payloads (DATA-005)
+- Persisted simulation list/compare API and Blazor compare source toggle (DATA-008)
+- Offline Lychee internal-link check on MkDocs `site/` (DOCSITE-007)
 - MkDocs Material documentation portal (`mkdocs.yml`, ADR-002, GitHub Pages workflow)
 - SQLite result-series persistence (gzip channel payloads + descriptors) and `run --db`
 - Bi-objective Pareto front on sweeps (max L/day, min Wh/L) (OPT-006)

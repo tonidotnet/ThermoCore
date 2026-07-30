@@ -122,7 +122,7 @@ internal static class DemoHost
               --duration / -d <sec>     Simulation duration in seconds (default 60)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
               --export <dir>            Write DOC-029 full result export bundle (AWG-017)
-              --db <path>               Persist summary + compressed result series (DATA)
+              --db <path|postgres:...>  Persist summary + series (sqlite path or postgres:conn)
 
             Regress options:
               --dir <path>              Load scenarios from JSON directory (default: built-in catalog)
@@ -138,7 +138,7 @@ internal static class DemoHost
               --duration / -d <sec>     Simulation duration (default 10)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
               --params <id,id,...>      Calibratable parameter ids (default catalog)
-              --db <path>               SQLite path for provenance (CAL-007)
+              --db <path|postgres:...>  Store specifier (sqlite path or postgres:conn)
               --write-fitted <path>     Write fitted configuration JSON
 
             Sweep options:
@@ -566,26 +566,33 @@ internal static class DemoHost
 
             if (databasePath is not null)
             {
-                using var store = new SqliteThermoCoreStore(databasePath);
-                store.EnsureCreated();
-                var baselineDoc = new AwgConfigurationDocument
+                var store = ThermoCoreStoreFactory.CreateFromSpecifier(databasePath);
+                try
                 {
-                    System = result.BaselineConfiguration,
-                    InitialState = AwgSystemDefaults.CreateMvpInitialState(result.BaselineConfiguration)
-                };
-                var fittedDoc = new AwgConfigurationDocument
+                    store.EnsureCreated();
+                    var baselineDoc = new AwgConfigurationDocument
+                    {
+                        System = result.BaselineConfiguration,
+                        InitialState = AwgSystemDefaults.CreateMvpInitialState(result.BaselineConfiguration)
+                    };
+                    var fittedDoc = new AwgConfigurationDocument
+                    {
+                        System = result.FittedConfiguration,
+                        InitialState = AwgSystemDefaults.CreateMvpInitialState(result.FittedConfiguration)
+                    };
+                    var baselineVersion = store.SaveConfiguration(baselineDoc, "calibration-baseline");
+                    var fittedVersion = store.SaveConfiguration(fittedDoc, "calibration-fitted");
+                    var stored = store.SaveCalibrationRun(
+                        result,
+                        measurementPath,
+                        baselineVersion.Id,
+                        fittedVersion.Id);
+                    System.Console.WriteLine($"Saved calibration provenance: {stored.Id:N} in {databasePath}");
+                }
+                finally
                 {
-                    System = result.FittedConfiguration,
-                    InitialState = AwgSystemDefaults.CreateMvpInitialState(result.FittedConfiguration)
-                };
-                var baselineVersion = store.SaveConfiguration(baselineDoc, "calibration-baseline");
-                var fittedVersion = store.SaveConfiguration(fittedDoc, "calibration-fitted");
-                var stored = store.SaveCalibrationRun(
-                    result,
-                    measurementPath,
-                    baselineVersion.Id,
-                    fittedVersion.Id);
-                System.Console.WriteLine($"Saved calibration provenance: {stored.Id:N} in {databasePath}");
+                    (store as IDisposable)?.Dispose();
+                }
             }
 
             return result.Fitting.Improved || result.Fitting.FinalObjective <= result.Fitting.InitialObjective
@@ -854,13 +861,20 @@ internal static class DemoHost
 
             if (databasePath is not null)
             {
-                using var store = new SqliteThermoCoreStore(databasePath);
-                store.EnsureCreated();
-                var version = store.SaveConfiguration(document, Path.GetFileNameWithoutExtension(path));
-                var summary = store.SaveSimulationSummary(run, version.Id);
-                var series = store.SaveResultSeries(summary.Id, run);
-                System.Console.WriteLine(
-                    $"Persisted summary {summary.Id:N} with {series.Channels.Count} series channel(s) to {databasePath}");
+                var store = ThermoCoreStoreFactory.CreateFromSpecifier(databasePath);
+                try
+                {
+                    store.EnsureCreated();
+                    var version = store.SaveConfiguration(document, Path.GetFileNameWithoutExtension(path));
+                    var summary = store.SaveSimulationSummary(run, version.Id);
+                    var series = store.SaveResultSeries(summary.Id, run);
+                    System.Console.WriteLine(
+                        $"Persisted summary {summary.Id:N} with {series.Channels.Count} series channel(s) to {databasePath}");
+                }
+                finally
+                {
+                    (store as IDisposable)?.Dispose();
+                }
             }
 
             if (!run.EngineResult.Succeeded)

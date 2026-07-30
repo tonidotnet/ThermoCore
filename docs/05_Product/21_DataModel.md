@@ -5,7 +5,7 @@
 **Status:** Implemented  
 **Document Type:** Persistence and application data model specification  
 **Applies To:** ThermoCore.Api, ThermoCore.Web and infrastructure  
-**Notes:** SQLite MVP in `ThermoCore.Persistence` covers configuration versions, simulation summaries, calibration runs, and full result-series payloads (gzip JSON beside the DB). PostgreSQL remains later.
+**Notes:** `IThermoCoreStore` is implemented for SQLite (`SqliteThermoCoreStore`) and PostgreSQL (`PostgresThermoCoreStore`). SQLite uses gzip sidecar files for series; PostgreSQL stores series payloads as `BYTEA`.
 
 ---
 
@@ -427,12 +427,17 @@ MVP SQLite store (`ThermoCore.Persistence.SqliteThermoCoreStore`) is accepted wh
 3. simulation summaries and calibration runs persist;
 4. save/load round-trips pass unit tests.
 
-Full acceptance (later):
+Provider acceptance (DATA-005):
 
-1. every simulation stores reproducibility metadata;
-2. completed results are immutable;
-3. large series are stored efficiently;
-4. SQLite and PostgreSQL can share application contracts.
+1. SQLite and PostgreSQL share `IThermoCoreStore` contracts;
+2. PostgreSQL series payloads use `result_series_payloads` (`BYTEA`);
+3. Factory supports `sqlite:` / `postgres:` specifiers.
+
+Remaining later:
+
+1. every simulation stores full reproducibility metadata;
+2. completed results are immutable end-to-end;
+3. selected downsampled series in relational rows.
 
 ---
 

@@ -16,17 +16,23 @@ public sealed class InProcessThermoCoreApiClient : IThermoCoreApiClient
     private readonly ConfigurationValidationService _validation;
     private readonly ISimulationJobStore _jobs;
     private readonly SimulationResultQueryService _results;
+    private readonly PersistedSimulationQueryService _persisted;
+    private readonly SimulationCompareService _compare;
 
     public InProcessThermoCoreApiClient(
         PsychrometricApiService psychrometrics,
         ConfigurationValidationService validation,
         ISimulationJobStore jobs,
-        SimulationResultQueryService results)
+        SimulationResultQueryService results,
+        PersistedSimulationQueryService persisted,
+        SimulationCompareService compare)
     {
         _psychrometrics = psychrometrics;
         _validation = validation;
         _jobs = jobs;
         _results = results;
+        _persisted = persisted;
+        _compare = compare;
     }
 
     public Task<HealthResponse> GetHealthAsync(CancellationToken cancellationToken = default)
@@ -167,6 +173,44 @@ public sealed class InProcessThermoCoreApiClient : IThermoCoreApiClient
 
         return Task.FromResult<(byte[] Content, string ContentType, string FileName)?>(
             _results.BuildExport(lookup.Job!, format));
+    }
+
+    public Task<IReadOnlyList<PersistedSimulationListItem>> ListPersistedSimulationsAsync(
+        int take = 50,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult(_persisted.List(take).Simulations);
+
+    public Task<SimulationSummaryResponse?> GetPersistedSummaryAsync(
+        string summaryId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParseExact(summaryId, "N", out var id) && !Guid.TryParse(summaryId, out id))
+        {
+            return Task.FromResult<SimulationSummaryResponse?>(null);
+        }
+
+        return Task.FromResult(_persisted.GetSummary(id));
+    }
+
+    public Task<SimulationCompareResponse?> ComparePersistedAsync(
+        string summaryIdA,
+        string summaryIdB,
+        CancellationToken cancellationToken = default)
+    {
+        if ((!Guid.TryParseExact(summaryIdA, "N", out var idA) && !Guid.TryParse(summaryIdA, out idA))
+            || (!Guid.TryParseExact(summaryIdB, "N", out var idB) && !Guid.TryParse(summaryIdB, out idB)))
+        {
+            return Task.FromResult<SimulationCompareResponse?>(null);
+        }
+
+        var a = _persisted.GetSummary(idA);
+        var b = _persisted.GetSummary(idB);
+        if (a is null || b is null)
+        {
+            return Task.FromResult<SimulationCompareResponse?>(null);
+        }
+
+        return Task.FromResult<SimulationCompareResponse?>(_compare.Compare(a, b));
     }
 
     private static SimulationStatusResponse ToStatus(SimulationJob job)

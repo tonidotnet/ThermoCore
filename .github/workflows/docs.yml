@@ -41,6 +41,12 @@ jobs:
       - name: Build MkDocs site
         run: mkdocs build
 
+      - name: Check internal links (DOCSITE-007)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --root-dir site site
+          fail: true
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

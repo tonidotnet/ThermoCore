@@ -7,11 +7,22 @@
 <PageTitle>Compare simulations — ThermoCore</PageTitle>
 
 <h1>Compare simulations</h1>
-<p>Select two completed jobs from this process and compare summary metrics side by side.</p>
+<p>Compare summary metrics from in-memory jobs or persisted store records (DATA-008).</p>
 
-@if (jobs.Count == 0)
+<div class="mb-3">
+    <div class="btn-group" role="group" aria-label="Compare source">
+        <button type="button" class="btn @(source == CompareSource.Memory ? "btn-primary" : "btn-outline-primary")" @onclick="() => SetSourceAsync(CompareSource.Memory)">In-memory</button>
+        <button type="button" class="btn @(source == CompareSource.Persisted ? "btn-primary" : "btn-outline-primary")" @onclick="() => SetSourceAsync(CompareSource.Persisted)">Persisted</button>
+    </div>
+</div>
+
+@if (source == CompareSource.Memory && memoryJobs.Count == 0)
 {
     <p class="text-muted">No simulations in memory yet. <a href="configurations">Configure and run</a> one first.</p>
+}
+else if (source == CompareSource.Persisted && persistedJobs.Count == 0)
+{
+    <p class="text-muted">No persisted summaries yet. Run a simulation (they are saved to the local store on completion).</p>
 }
 else
 {
@@ -20,9 +31,19 @@ else
             <label class="form-label">Simulation A</label>
             <select class="form-select" @bind="idA" @bind:after="RefreshAsync">
                 <option value="">—</option>
-                @foreach (var job in completedJobs)
+                @if (source == CompareSource.Memory)
                 {
-                    <option value="@job.SimulationId">@job.SimulationId[..Math.Min(8, job.SimulationId.Length)]… (@job.Status)</option>
+                    @foreach (var job in completedMemoryJobs)
+                    {
+                        <option value="@job.SimulationId">@ShortId(job.SimulationId) (@job.Status)</option>
+                    }
+                }
+                else
+                {
+                    @foreach (var job in persistedJobs)
+                    {
+                        <option value="@job.SummaryId">@ShortId(job.SummaryId) · @job.TopologyId</option>
+                    }
                 }
             </select>
         </div>
@@ -30,14 +51,24 @@ else
             <label class="form-label">Simulation B</label>
             <select class="form-select" @bind="idB" @bind:after="RefreshAsync">
                 <option value="">—</option>
-                @foreach (var job in completedJobs)
+                @if (source == CompareSource.Memory)
                 {
-                    <option value="@job.SimulationId">@job.SimulationId[..Math.Min(8, job.SimulationId.Length)]… (@job.Status)</option>
+                    @foreach (var job in completedMemoryJobs)
+                    {
+                        <option value="@job.SimulationId">@ShortId(job.SimulationId) (@job.Status)</option>
+                    }
+                }
+                else
+                {
+                    @foreach (var job in persistedJobs)
+                    {
+                        <option value="@job.SummaryId">@ShortId(job.SummaryId) · @job.TopologyId</option>
+                    }
                 }
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-outline-primary w-100" @onclick="LoadJobsAsync">Refresh list</button>
+            <button class="btn btn-outline-primary w-100" @onclick="LoadListsAsync">Refresh list</button>
         </div>
     </div>
 
@@ -75,7 +106,7 @@ else
                     <td>Completed steps</td>
                     <td>@summaryA.CompletedSteps</td>
                     <td>@summaryB.CompletedSteps</td>
-                    <td>@(summaryB.CompletedSteps - summaryA.CompletedSteps)</td>
+                    <td>@(compare?.CompletedStepsDelta ?? summaryB.CompletedSteps - summaryA.CompletedSteps)</td>
                 </tr>
                 <tr>
                     <td>Water balance</td>
@@ -93,19 +124,19 @@ else
                     <td>Water residual (kg)</td>
                     <td>@summaryA.AggregatedWaterResidualKg.ToString("E3")</td>
                     <td>@summaryB.AggregatedWaterResidualKg.ToString("E3")</td>
-                    <td>@((summaryB.AggregatedWaterResidualKg - summaryA.AggregatedWaterResidualKg).ToString("E3"))</td>
+                    <td>@((compare?.AggregatedWaterResidualKgDelta ?? summaryB.AggregatedWaterResidualKg - summaryA.AggregatedWaterResidualKg).ToString("E3"))</td>
                 </tr>
                 <tr>
                     <td>Energy residual (J)</td>
                     <td>@summaryA.AggregatedEnergyResidualJ.ToString("E3")</td>
                     <td>@summaryB.AggregatedEnergyResidualJ.ToString("E3")</td>
-                    <td>@((summaryB.AggregatedEnergyResidualJ - summaryA.AggregatedEnergyResidualJ).ToString("E3"))</td>
+                    <td>@((compare?.AggregatedEnergyResidualJDelta ?? summaryB.AggregatedEnergyResidualJ - summaryA.AggregatedEnergyResidualJ).ToString("E3"))</td>
                 </tr>
                 <tr>
                     <td>Tank content (kg)</td>
                     <td>@(summaryA.FinalWaterTankContentKg?.ToString("F4") ?? "—")</td>
                     <td>@(summaryB.FinalWaterTankContentKg?.ToString("F4") ?? "—")</td>
-                    <td>@DeltaOptional(summaryA.FinalWaterTankContentKg, summaryB.FinalWaterTankContentKg)</td>
+                    <td>@(compare?.FinalWaterTankContentKgDelta?.ToString("F4") ?? DeltaOptional(summaryA.FinalWaterTankContentKg, summaryB.FinalWaterTankContentKg))</td>
                 </tr>
                 <tr>
                     <td>Warnings / errors</td>
@@ -117,29 +148,51 @@ else
             </table>
         </div>
         <p class="text-muted">
-            A: <code>@idA</code> · B: <code>@idB</code>
+            A: <code>@idA</code> · B: <code>@idB</code> · source: @source
         </p>
     }
 }
 
 @code {
-    private IReadOnlyList<SimulationStatusResponse> jobs = Array.Empty<SimulationStatusResponse>();
+    private enum CompareSource
+    {
+        Memory,
+        Persisted
+    }
+
+    private CompareSource source = CompareSource.Memory;
+    private IReadOnlyList<SimulationStatusResponse> memoryJobs = Array.Empty<SimulationStatusResponse>();
+    private IReadOnlyList<PersistedSimulationListItem> persistedJobs = Array.Empty<PersistedSimulationListItem>();
     private string idA = string.Empty;
     private string idB = string.Empty;
     private SimulationSummaryResponse? summaryA;
     private SimulationSummaryResponse? summaryB;
+    private SimulationCompareResponse? compare;
     private string? error;
 
-    private IEnumerable<SimulationStatusResponse> completedJobs
-        => jobs.Where(j => j.Status is "Completed" or "Failed");
+    private IEnumerable<SimulationStatusResponse> completedMemoryJobs
+        => memoryJobs.Where(j => j.Status is "Completed" or "Failed");
 
     protected override async Task OnInitializedAsync()
-        => await LoadJobsAsync();
+        => await LoadListsAsync();
 
-    private async Task LoadJobsAsync()
+    private async Task SetSourceAsync(CompareSource next)
+    {
+        source = next;
+        idA = string.Empty;
+        idB = string.Empty;
+        summaryA = null;
+        summaryB = null;
+        compare = null;
+        error = null;
+        await LoadListsAsync();
+    }
+
+    private async Task LoadListsAsync()
     {
         error = null;
-        jobs = await Api.ListSimulationsAsync();
+        memoryJobs = await Api.ListSimulationsAsync();
+        persistedJobs = await Api.ListPersistedSimulationsAsync();
         await RefreshAsync();
     }
 
@@ -148,6 +201,7 @@ else
         error = null;
         summaryA = null;
         summaryB = null;
+        compare = null;
 
         if (string.IsNullOrWhiteSpace(idA) || string.IsNullOrWhiteSpace(idB))
         {
@@ -162,11 +216,39 @@ else
 
         try
         {
-            summaryA = await Api.GetSummaryAsync(idA);
-            summaryB = await Api.GetSummaryAsync(idB);
-            if (summaryA is null || summaryB is null)
+            if (source == CompareSource.Memory)
             {
-                error = "Summary is available only for completed or failed jobs.";
+                summaryA = await Api.GetSummaryAsync(idA);
+                summaryB = await Api.GetSummaryAsync(idB);
+                if (summaryA is null || summaryB is null)
+                {
+                    error = "Summary is available only for completed or failed jobs.";
+                    return;
+                }
+
+                compare = new SimulationCompareResponse
+                {
+                    A = summaryA,
+                    B = summaryB,
+                    CompletedStepsDelta = summaryB.CompletedSteps - summaryA.CompletedSteps,
+                    AggregatedWaterResidualKgDelta = summaryB.AggregatedWaterResidualKg - summaryA.AggregatedWaterResidualKg,
+                    AggregatedEnergyResidualJDelta = summaryB.AggregatedEnergyResidualJ - summaryA.AggregatedEnergyResidualJ,
+                    FinalWaterTankContentKgDelta = summaryA.FinalWaterTankContentKg is { } ta && summaryB.FinalWaterTankContentKg is { } tb
+                        ? tb - ta
+                        : null
+                };
+            }
+            else
+            {
+                compare = await Api.ComparePersistedAsync(idA, idB);
+                if (compare is null)
+                {
+                    error = "One or both persisted summaries were not found.";
+                    return;
+                }
+
+                summaryA = compare.A;
+                summaryB = compare.B;
             }
         }
         catch (Exception ex)
@@ -174,6 +256,9 @@ else
             error = ex.Message;
         }
     }
+
+    private static string ShortId(string id)
+        => id.Length <= 8 ? id : id[..8] + "…";
 
     private static string BoolText(bool value) => value ? "yes" : "no";
 

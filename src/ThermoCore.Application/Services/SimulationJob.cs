@@ -30,6 +30,9 @@ public sealed class SimulationJob
 
     public AwgSimulationRunResult? RunResult { get; set; }
 
+    /// <summary>Identifier of the persisted summary row when store persistence succeeds.</summary>
+    public Guid? PersistedSummaryId { get; set; }
+
     public CancellationTokenSource Cancellation { get; } = new();
 
     public double ProgressFraction

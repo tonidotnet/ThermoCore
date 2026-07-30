@@ -96,14 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Parameter fitting + SQLite persistence MVP are live. Next: docs site, fuller wizard, or OPT sweeps.
+Docs portal, sweeps, sensitivity ranking, and expanded config wizard are live. Next: PostgreSQL, multi-objective OPT, or link-check CI.
 ```
 
 ## Recommended next tasks
 
-1. Docs site (MkDocs) / fuller configuration wizard sections
-2. `OPT-001`/`OPT-002` parameter sweeps
-3. PostgreSQL provider / full result-series persistence
+1. PostgreSQL provider / full result-series persistence
+2. `OPT-006` multi-objective comparison / Pareto
+3. Docs link checker (DOCSITE-007) and architecture diagram assets
 
 ---
 
@@ -139,7 +139,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-009 | Create implementation-ready document template | P1 | Ready | DOC-007 | `ai/templates/EngineeringDocumentTemplate.md` | Missing | NotApplicable | Used for all new engineering specs |
 | DOC-010 | Create architecture decision record template | P1 | Ready | DOC-005 | `docs/ADR/ADR_TEMPLATE.md` | Missing | NotApplicable | Required before major coding decisions |
 | DOC-011 | Create document status automation concept | P3 | Planned | DOC-006, DOC-008 | `tools/` | Missing | NotApplicable | Optional script reads front matter |
-| DOC-012 | Create MkDocs navigation map | P2 | Blocked | DOC-006 | `mkdocs.yml` | Missing | NotApplicable | Needed for documentation portal |
+| DOC-012 | Create MkDocs navigation map | P2 | Done | DOC-006 | `mkdocs.yml` | Implemented | NotApplicable | Material nav curated |
 
 ---
 
@@ -491,13 +491,13 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | OSS-003 | Add architecture diagram assets | P2 | Planned | OSS-002 | `docs/Images/` |
 | OSS-004 | Create first-good-issue backlog | P3 | Planned | REP-010 | GitHub issues |
 | OSS-005 | Add release process | P2 | Done | REP-012 | GitHub workflow |
-| DOCSITE-001 | Select MkDocs Material | P2 | Planned | DOC-006 | ADR |
-| DOCSITE-002 | Create `mkdocs.yml` | P2 | Blocked | DOCSITE-001, DOC-012 | Documentation site |
-| DOCSITE-003 | Add Mermaid support | P2 | Blocked | DOCSITE-002 | Diagram rendering |
-| DOCSITE-004 | Add MathJax/KaTeX support | P2 | Blocked | DOCSITE-002 | Equation rendering |
-| DOCSITE-005 | Add search and navigation | P2 | Blocked | DOCSITE-002 | Usable portal |
-| DOCSITE-006 | Add GitHub Pages deployment | P2 | Blocked | DOCSITE-002, REP-012 | Public docs |
-| DOCSITE-007 | Validate all links in CI | P2 | Blocked | DOC-008, DOCSITE-002 | Link checker |
+| DOCSITE-001 | Select MkDocs Material | P2 | Done | DOC-006 | ADR-002 |
+| DOCSITE-002 | Create `mkdocs.yml` | P2 | Done | DOCSITE-001, DOC-012 | Documentation site |
+| DOCSITE-003 | Add Mermaid support | P2 | Done | DOCSITE-002 | Diagram rendering |
+| DOCSITE-004 | Add MathJax/KaTeX support | P2 | Done | DOCSITE-002 | Equation rendering |
+| DOCSITE-005 | Add search and navigation | P2 | Done | DOCSITE-002 | Usable portal |
+| DOCSITE-006 | Add GitHub Pages deployment | P2 | Done | DOCSITE-002, REP-012 | Public docs |
+| DOCSITE-007 | Validate all links in CI | P2 | Ready | DOC-008, DOCSITE-002 | Link checker |
 
 ---
 
@@ -512,12 +512,12 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | CAL-005 | Implement RMSE and bias | P3 | Done | CAL-004 | `23_Calibration.md` | Passing |
 | CAL-006 | Implement parameter fitting | P3 | Done | CAL-005, DOC-025 | `23_Calibration.md` | Passing |
 | CAL-007 | Store calibrated parameter provenance | P3 | Done | CAL-006, DATA-003 | `23_Calibration.md` | Passing |
-| OPT-001 | Create optimization specification | P3 | Planned | CAL-001 | `24_Optimization.md` | Planned |
-| OPT-002 | Implement parameter sweeps | P3 | Blocked | OPT-001, AWG-016 | `24_Optimization.md` | NotStarted |
-| OPT-003 | Implement sensitivity analysis | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
-| OPT-004 | Implement liters/day objective | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
-| OPT-005 | Implement Wh/liter objective | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
-| OPT-006 | Implement multi-objective comparison | P4 | Blocked | OPT-003 to OPT-005 | `24_Optimization.md` | NotStarted |
+| OPT-001 | Create optimization specification | P3 | Done | CAL-001 | `24_Optimization.md` | Passing |
+| OPT-002 | Implement parameter sweeps | P3 | Done | OPT-001, AWG-016 | `24_Optimization.md` | Passing |
+| OPT-003 | Implement sensitivity analysis | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
+| OPT-004 | Implement liters/day objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
+| OPT-005 | Implement Wh/liter objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
+| OPT-006 | Implement multi-objective comparison | P4 | Ready | OPT-003 to OPT-005 | `24_Optimization.md` | NotStarted |
 | OPT-007 | Add web scenario comparison | P4 | Done | WEB-009 | `20_BlazorWeb.md` | Passing | MVP summary compare; full OPT later |
 
 ---
@@ -662,9 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. Docs site (MkDocs) / fuller wizard sections
-2. OPT-001 / OPT-002 parameter sweeps
-3. PostgreSQL provider / full series persistence
+1. PostgreSQL provider / full series persistence
+2. OPT-006 multi-objective comparison
+3. DOCSITE-007 link checker / architecture diagram assets
 ```
 
 ---

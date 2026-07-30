@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using ThermoCore.AWG.Calibration;
 using ThermoCore.AWG.Configuration;
+using ThermoCore.AWG.Optimization;
 using ThermoCore.AWG.Regression;
 using ThermoCore.AWG.Simulation;
 using ThermoCore.AWG.Topology;
@@ -64,6 +65,16 @@ internal static class DemoHost
             return RunParameterCalibration(args);
         }
 
+        if (args.Length >= 1 && args[0] is "sweep" or "--sweep")
+        {
+            return RunParameterSweep(args);
+        }
+
+        if (args.Length >= 1 && args[0] is "sensitivity" or "--sensitivity")
+        {
+            return RunSensitivityAnalysis(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -90,6 +101,8 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
+              dotnet run --project src/ThermoCore.Console -- sweep --params id=v1,v2 [--params id2=...]
+              dotnet run --project src/ThermoCore.Console -- sensitivity [--params id1,id2] [--perturbation 0.1]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -100,6 +113,8 @@ internal static class DemoHost
               regress                   Run DOC-022 / APP-006 regression scenarios
               validate <csv>            Compare simulation channels to measurement CSV (CAL)
               calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
+              sweep                     Grid-search calibratable parameters (OPT-002)
+              sensitivity               One-at-a-time local sensitivity ranking (OPT-003)
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
 
@@ -124,8 +139,297 @@ internal static class DemoHost
               --params <id,id,...>      Calibratable parameter ids (default catalog)
               --db <path>               SQLite path for provenance (CAL-007)
               --write-fitted <path>     Write fitted configuration JSON
+
+            Sweep options:
+              --params <id=v1,v2,...>   Sweep axis (repeatable, max 3)
+              --config <path>           Baseline AWG configuration JSON
+              --duration / -d <sec>     Simulation duration (default 10)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
+
+            Sensitivity options:
+              --params <id,id,...>      Parameter ids (default calibratable catalog)
+              --perturbation <frac>     Relative ± half-step (default 0.10)
+              --config <path>           Baseline AWG configuration JSON
+              --duration / -d <sec>     Simulation duration (default 10)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
             """);
     }
+
+    private static int RunSensitivityAnalysis(string[] args)
+    {
+        try
+        {
+            string? configurationPath = null;
+            var durationSeconds = 10.0;
+            var timeStepSeconds = 1.0;
+            var perturbation = 0.10;
+            string[]? parameterIds = null;
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--perturbation")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out perturbation)
+                        || perturbation is <= 0.0 or >= 1.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --perturbation value (expected in (0, 1)).");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--params")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --params value.");
+                        return ExitUsageError;
+                    }
+
+                    parameterIds = args[i]
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown sensitivity option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var document = string.IsNullOrWhiteSpace(configurationPath)
+                ? AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false)
+                : AwgConfigurationLoader.LoadFromFile(configurationPath);
+            var options = AwgSimulationOptions.CreateDefault(
+                TimeSpan.FromSeconds(durationSeconds),
+                TimeSpan.FromSeconds(timeStepSeconds));
+
+            var result = new AwgSensitivityAnalysisRunner().Run(
+                document.System,
+                document.InitialState,
+                options,
+                new AwgSensitivityAnalysisOptions { RelativePerturbationFraction = perturbation },
+                parameterIds);
+
+            System.Console.WriteLine("=== Sensitivity analysis (OAT) ===");
+            System.Console.WriteLine(
+                $"Baseline L/day={result.BaselineLitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"waterKg={result.BaselineCollectedWaterKg.ToString("G4", CultureInfo.InvariantCulture)} " +
+                $"[{(result.BaselineSucceeded ? "ok" : "fail")}]");
+            if (!string.IsNullOrWhiteSpace(result.BaselineFailureMessage))
+            {
+                System.Console.WriteLine($"  {result.BaselineFailureMessage}");
+            }
+
+            System.Console.WriteLine("Ranked by |liters/day elasticity|:");
+            foreach (var parameter in result.RankedByElasticityMagnitude)
+            {
+                System.Console.WriteLine(
+                    $"  {parameter.ParameterId} | elasticity={parameter.LitersPerDayElasticity!.Value.ToString("G4", CultureInfo.InvariantCulture)} " +
+                    $"dy/dx={parameter.LitersPerDayDerivative?.ToString("G4", CultureInfo.InvariantCulture) ?? "n/a"} " +
+                    $"x0={parameter.BaselineValue.ToString("G4", CultureInfo.InvariantCulture)} " +
+                    $"[{parameter.LowValue.ToString("G4", CultureInfo.InvariantCulture)} .. {parameter.HighValue.ToString("G4", CultureInfo.InvariantCulture)}]");
+            }
+
+            foreach (var parameter in result.Parameters.Where(p => !p.Succeeded))
+            {
+                System.Console.WriteLine($"  [fail] {parameter.ParameterId}: {parameter.FailureMessage}");
+            }
+
+            return result.BaselineSucceeded && result.Parameters.Any(p => p.Succeeded)
+                ? ExitSuccess
+                : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or FileNotFoundException)
+        {
+            System.Console.Error.WriteLine($"Sensitivity error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunParameterSweep(string[] args)
+    {
+        try
+        {
+            string? configurationPath = null;
+            var durationSeconds = 10.0;
+            var timeStepSeconds = 1.0;
+            var axes = new List<AwgParameterSweepAxis>();
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--params")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --params value.");
+                        return ExitUsageError;
+                    }
+
+                    axes.Add(ParseSweepAxis(args[i]));
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown sweep option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            if (axes.Count == 0)
+            {
+                System.Console.Error.WriteLine("Sweep requires at least one --params id=v1,v2 axis.");
+                return ExitUsageError;
+            }
+
+            var document = string.IsNullOrWhiteSpace(configurationPath)
+                ? AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false)
+                : AwgConfigurationLoader.LoadFromFile(configurationPath);
+            var options = AwgSimulationOptions.CreateDefault(
+                TimeSpan.FromSeconds(durationSeconds),
+                TimeSpan.FromSeconds(timeStepSeconds));
+
+            var result = new AwgParameterSweepRunner().Run(
+                document.System,
+                document.InitialState,
+                options,
+                axes);
+
+            System.Console.WriteLine("=== Parameter sweep ===");
+            System.Console.WriteLine($"Points: {result.Points.Count}");
+            foreach (var point in result.Points)
+            {
+                var values = string.Join(
+                    ", ",
+                    point.ParameterValues.OrderBy(p => p.Key, StringComparer.Ordinal)
+                        .Select(p => $"{p.Key}={p.Value.ToString("G4", CultureInfo.InvariantCulture)}"));
+                var wh = point.WattHoursPerLiter?.ToString("G4", CultureInfo.InvariantCulture) ?? "n/a";
+                System.Console.WriteLine(
+                    $"  [{(point.Succeeded ? "ok" : "fail")}] {values} | " +
+                    $"L/day={point.LitersPerDay.ToString("G4", CultureInfo.InvariantCulture)} Wh/L={wh} " +
+                    $"waterKg={point.CollectedWaterKg.ToString("G4", CultureInfo.InvariantCulture)}");
+                if (!string.IsNullOrWhiteSpace(point.FailureMessage))
+                {
+                    System.Console.WriteLine($"    {point.FailureMessage}");
+                }
+            }
+
+            if (result.BestLitersPerDay is { } bestWater)
+            {
+                System.Console.WriteLine(
+                    $"Best liters/day: {bestWater.LitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"at {FormatValues(bestWater.ParameterValues)}");
+            }
+
+            if (result.BestWattHoursPerLiter is { } bestEnergy)
+            {
+                System.Console.WriteLine(
+                    $"Best Wh/liter: {bestEnergy.WattHoursPerLiter!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"at {FormatValues(bestEnergy.ParameterValues)}");
+            }
+
+            return result.Points.Any(p => p.Succeeded) ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or FileNotFoundException)
+        {
+            System.Console.Error.WriteLine($"Sweep error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static AwgParameterSweepAxis ParseSweepAxis(string raw)
+    {
+        var eq = raw.IndexOf('=');
+        if (eq <= 0 || eq >= raw.Length - 1)
+        {
+            throw new ArgumentException(
+                $"Sweep axis '{raw}' must look like id=v1,v2,v3.",
+                nameof(raw));
+        }
+
+        var id = raw[..eq].Trim();
+        var values = raw[(eq + 1)..]
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(v =>
+            {
+                if (!double.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var number))
+                {
+                    throw new ArgumentException($"Invalid sweep value '{v}' for '{id}'.");
+                }
+
+                return number;
+            })
+            .ToArray();
+
+        return new AwgParameterSweepAxis
+        {
+            ParameterId = id,
+            Values = values
+        }.Validate();
+    }
+
+    private static string FormatValues(IReadOnlyDictionary<string, double> values)
+        => string.Join(
+            ", ",
+            values.OrderBy(p => p.Key, StringComparer.Ordinal)
+                .Select(p => $"{p.Key}={p.Value.ToString("G6", CultureInfo.InvariantCulture)}"));
 
     private static int RunParameterCalibration(string[] args)
     {

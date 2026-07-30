@@ -63,6 +63,15 @@ Start at `README_FIRST.md`, then `docs/00_Project/DOCUMENT_INVENTORY.md` and `do
 
 API contract: `docs/05_Product/19_WebApi.md`.
 
+Browseable docs portal (MkDocs Material):
+
+```bash
+pip install -r requirements-docs.txt
+mkdocs serve
+```
+
+GitHub Pages deploys from `.github/workflows/docs.yml` after enabling Pages (GitHub Actions source).
+
 ## License
 
 Apache License 2.0 — see `LICENSE` and `docs/ADR/ADR-001-OpenSourceLicense.md`.

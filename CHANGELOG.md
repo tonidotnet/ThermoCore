@@ -9,6 +9,10 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- MkDocs Material documentation portal (`mkdocs.yml`, ADR-002, GitHub Pages workflow)
+- One-at-a-time sensitivity analysis (`sensitivity`) ranked by liters/day elasticity (OPT-003)
+- Parameter grid sweeps (`sweep`) with liters/day and Wh/liter ranking (OPT-002)
+- Sectioned Blazor AWG configuration wizard (collector, silica, condenser, HR)
 - Bounded coordinate-descent parameter fitting (`calibrate`) and SQLite calibration provenance
 - `ThermoCore.Persistence` SQLite store for configuration versions, summaries, calibration runs
 - Measurement CSV import, timestamp alignment, and RMSE/MAE/bias comparison (CAL-002…005)

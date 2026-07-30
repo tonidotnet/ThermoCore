@@ -1,3 +1,100 @@
-site_name: ThermoCore Documentation
+site_name: ThermoCore
+site_description: Thermodynamic simulation platform and AWG reference application
+repo_name: ThermoCore
+edit_uri: edit/main/docs/
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
 nav:
-  - Home: docs/README.md
+  - Home: index.md
+  - Project:
+      - Master index: 00_Project/MASTER_INDEX.md
+      - Document inventory: 00_Project/DOCUMENT_INVENTORY.md
+      - Implementation progress: 00_Project/IMPLEMENTATION_PROGRESS.md
+      - Architecture map: 00_Project/ARCHITECTURE_MAP.md
+      - Dependency graph: 00_Project/DOCUMENT_DEPENDENCY_GRAPH.md
+  - Architecture:
+      - Vision: 01_Architecture/01_ProjectVision.md
+      - Architecture: 01_Architecture/02_Architecture.md
+      - Physical architecture: 01_Architecture/03_PhysicalArchitecture.md
+  - Mathematics:
+      - Psychrometrics: 02_Mathematics/05_Psychrometrics.md
+      - Numerical methods: 02_Mathematics/25_NumericalMethods.md
+      - Constants: 02_Mathematics/26_Constants.md
+      - Units: 02_Mathematics/27_Units.md
+  - Simulation:
+      - Control: 04_Simulation/14_ControlSystem.md
+      - Topology: 04_Simulation/15_SystemTopology.md
+      - Engine: 04_Simulation/16_SimulationEngine.md
+      - Weather: 04_Simulation/28_WeatherModel.md
+  - Product:
+      - Web API: 05_Product/19_WebApi.md
+      - Blazor Web: 05_Product/20_BlazorWeb.md
+      - Data model: 05_Product/21_DataModel.md
+      - Result formats: 05_Product/29_ResultFormats.md
+      - Deployment: 05_Product/30_Deployment.md
+  - Testing:
+      - Test strategy: 06_Testing/22_TestStrategy.md
+      - Calibration: 06_Testing/23_Calibration.md
+      - Optimization: 06_Testing/24_Optimization.md
+  - Project management:
+      - Roadmap: 07_ProjectManagement/17_Roadmap.md
+      - Coding rules: 07_ProjectManagement/18_CodingRules.md
+  - ADRs:
+      - ADR-001 License: ADR/ADR-001-OpenSourceLicense.md
+      - ADR-002 Docs site: ADR/ADR-002-DocumentationSite.md

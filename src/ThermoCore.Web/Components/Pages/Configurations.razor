@@ -10,63 +10,134 @@
 
 <h1>AWG configuration</h1>
 <p>
-    Edit a default MVP profile, validate through application services, then start a simulation.
-    Full wizard sections remain a follow-up.
+    Sectioned MVP editor for scenario, ambient, airflow, topology, and key component parameters.
+    Values map explicitly to the AWG configuration document; physics stays in Core/AWG.
 </p>
 
-<div class="row g-3 col-lg-8">
-    <div class="col-md-6">
-        <label class="form-label">Duration (s)</label>
-        <input class="form-control" type="number" min="1" @bind="durationSeconds" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Timestep (s)</label>
-        <input class="form-control" type="number" min="0.1" step="0.1" @bind="timeStepSeconds" />
-    </div>
+<div class="row g-3 col-lg-9">
+    <details class="col-12 config-section" open>
+        <summary>1. Scenario and time range</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Duration (s)</label>
+                <input class="form-control" type="number" min="1" @bind="durationSeconds" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Timestep (s)</label>
+                <input class="form-control" type="number" min="0.1" step="0.1" @bind="timeStepSeconds" />
+            </div>
+        </div>
+    </details>
 
-    <div class="col-md-6">
-        <label class="form-label">Ambient temperature (°C)</label>
-        <input class="form-control" type="number" step="0.1" @bind="ambientTemperatureC" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Ambient RH (%)</label>
-        <input class="form-control" type="number" min="0" max="100" step="0.1" @bind="ambientRhPercent" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Ambient pressure (Pa)</label>
-        <input class="form-control" type="number" step="1" @bind="ambientPressurePa" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Fan dry-air mass flow (kg/s)</label>
-        <input class="form-control" type="number" min="0.0001" step="0.0001" @bind="fanMassFlowKgPerS" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Water tank capacity (kg)</label>
-        <input class="form-control" type="number" min="0.1" step="0.1" @bind="tankCapacityKg" />
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Solar irradiance (W/m²)</label>
-        <input class="form-control" type="number" min="0" step="1" @bind="solarIrradiance" />
-    </div>
+    <details class="col-12 config-section" open>
+        <summary>2. Weather / ambient</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Ambient temperature (°C)</label>
+                <input class="form-control" type="number" step="0.1" @bind="ambientTemperatureC" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Ambient RH (%)</label>
+                <input class="form-control" type="number" min="0" max="100" step="0.1" @bind="ambientRhPercent" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Ambient pressure (Pa)</label>
+                <input class="form-control" type="number" step="1" @bind="ambientPressurePa" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Solar irradiance (W/m²)</label>
+                <input class="form-control" type="number" min="0" step="1" @bind="solarIrradiance" />
+            </div>
+        </div>
+    </details>
 
-    <div class="col-12">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="electrical" @bind="enableElectrical" />
-            <label class="form-check-label" for="electrical">Enable electrical subsystem</label>
+    <details class="col-12 config-section">
+        <summary>3. Topology switches</summary>
+        <div class="mt-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="electrical" @bind="enableElectrical" />
+                <label class="form-check-label" for="electrical">Enable electrical subsystem</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="hr" @bind="enableHeatRecovery" />
+                <label class="form-check-label" for="hr">Enable heat recovery</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="recirc" @bind="enableRecirculation" />
+                <label class="form-check-label" for="recirc">Enable recirculation</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pvrear" @bind="enablePvRearAir" disabled="@(!enableElectrical)" />
+                <label class="form-check-label" for="pvrear">Enable PV rear-air channel</label>
+            </div>
         </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="hr" @bind="enableHeatRecovery" />
-            <label class="form-check-label" for="hr">Enable heat recovery</label>
+    </details>
+
+    <details class="col-12 config-section">
+        <summary>4. Airflow and tank</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Fan dry-air mass flow (kg/s)</label>
+                <input class="form-control" type="number" min="0.0001" step="0.0001" @bind="fanMassFlowKgPerS" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Water tank capacity (kg)</label>
+                <input class="form-control" type="number" min="0.1" step="0.1" @bind="tankCapacityKg" />
+            </div>
         </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="recirc" @bind="enableRecirculation" />
-            <label class="form-check-label" for="recirc">Enable recirculation</label>
+    </details>
+
+    <details class="col-12 config-section">
+        <summary>5. Solar collector</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Aperture area (m²)</label>
+                <input class="form-control" type="number" min="0.1" step="0.1" @bind="collectorAreaM2" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Loss coefficient (W/m²·K)</label>
+                <input class="form-control" type="number" min="0" step="0.1" @bind="collectorLossWPerM2K" />
+            </div>
         </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="pvrear" @bind="enablePvRearAir" disabled="@(!enableElectrical)" />
-            <label class="form-check-label" for="pvrear">Enable PV rear-air channel</label>
+    </details>
+
+    <details class="col-12 config-section">
+        <summary>6. Silica gel</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Dry adsorbent mass (kg)</label>
+                <input class="form-control" type="number" min="0.1" step="0.1" @bind="silicaMassKg" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Mass-transfer coefficient (1/s)</label>
+                <input class="form-control" type="number" min="0.001" step="0.001" @bind="silicaMassTransfer" />
+            </div>
         </div>
-    </div>
+    </details>
+
+    <details class="col-12 config-section">
+        <summary>7. Condenser</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Bypass factor (0–1)</label>
+                <input class="form-control" type="number" min="0" max="1" step="0.01" @bind="condenserBypass" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Drainage efficiency (0–1)</label>
+                <input class="form-control" type="number" min="0" max="1" step="0.01" @bind="condenserDrainage" />
+            </div>
+        </div>
+    </details>
+
+    <details class="col-12 config-section">
+        <summary>8. Heat recovery</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Effectiveness (0–1)</label>
+                <input class="form-control" type="number" min="0" max="1" step="0.01" @bind="heatRecoveryEffectiveness" disabled="@(!enableHeatRecovery)" />
+            </div>
+        </div>
+    </details>
 
     <div class="col-12 d-flex flex-wrap gap-2">
         <button class="btn btn-outline-primary" disabled="@busy" @onclick="ValidateAsync">Validate</button>
@@ -108,6 +179,21 @@
     }
 </div>
 
+<style>
+    .config-section {
+        border: 1px solid #d7e0e3;
+        border-radius: 0.35rem;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(180deg, #f7fbfc 0%, #ffffff 70%);
+    }
+
+    .config-section > summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: #16323c;
+    }
+</style>
+
 @code {
     private double durationSeconds = 30;
     private double timeStepSeconds = 1;
@@ -117,6 +203,13 @@
     private double fanMassFlowKgPerS = 0.02;
     private double tankCapacityKg = 20;
     private double solarIrradiance = 800;
+    private double collectorAreaM2 = 2.0;
+    private double collectorLossWPerM2K = 4.0;
+    private double silicaMassKg = 2.0;
+    private double silicaMassTransfer = 0.02;
+    private double condenserBypass = 0.15;
+    private double condenserDrainage = 0.90;
+    private double heatRecoveryEffectiveness = 0.65;
     private bool enableElectrical = true;
     private bool enableHeatRecovery;
     private bool enableRecirculation;
@@ -151,6 +244,13 @@
         fanMassFlowKgPerS = document.System.Fan.DryAirMassFlowKgPerSecond;
         tankCapacityKg = document.System.WaterTank.CapacityKg;
         solarIrradiance = document.System.Ambient.SolarIrradianceWPerSquareMeter;
+        collectorAreaM2 = document.System.SolarCollector.ApertureAreaM2;
+        collectorLossWPerM2K = document.System.SolarCollector.OverallLossCoefficientWPerM2K;
+        silicaMassKg = document.System.SilicaGel.DryAdsorbentMassKg;
+        silicaMassTransfer = document.System.SilicaGel.ReferenceMassTransferCoefficientPerSecond;
+        condenserBypass = document.System.Condenser.BypassFactor;
+        condenserDrainage = document.System.Condenser.DrainageEfficiency;
+        heatRecoveryEffectiveness = document.System.HeatRecovery.EffectivenessFraction;
         enableElectrical = document.System.Topology.EnableElectricalSubsystem;
         enableHeatRecovery = document.System.Topology.EnableHeatRecovery;
         enableRecirculation = document.System.Topology.EnableRecirculation;
@@ -183,6 +283,25 @@
                 WaterTank = baseline.System.WaterTank with
                 {
                     CapacityKg = tankCapacityKg
+                },
+                SolarCollector = baseline.System.SolarCollector with
+                {
+                    ApertureAreaM2 = collectorAreaM2,
+                    OverallLossCoefficientWPerM2K = collectorLossWPerM2K
+                },
+                SilicaGel = baseline.System.SilicaGel with
+                {
+                    DryAdsorbentMassKg = silicaMassKg,
+                    ReferenceMassTransferCoefficientPerSecond = silicaMassTransfer
+                },
+                Condenser = baseline.System.Condenser with
+                {
+                    BypassFactor = condenserBypass,
+                    DrainageEfficiency = condenserDrainage
+                },
+                HeatRecovery = baseline.System.HeatRecovery with
+                {
+                    EffectivenessFraction = heatRecoveryEffectiveness
                 },
                 Topology = baseline.System.Topology with
                 {

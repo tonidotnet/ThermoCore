@@ -26,6 +26,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
     private readonly double _bypassFraction;
     private readonly bool _allowReverseOperation;
     private readonly bool _enableCondensationRiskDiagnostics;
+    private readonly double _hotReferencePressureDropPa;
+    private readonly double _coldReferencePressureDropPa;
+    private readonly double _hotReferenceVolumetricFlowM3PerSecond;
+    private readonly double _coldReferenceVolumetricFlowM3PerSecond;
+    private readonly double _pressureDropExponent;
     private readonly List<SimulationDiagnostic> _diagnostics = [];
 
     public SensibleHeatRecoveryComponent(
@@ -34,6 +39,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         double bypassFraction = 0.0,
         bool allowReverseOperation = false,
         bool enableCondensationRiskDiagnostics = true,
+        double hotReferencePressureDropPa = 0.0,
+        double coldReferencePressureDropPa = 0.0,
+        double hotReferenceVolumetricFlowM3PerSecond = 0.01,
+        double coldReferenceVolumetricFlowM3PerSecond = 0.01,
+        double pressureDropExponent = 2.0,
         IPsychrometricCalculator? calculator = null)
         : this(
             id,
@@ -43,6 +53,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
             bypassFraction,
             allowReverseOperation,
             enableCondensationRiskDiagnostics,
+            hotReferencePressureDropPa,
+            coldReferencePressureDropPa,
+            hotReferenceVolumetricFlowM3PerSecond,
+            coldReferenceVolumetricFlowM3PerSecond,
+            pressureDropExponent,
             calculator)
     {
     }
@@ -55,6 +70,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         double bypassFraction,
         bool allowReverseOperation,
         bool enableCondensationRiskDiagnostics,
+        double hotReferencePressureDropPa,
+        double coldReferencePressureDropPa,
+        double hotReferenceVolumetricFlowM3PerSecond,
+        double coldReferenceVolumetricFlowM3PerSecond,
+        double pressureDropExponent,
         IPsychrometricCalculator? calculator)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -77,6 +97,12 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
             FiniteNumber.RequirePositive(uaWPerK, nameof(uaWPerK));
         }
 
+        FiniteNumber.RequireNonNegative(hotReferencePressureDropPa, nameof(hotReferencePressureDropPa));
+        FiniteNumber.RequireNonNegative(coldReferencePressureDropPa, nameof(coldReferencePressureDropPa));
+        FiniteNumber.RequirePositive(hotReferenceVolumetricFlowM3PerSecond, nameof(hotReferenceVolumetricFlowM3PerSecond));
+        FiniteNumber.RequirePositive(coldReferenceVolumetricFlowM3PerSecond, nameof(coldReferenceVolumetricFlowM3PerSecond));
+        FiniteNumber.RequirePositive(pressureDropExponent, nameof(pressureDropExponent));
+
         Id = id;
         _modelType = modelType;
         _effectivenessFraction = effectivenessFraction;
@@ -84,6 +110,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         _bypassFraction = bypassFraction;
         _allowReverseOperation = allowReverseOperation;
         _enableCondensationRiskDiagnostics = enableCondensationRiskDiagnostics;
+        _hotReferencePressureDropPa = hotReferencePressureDropPa;
+        _coldReferencePressureDropPa = coldReferencePressureDropPa;
+        _hotReferenceVolumetricFlowM3PerSecond = hotReferenceVolumetricFlowM3PerSecond;
+        _coldReferenceVolumetricFlowM3PerSecond = coldReferenceVolumetricFlowM3PerSecond;
+        _pressureDropExponent = pressureDropExponent;
         _calculator = calculator ?? new PsychrometricCalculator();
 
         Ports =
@@ -105,6 +136,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         double bypassFraction = 0.0,
         bool allowReverseOperation = false,
         bool enableCondensationRiskDiagnostics = true,
+        double hotReferencePressureDropPa = 0.0,
+        double coldReferencePressureDropPa = 0.0,
+        double hotReferenceVolumetricFlowM3PerSecond = 0.01,
+        double coldReferenceVolumetricFlowM3PerSecond = 0.01,
+        double pressureDropExponent = 2.0,
         IPsychrometricCalculator? calculator = null)
         => new(
             id,
@@ -114,6 +150,11 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
             bypassFraction,
             allowReverseOperation,
             enableCondensationRiskDiagnostics,
+            hotReferencePressureDropPa,
+            coldReferencePressureDropPa,
+            hotReferenceVolumetricFlowM3PerSecond,
+            coldReferenceVolumetricFlowM3PerSecond,
+            pressureDropExponent,
             calculator);
 
     public string Id { get; }
@@ -130,6 +171,10 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
 
     public double LastCapacityRatio { get; private set; }
 
+    public double LastHotPressureDropPa { get; private set; }
+
+    public double LastColdPressureDropPa { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
@@ -137,6 +182,8 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         LastEffectivenessFraction = 0.0;
         LastNtu = 0.0;
         LastCapacityRatio = 0.0;
+        LastHotPressureDropPa = 0.0;
+        LastColdPressureDropPa = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -232,15 +279,33 @@ public sealed class SensibleHeatRecoveryComponent : ISimulationComponent
         var hotOutTemperatureK = hotIn.TemperatureK - recoveredHeatW / hotCapacity;
         var coldOutTemperatureK = coldIn.TemperatureK + recoveredHeatW / coldCapacity;
 
+        var hotVol = hotIn.DryAirMassFlowKgPerSecond * hotIn.SpecificVolumeM3PerKgDryAir;
+        var coldVol = coldIn.DryAirMassFlowKgPerSecond * coldIn.SpecificVolumeM3PerKgDryAir;
+        LastHotPressureDropPa = _hotReferencePressureDropPa <= 0.0
+            ? 0.0
+            : _hotReferencePressureDropPa
+              * Math.Pow(Math.Abs(hotVol / _hotReferenceVolumetricFlowM3PerSecond), _pressureDropExponent);
+        LastColdPressureDropPa = _coldReferencePressureDropPa <= 0.0
+            ? 0.0
+            : _coldReferencePressureDropPa
+              * Math.Pow(Math.Abs(coldVol / _coldReferenceVolumetricFlowM3PerSecond), _pressureDropExponent);
+
+        var hotOutPressure = hotIn.PressurePa - LastHotPressureDropPa;
+        var coldOutPressure = coldIn.PressurePa - LastColdPressureDropPa;
+        if (hotOutPressure <= 0.0 || coldOutPressure <= 0.0)
+        {
+            return Error(context, "HEAT_RECOVERY.NON_POSITIVE_PRESSURE", "Heat-recovery outlet pressure would be non-positive.");
+        }
+
         var hotOut = _calculator.CreateFromHumidityRatio(
             hotOutTemperatureK,
-            hotIn.PressurePa,
+            hotOutPressure,
             hotIn.HumidityRatioKgPerKgDryAir,
             hotIn.DryAirMassFlowKgPerSecond);
 
         var coldOut = _calculator.CreateFromHumidityRatio(
             coldOutTemperatureK,
-            coldIn.PressurePa,
+            coldOutPressure,
             coldIn.HumidityRatioKgPerKgDryAir,
             coldIn.DryAirMassFlowKgPerSecond);
 

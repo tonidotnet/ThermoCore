@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Continue solar-collector fidelity (dynamic absorber balance), then remaining P1 gaps and power-management integration tests.
+ThermoCore.Core physical models for PV/SC/COND/HR/AIR/TEC/PWR are complete. Next: AWG specs and application layer (blocked on DOC/AWG planning tasks).
 ```
 
 ## Recommended next tasks
 
-1. `SC-003` — Dynamic absorber energy balance
-2. `PWR-007` — Power-management integration tests
-3. `PV-002` — Temperature-corrected PV model
-4. `GEN-003` — Electrical source
-5. `TEC-005` — Dynamic hot/cold-side state
+1. `AWG-001` — Create detailed control-system specification
+2. `AWG-002` — Create detailed system-topology specification
+3. `DOC-014A` / `DOC-015A` — Expand control and topology specs
+4. `APP-001` — Create console host (after DEV/AWG prerequisites)
+5. `AI-010` — Create reusable coding prompts and templates
 
 ---
 
@@ -282,7 +282,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | GEN-001 | Ambient-air source | P1 | Done | GRAPH-008, CORE-010 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-002 | Solar-radiation source | P1 | Done | GRAPH-008 | `06_SolarCollector.md`, `07_SolarPanel.md` | Passing |
-| GEN-003 | Electrical source | P1 | Ready | GRAPH-008 | `03_PhysicalArchitecture.md` | NotStarted |
+| GEN-003 | Electrical source | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-004 | Environment heat sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-005 | Exhaust-air sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
 | GEN-006 | Liquid-water sink | P1 | Done | GRAPH-008 | `03_PhysicalArchitecture.md` | Passing |
@@ -300,11 +300,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Doc | Test status |
 |---|---|---|---|---|---|---|
 | PV-001 | Constant-efficiency PV model | P1 | Done | GEN-002, CORE-012 | `07_SolarPanel.md` | Passing |
-| PV-002 | Temperature-corrected PV model | P1 | Ready | PV-001 | `07_SolarPanel.md` | NotStarted |
-| PV-003 | Dynamic electrothermal PV model | P2 | Blocked | PV-002, DOC-025 | `07_SolarPanel.md` | NotStarted |
-| PV-004 | Rear-air channel heat transfer | P1 | Blocked | PV-003, CORE-010 | `07_SolarPanel.md` | NotStarted |
-| PV-005 | PV pressure-drop model | P2 | Blocked | PV-004, GEN-010 | `07_SolarPanel.md` | NotStarted |
-| PV-006 | PV integration tests | P1 | Blocked | PV-001 to PV-005 | `22_TestStrategy.md` | NotStarted |
+| PV-002 | Temperature-corrected PV model | P1 | Done | PV-001 | `07_SolarPanel.md` | Passing |
+| PV-003 | Dynamic electrothermal PV model | P2 | Done | PV-002, DOC-025 | `07_SolarPanel.md` | Passing |
+| PV-004 | Rear-air channel heat transfer | P1 | Done | PV-003, CORE-010 | `07_SolarPanel.md` | Passing |
+| PV-005 | PV pressure-drop model | P2 | Done | PV-004, GEN-010 | `07_SolarPanel.md` | Passing |
+| PV-006 | PV integration tests | P1 | Done | PV-001 to PV-005 | `22_TestStrategy.md` | Passing |
 
 ## 16.2 Solar collector
 
@@ -312,11 +312,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | SC-001 | Constant-efficiency collector | P1 | Done | GEN-002, GEN-009 | `06_SolarCollector.md` | Passing |
 | SC-002 | Optical absorption model | P1 | Done | SC-001 | `06_SolarCollector.md` | Passing |
-| SC-003 | Dynamic absorber energy balance | P1 | Ready | SC-002, DOC-025 | `06_SolarCollector.md` | NotStarted |
-| SC-004 | Environmental heat loss | P1 | Blocked | SC-003 | `06_SolarCollector.md` | NotStarted |
-| SC-005 | Stagnation and overtemperature | P1 | Blocked | SC-003, SC-004 | `06_SolarCollector.md` | NotStarted |
-| SC-006 | Collector pressure drop | P2 | Blocked | GEN-010 | `06_SolarCollector.md` | NotStarted |
-| SC-007 | Collector integration tests | P1 | Blocked | SC-001 to SC-006 | `22_TestStrategy.md` | NotStarted |
+| SC-003 | Dynamic absorber energy balance | P1 | Done | SC-002, DOC-025 | `06_SolarCollector.md` | Passing |
+| SC-004 | Environmental heat loss | P1 | Done | SC-003 | `06_SolarCollector.md` | Passing |
+| SC-005 | Stagnation and overtemperature | P1 | Done | SC-003, SC-004 | `06_SolarCollector.md` | Passing |
+| SC-006 | Collector pressure drop | P2 | Done | GEN-010 | `06_SolarCollector.md` | Passing |
+| SC-007 | Collector integration tests | P1 | Done | SC-001 to SC-006 | `22_TestStrategy.md` | Passing |
 
 ## 16.3 Peltier
 
@@ -326,7 +326,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | TEC-002 | Analytical thermoelectric model | P1 | Done | TEC-001, DOC-025 | `08_Peltier.md` | Passing |
 | TEC-003 | Current/power solver | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-004 | External thermal resistances | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
-| TEC-005 | Dynamic hot/cold-side state | P2 | Ready | TEC-004, DOC-025 | `08_Peltier.md` | NotStarted |
+| TEC-005 | Dynamic hot/cold-side state | P2 | Done | TEC-004, DOC-025 | `08_Peltier.md` | Passing |
 | TEC-006 | Off-state conduction | P1 | Done | TEC-002 | `08_Peltier.md` | Passing |
 | TEC-007 | Safety limits and diagnostics | P1 | Done | TEC-003 to TEC-006 | `08_Peltier.md` | Passing |
 | TEC-008 | Peltier integration tests | P1 | Done | TEC-001 to TEC-007 | `22_TestStrategy.md` | Passing |
@@ -354,7 +354,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | COND-002 | Dew-point and sensible-cooling model | P1 | Done | COND-001, CORE-010 | `10_Condenser.md` | Passing |
 | COND-003 | Latent condensation model | P1 | Done | COND-002, CORE-012 | `10_Condenser.md` | Passing |
 | COND-004 | Cooling-power limitation | P1 | Done | COND-003, TEC-001 | `10_Condenser.md` | Passing |
-| COND-005 | Heat/mass-transfer effectiveness | P2 | Blocked | COND-003, DOC-025 | `10_Condenser.md` | NotStarted |
+| COND-005 | Heat/mass-transfer effectiveness | P2 | Done | COND-003, DOC-025 | `10_Condenser.md` | Passing |
 | COND-006 | Drainage efficiency and water output | P1 | Done | COND-003 | `10_Condenser.md` | Passing |
 | COND-007 | Condenser integration tests | P1 | Done | COND-002 to COND-006 | `22_TestStrategy.md` | Passing |
 
@@ -365,9 +365,9 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | HR-001 | Expand heat-recovery specification | P1 | Done | DOC-005A, DOC-010A | `11_HeatRecovery.md` | Passing |
 | HR-002 | Sensible effectiveness model | P1 | Done | HR-001, CORE-010 | `11_HeatRecovery.md` | Passing |
 | HR-003 | Counter-flow effectiveness–NTU model | P2 | Done | HR-002, DOC-025 | `11_HeatRecovery.md` | Passing |
-| HR-004 | Hot/cold pressure-drop models | P2 | Blocked | GEN-010 | `11_HeatRecovery.md` | NotStarted |
-| HR-005 | Bypass control | P2 | Blocked | HR-002 | `11_HeatRecovery.md` | NotStarted |
-| HR-006 | Heat-recovery integration tests | P1 | Blocked | HR-002 to HR-005 | `22_TestStrategy.md` | NotStarted |
+| HR-004 | Hot/cold pressure-drop models | P2 | Done | GEN-010 | `11_HeatRecovery.md` | Passing |
+| HR-005 | Bypass control | P2 | Done | HR-002 | `11_HeatRecovery.md` | Passing |
+| HR-006 | Heat-recovery integration tests | P1 | Done | HR-002 to HR-005 | `22_TestStrategy.md` | Passing |
 
 ## 16.7 Fan and airflow
 
@@ -376,11 +376,11 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AIR-001 | Expand fan and airflow specification | P0 | Done | DOC-004A, DOC-005A | `13_FanAndAirflow.md` | Passing |
 | AIR-002 | Prescribed-flow fan model | P1 | Done | AIR-001, CORE-012 | `13_FanAndAirflow.md` | Passing |
 | AIR-003 | Fan power calculation | P1 | Done | AIR-002 | `13_FanAndAirflow.md` | Passing |
-| AIR-004 | Fan performance curve | P2 | Blocked | AIR-002 | `13_FanAndAirflow.md` | NotStarted |
-| AIR-005 | Airflow network resistance | P2 | Blocked | AIR-004, GEN-010 | `13_FanAndAirflow.md` | NotStarted |
-| AIR-006 | Fan/system operating point | P2 | Blocked | AIR-004, AIR-005, DOC-025 | `13_FanAndAirflow.md` | NotStarted |
-| AIR-007 | Multi-fan support | P3 | Blocked | AIR-006 | `13_FanAndAirflow.md` | NotStarted |
-| AIR-008 | Airflow integration tests | P1 | Blocked | AIR-002 to AIR-006 | `22_TestStrategy.md` | NotStarted |
+| AIR-004 | Fan performance curve | P2 | Done | AIR-002 | `13_FanAndAirflow.md` | Passing |
+| AIR-005 | Airflow network resistance | P2 | Done | AIR-004, GEN-010 | `13_FanAndAirflow.md` | Passing |
+| AIR-006 | Fan/system operating point | P2 | Done | AIR-004, AIR-005, DOC-025 | `13_FanAndAirflow.md` | Passing |
+| AIR-007 | Multi-fan support | P3 | Done | AIR-006 | `13_FanAndAirflow.md` | Passing |
+| AIR-008 | Airflow integration tests | P1 | Done | AIR-002 to AIR-006 | `22_TestStrategy.md` | Passing |
 
 ## 16.8 Battery and power management
 
@@ -392,7 +392,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | PWR-004 | Charge/discharge power limits | P1 | Done | PWR-002 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-005 | Load priority and shedding | P1 | Done | PWR-003, PWR-004 | `12_BatteryAndPowerManagement.md` | Passing |
 | PWR-006 | PV curtailment | P2 | Done | PWR-005, PV-001 | `12_BatteryAndPowerManagement.md` | Passing |
-| PWR-007 | Power-management integration tests | P1 | Ready | PWR-002 to PWR-006 | `22_TestStrategy.md` | NotStarted |
+| PWR-007 | Power-management integration tests | P1 | Done | PWR-002 to PWR-006 | `22_TestStrategy.md` | Passing |
 
 ---
 
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. SC-003 — Dynamic absorber energy balance
-2. PWR-007 — Power-management integration tests
-3. PV-002 — Temperature-corrected PV model
-4. GEN-003 — Electrical source
-5. TEC-005 — Dynamic hot/cold-side state
+1. AWG-001 — Create detailed control-system specification
+2. AWG-002 — Create detailed system-topology specification
+3. DOC-014A / DOC-015A — Expand control and topology specs
+4. APP-001 — Create console host (after DEV/AWG prerequisites)
+5. AI-010 — Create reusable coding prompts and templates
 ```
 
 ---

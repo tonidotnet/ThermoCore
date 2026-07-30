@@ -1,6 +1,7 @@
 using ThermoCore.Core.Balances;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
+using ThermoCore.Core.Physics;
 using ThermoCore.Core.Psychrometrics;
 using ThermoCore.Core.Validation;
 
@@ -19,6 +20,8 @@ public sealed class CondenserComponent : ISimulationComponent
     private readonly double _fallbackAvailableCoolingPowerW;
     private readonly double _maximumRetainedFilmKg;
     private readonly double _filmCarryoverFraction;
+    private readonly double _heatTransferUaWPerK;
+    private readonly double _massTransferEffectivenessFraction;
     private readonly List<SimulationDiagnostic> _diagnostics = [];
     private double _retainedFilmKg;
 
@@ -30,6 +33,8 @@ public sealed class CondenserComponent : ISimulationComponent
         double fallbackAvailableCoolingPowerW,
         double maximumRetainedFilmKg = 0.05,
         double filmCarryoverFraction = 0.0,
+        double heatTransferUaWPerK = 0.0,
+        double massTransferEffectivenessFraction = 1.0,
         IPsychrometricCalculator? calculator = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -54,6 +59,13 @@ public sealed class CondenserComponent : ISimulationComponent
             throw new ArgumentOutOfRangeException(nameof(filmCarryoverFraction), "Film carryover fraction must be in [0, 1].");
         }
 
+        FiniteNumber.RequireNonNegative(heatTransferUaWPerK, nameof(heatTransferUaWPerK));
+        FiniteNumber.Require(massTransferEffectivenessFraction, nameof(massTransferEffectivenessFraction));
+        if (massTransferEffectivenessFraction is < 0.0 or > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(massTransferEffectivenessFraction));
+        }
+
         Id = id;
         _bypassFactor = bypassFactor;
         _drainageEfficiency = drainageEfficiency;
@@ -61,6 +73,8 @@ public sealed class CondenserComponent : ISimulationComponent
         _fallbackAvailableCoolingPowerW = fallbackAvailableCoolingPowerW;
         _maximumRetainedFilmKg = maximumRetainedFilmKg;
         _filmCarryoverFraction = filmCarryoverFraction;
+        _heatTransferUaWPerK = heatTransferUaWPerK;
+        _massTransferEffectivenessFraction = massTransferEffectivenessFraction;
         _calculator = calculator ?? new PsychrometricCalculator();
 
         Ports =
@@ -304,8 +318,22 @@ public sealed class CondenserComponent : ISimulationComponent
         double surfaceTemperatureK,
         bool condensationPossible)
     {
-        var temperatureOut = _bypassFactor * inlet.TemperatureK
-            + (1.0 - _bypassFactor) * surfaceTemperatureK;
+        // COND-005: optional UA effectiveness overrides configured bypass for contact fraction.
+        var bypass = _bypassFactor;
+        if (_heatTransferUaWPerK > 0.0)
+        {
+                    var capacityRate = inlet.DryAirMassFlowKgPerSecond
+                * (ReferenceThermophysicalProperties.DryAirSpecificHeatJPerKgK
+                   + inlet.HumidityRatioKgPerKgDryAir
+                   * ReferenceThermophysicalProperties.WaterVaporSpecificHeatJPerKgK);
+            var effectiveness = capacityRate > 0.0
+                ? 1.0 - Math.Exp(-_heatTransferUaWPerK / capacityRate)
+                : 0.0;
+            bypass = 1.0 - effectiveness;
+        }
+
+        var temperatureOut = bypass * inlet.TemperatureK
+            + (1.0 - bypass) * surfaceTemperatureK;
 
         double humidityOut;
         if (!condensationPossible)
@@ -322,13 +350,15 @@ public sealed class CondenserComponent : ISimulationComponent
             else
             {
                 var wSat = _calculator.CalculateHumidityRatio(inlet.PressurePa, saturationPressure);
-                humidityOut = _bypassFactor * inlet.HumidityRatioKgPerKgDryAir
-                    + (1.0 - _bypassFactor) * wSat;
+                var contactedHumidity = bypass * inlet.HumidityRatioKgPerKgDryAir
+                    + (1.0 - bypass) * wSat;
+                // Mass-transfer effectiveness scales how much of the contacted humidity change is realized.
+                humidityOut = inlet.HumidityRatioKgPerKgDryAir
+                    + _massTransferEffectivenessFraction * (contactedHumidity - inlet.HumidityRatioKgPerKgDryAir);
                 humidityOut = Math.Clamp(humidityOut, 0.0, inlet.HumidityRatioKgPerKgDryAir);
             }
         }
 
-        // Sensible-only path may still cool below dew point numerically; keep W fixed then.
         return _calculator.CreateFromHumidityRatio(
             temperatureOut,
             inlet.PressurePa,

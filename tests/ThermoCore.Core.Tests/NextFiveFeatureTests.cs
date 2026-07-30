@@ -251,7 +251,7 @@ public class NextFiveFeatureTests
         var source = new AmbientAirSourceComponent("air", inlet);
         var sink = new ExhaustAirSinkComponent("sink");
         var reports = new List<SimulationProgress>();
-        var progress = new Progress<SimulationProgress>(reports.Add);
+        var progress = new SynchronousProgress<SimulationProgress>(reports.Add);
 
         var result = new SimulationEngine().Run(
             new SimulationRequest
@@ -280,6 +280,15 @@ public class NextFiveFeatureTests
         Assert.Contains(reports, r => r.CurrentPhase == "Complete");
         Assert.Equal(3, reports.Last(r => r.CurrentPhase == "Complete").CompletedSteps);
         Assert.Equal(1.0, reports.Last(r => r.CurrentPhase == "Complete").FractionComplete, precision: 12);
+    }
+
+    private sealed class SynchronousProgress<T> : IProgress<T>
+    {
+        private readonly Action<T> _handler;
+
+        public SynchronousProgress(Action<T> handler) => _handler = handler;
+
+        public void Report(T value) => _handler(value);
     }
 
     private static SilicaGelParameters BaseSilica()

@@ -6,9 +6,8 @@ using ThermoCore.Core.Validation;
 namespace ThermoCore.Core.Components.Thermoelectric;
 
 /// <summary>
-/// Fidelity Level 3 analytical thermoelectric cooler
-/// (docs/03_Components/08_Peltier.md §9–§14, §57 / TEC-002).
-/// Steady-state α, R, K model with power-request current solver and off-state conduction.
+/// Analytical thermoelectric cooler (docs/03_Components/08_Peltier.md §9–§14, §57 / TEC-002).
+/// Steady-state α, R, K model with optional dynamic side thermal masses (TEC-005).
 /// </summary>
 public sealed class AnalyticalPeltierComponent : ISimulationComponent
 {
@@ -18,6 +17,8 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
     private readonly double _requestedElectricalPowerW;
     private readonly double? _requestedCurrentA;
     private readonly List<SimulationDiagnostic> _diagnostics = [];
+    private double _coldFaceTemperatureK;
+    private double _hotFaceTemperatureK;
 
     public AnalyticalPeltierComponent(
         string id,
@@ -43,6 +44,8 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         _fallbackHotSideTemperatureK = hotSideTemperatureK;
         _requestedElectricalPowerW = requestedElectricalPowerW;
         _requestedCurrentA = requestedCurrentA;
+        _coldFaceTemperatureK = coldSideTemperatureK;
+        _hotFaceTemperatureK = hotSideTemperatureK;
 
         Ports =
         [
@@ -80,6 +83,10 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
 
     public bool LastProtectionTripped { get; private set; }
 
+    public double LastColdBoundaryHeatW { get; private set; }
+
+    public double LastHotBoundaryHeatW { get; private set; }
+
     public void Initialize(SimulationContext context)
     {
         _diagnostics.Clear();
@@ -94,6 +101,8 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         LastColdFaceTemperatureK = 0.0;
         LastHotFaceTemperatureK = 0.0;
         LastProtectionTripped = false;
+        LastColdBoundaryHeatW = 0.0;
+        LastHotBoundaryHeatW = 0.0;
     }
 
     public ComponentStepResult Evaluate(ComponentStepContext context)
@@ -120,10 +129,13 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
 
         var rCold = _parameters.ColdSideThermalResistanceKPerW;
         var rHot = _parameters.HotSideThermalResistanceKPerW;
-        var useExternalResistances = rCold > 0.0 || rHot > 0.0;
+        var cCold = _parameters.EffectiveColdSideThermalCapacityJPerK;
+        var cHot = _parameters.EffectiveHotSideThermalCapacityJPerK;
+        var useDynamicSides = cCold > 0.0 || cHot > 0.0;
+        var useExternalResistances = !useDynamicSides && (rCold > 0.0 || rHot > 0.0);
 
-        var coldFaceTemperatureK = loadTemperatureK;
-        var hotFaceTemperatureK = sinkTemperatureK;
+        var coldFaceTemperatureK = useDynamicSides ? _coldFaceTemperatureK : loadTemperatureK;
+        var hotFaceTemperatureK = useDynamicSides ? _hotFaceTemperatureK : sinkTemperatureK;
         var alpha = _parameters.SeebeckCoefficientVPerK;
         var resistance = _parameters.ElectricalResistanceOhm;
         var conductance = _parameters.ThermalConductanceWPerK;
@@ -392,6 +404,62 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
         LastColdFaceTemperatureK = coldFaceTemperatureK;
         LastHotFaceTemperatureK = hotFaceTemperatureK;
 
+        PeltierThermalState? proposedState = null;
+        var coldBoundaryHeatW = coldSideHeatW;
+        var hotBoundaryHeatW = hotSideHeatW;
+        var storedEnergyChangeW = 0.0;
+
+        if (useDynamicSides)
+        {
+            var dt = context.Simulation.TimeStep.TotalSeconds;
+            if (dt <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(context), "Dynamic Peltier requires a positive timestep.");
+            }
+
+            // Q_load into cold mass from boundary; Q_sink leaving hot mass to sink.
+            coldBoundaryHeatW = rCold > 0.0
+                ? (loadTemperatureK - coldFaceTemperatureK) / rCold
+                : coldSideHeatW;
+            hotBoundaryHeatW = rHot > 0.0
+                ? (hotFaceTemperatureK - sinkTemperatureK) / rHot
+                : hotSideHeatW;
+
+            var nextCold = coldFaceTemperatureK;
+            var nextHot = hotFaceTemperatureK;
+            if (cCold > 0.0)
+            {
+                nextCold = coldFaceTemperatureK + (coldBoundaryHeatW - coldSideHeatW) * dt / cCold;
+            }
+            else if (rCold <= 0.0)
+            {
+                nextCold = loadTemperatureK;
+            }
+
+            if (cHot > 0.0)
+            {
+                nextHot = hotFaceTemperatureK + (hotSideHeatW - hotBoundaryHeatW) * dt / cHot;
+            }
+            else if (rHot <= 0.0)
+            {
+                nextHot = sinkTemperatureK;
+            }
+
+            nextCold = Math.Clamp(nextCold, 200.0, 400.0);
+            nextHot = Math.Clamp(nextHot, 200.0, 450.0);
+            storedEnergyChangeW = cCold * (nextCold - coldFaceTemperatureK) / dt
+                + cHot * (nextHot - hotFaceTemperatureK) / dt;
+            proposedState = PeltierThermalState.Create(nextCold, nextHot);
+            diagnostics.Add(Diagnostic(
+                context,
+                "PELTIER.DYNAMIC_SIDE_STATE",
+                DiagnosticSeverity.Information,
+                "Hot/cold face temperatures were integrated with configured thermal capacities."));
+        }
+
+        LastColdBoundaryHeatW = coldBoundaryHeatW;
+        LastHotBoundaryHeatW = hotBoundaryHeatW;
+
         var balance = ConservationBalance.FromRates(
             dryAirMassInputKgPerSecond: 0.0,
             dryAirMassOutputKgPerSecond: 0.0,
@@ -399,9 +467,9 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
             waterMassInputKgPerSecond: 0.0,
             waterMassOutputKgPerSecond: 0.0,
             waterMassStorageChangeKgPerSecond: 0.0,
-            energyInputW: electricalPowerW + coldSideHeatW,
-            energyOutputW: hotSideHeatW,
-            storedEnergyChangeW: 0.0,
+            energyInputW: electricalPowerW + coldBoundaryHeatW,
+            energyOutputW: hotBoundaryHeatW,
+            storedEnergyChangeW: storedEnergyChangeW,
             timeStep: context.Simulation.TimeStep,
             electricalPowerInputW: Math.Max(0.0, electricalPowerW),
             electricalPowerOutputW: Math.Max(0.0, electricalPowerW));
@@ -421,6 +489,7 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
                     TemperatureK = hotFaceTemperatureK
                 }
             },
+            ProposedInternalState = proposedState,
             Balance = balance,
             Diagnostics = diagnostics
         };
@@ -504,6 +573,12 @@ public sealed class AnalyticalPeltierComponent : ISimulationComponent
     public void Commit(ComponentStepResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
+        if (result.ProposedInternalState is PeltierThermalState proposed)
+        {
+            _coldFaceTemperatureK = proposed.ColdFaceTemperatureK;
+            _hotFaceTemperatureK = proposed.HotFaceTemperatureK;
+        }
+
         _diagnostics.Clear();
         _diagnostics.AddRange(result.Diagnostics);
     }

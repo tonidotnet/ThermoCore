@@ -58,6 +58,16 @@ public sealed record AnalyticalPeltierParameters
     public double ColdSideThermalResistanceWarningKPerW { get; init; } = 2.0;
 
     /// <summary>
+    /// Effective cold-side thermal capacity (TEC-005). Zero keeps algebraic steady-state faces.
+    /// </summary>
+    public double EffectiveColdSideThermalCapacityJPerK { get; init; }
+
+    /// <summary>
+    /// Effective hot-side thermal capacity (TEC-005). Zero keeps algebraic steady-state faces.
+    /// </summary>
+    public double EffectiveHotSideThermalCapacityJPerK { get; init; }
+
+    /// <summary>
     /// Provisional engineering defaults suitable for unit tests and early AWG sizing.
     /// Replace with datasheet-calibrated values before predictive use.
     /// </summary>
@@ -78,7 +88,9 @@ public sealed record AnalyticalPeltierParameters
             MinimumUsefulCoolingCop = 0.1,
             MaximumAllowedColdSideHeatFluxWPerM2 = 0.0,
             ActiveColdSideAreaM2 = 0.0,
-            EnableProtectionShutdown = true
+            EnableProtectionShutdown = true,
+            EffectiveColdSideThermalCapacityJPerK = 0.0,
+            EffectiveHotSideThermalCapacityJPerK = 0.0
         };
 
     public AnalyticalPeltierParameters Validate()
@@ -98,6 +110,8 @@ public sealed record AnalyticalPeltierParameters
         FiniteNumber.RequireNonNegative(ActiveColdSideAreaM2, nameof(ActiveColdSideAreaM2));
         FiniteNumber.RequireNonNegative(HotSideThermalResistanceWarningKPerW, nameof(HotSideThermalResistanceWarningKPerW));
         FiniteNumber.RequireNonNegative(ColdSideThermalResistanceWarningKPerW, nameof(ColdSideThermalResistanceWarningKPerW));
+        FiniteNumber.RequireNonNegative(EffectiveColdSideThermalCapacityJPerK, nameof(EffectiveColdSideThermalCapacityJPerK));
+        FiniteNumber.RequireNonNegative(EffectiveHotSideThermalCapacityJPerK, nameof(EffectiveHotSideThermalCapacityJPerK));
 
         if (MaximumTemperatureDifferenceK is { } maxDelta)
         {

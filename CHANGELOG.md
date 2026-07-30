@@ -9,11 +9,15 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `ThermoCore.Application` shared job/result services used by API and Blazor
+- API result endpoints: series, diagnostics, export (csv/json/zip) plus configurable resource limits
+- Blazor MVP: home, psychrometrics, AWG configuration editor, simulation start/progress/cancel/summary/diagnostics/charts/export
 - ASP.NET Core API v1: health, models, psychrometrics, configuration validate, simulation jobs/status/summary/cancel, OpenAPI
 - AWG DOC-029 full result export packages with manifest hashes (AWG-017)
 - System water/energy/dry-air balance verification reports (AWG-018/019)
 - Weather-driven ambient/solar boundaries and 24-hour synthetic diurnal runs (AWG-016)
-- Heat-recovery and recirculation V3 topology paths (mutually exclusive in MVP)
+- Heat-recovery and recirculation V3 topology paths, including combined two-tear mode
+- Multi-tear fixed-point solver in `SimulationEngine` (joint convergence across loop tears)
 - PV rear-air channel path using dynamic electrothermal PV
 - DOC-022 regression scenario catalog under `samples/scenarios/` (APP-006)
 - Apache-2.0 license, contributing guide, CI build/test and tag release workflows

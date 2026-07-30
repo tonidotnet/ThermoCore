@@ -1,0 +1,248 @@
+@page "/configurations"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.AWG.Configuration
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>AWG configuration — ThermoCore</PageTitle>
+
+<h1>AWG configuration</h1>
+<p>
+    Edit a default MVP profile, validate through application services, then start a simulation.
+    Full wizard sections remain a follow-up.
+</p>
+
+<div class="row g-3 col-lg-8">
+    <div class="col-md-6">
+        <label class="form-label">Duration (s)</label>
+        <input class="form-control" type="number" min="1" @bind="durationSeconds" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Timestep (s)</label>
+        <input class="form-control" type="number" min="0.1" step="0.1" @bind="timeStepSeconds" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Ambient temperature (°C)</label>
+        <input class="form-control" type="number" step="0.1" @bind="ambientTemperatureC" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Ambient RH (%)</label>
+        <input class="form-control" type="number" min="0" max="100" step="0.1" @bind="ambientRhPercent" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Ambient pressure (Pa)</label>
+        <input class="form-control" type="number" step="1" @bind="ambientPressurePa" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Fan dry-air mass flow (kg/s)</label>
+        <input class="form-control" type="number" min="0.0001" step="0.0001" @bind="fanMassFlowKgPerS" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Water tank capacity (kg)</label>
+        <input class="form-control" type="number" min="0.1" step="0.1" @bind="tankCapacityKg" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Solar irradiance (W/m²)</label>
+        <input class="form-control" type="number" min="0" step="1" @bind="solarIrradiance" />
+    </div>
+
+    <div class="col-12">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="electrical" @bind="enableElectrical" />
+            <label class="form-check-label" for="electrical">Enable electrical subsystem</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="hr" @bind="enableHeatRecovery" />
+            <label class="form-check-label" for="hr">Enable heat recovery</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="recirc" @bind="enableRecirculation" />
+            <label class="form-check-label" for="recirc">Enable recirculation</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="pvrear" @bind="enablePvRearAir" disabled="@(!enableElectrical)" />
+            <label class="form-check-label" for="pvrear">Enable PV rear-air channel</label>
+        </div>
+    </div>
+
+    <div class="col-12 d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" disabled="@busy" @onclick="ValidateAsync">Validate</button>
+        <button class="btn btn-primary" disabled="@busy" @onclick="StartAsync">Validate and start</button>
+        <button class="btn btn-outline-secondary" disabled="@busy" @onclick="ResetAsync">Reset defaults</button>
+    </div>
+
+    @if (validation is not null)
+    {
+        <div class="col-12">
+            <div class="alert @(validation.IsValid ? "alert-success" : "alert-danger")">
+                @(validation.IsValid ? "Configuration is valid." : "Configuration has errors.")
+            </div>
+            @if (validation.Errors.Count > 0)
+            {
+                <ul>
+                    @foreach (var issue in validation.Errors)
+                    {
+                        <li><code>@issue.Path</code>: @issue.Message</li>
+                    }
+                </ul>
+            }
+            @if (validation.Warnings.Count > 0)
+            {
+                <h3 class="h6">Warnings</h3>
+                <ul>
+                    @foreach (var issue in validation.Warnings)
+                    {
+                        <li><code>@issue.Path</code>: @issue.Message</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="col-12 alert alert-danger">@error</div>
+    }
+</div>
+
+@code {
+    private double durationSeconds = 30;
+    private double timeStepSeconds = 1;
+    private double ambientTemperatureC = 30;
+    private double ambientRhPercent = 50;
+    private double ambientPressurePa = 101_325;
+    private double fanMassFlowKgPerS = 0.02;
+    private double tankCapacityKg = 20;
+    private double solarIrradiance = 800;
+    private bool enableElectrical = true;
+    private bool enableHeatRecovery;
+    private bool enableRecirculation;
+    private bool enablePvRearAir;
+    private bool busy;
+    private string? error;
+    private ConfigurationValidateResponse? validation;
+
+    protected override void OnInitialized()
+    {
+        LoadDefaultsFromDocument(AwgConfigurationLoader.CreateDefaultDocument(enableElectrical));
+    }
+
+    private void ResetAsync()
+    {
+        enableElectrical = true;
+        enableHeatRecovery = false;
+        enableRecirculation = false;
+        enablePvRearAir = false;
+        durationSeconds = 30;
+        timeStepSeconds = 1;
+        LoadDefaultsFromDocument(AwgConfigurationLoader.CreateDefaultDocument(enableElectrical));
+        validation = null;
+        error = null;
+    }
+
+    private void LoadDefaultsFromDocument(AwgConfigurationDocument document)
+    {
+        ambientTemperatureC = document.System.Ambient.TemperatureK - 273.15;
+        ambientRhPercent = document.System.Ambient.RelativeHumidityFraction * 100.0;
+        ambientPressurePa = document.System.Ambient.PressurePa;
+        fanMassFlowKgPerS = document.System.Fan.DryAirMassFlowKgPerSecond;
+        tankCapacityKg = document.System.WaterTank.CapacityKg;
+        solarIrradiance = document.System.Ambient.SolarIrradianceWPerSquareMeter;
+        enableElectrical = document.System.Topology.EnableElectricalSubsystem;
+        enableHeatRecovery = document.System.Topology.EnableHeatRecovery;
+        enableRecirculation = document.System.Topology.EnableRecirculation;
+        enablePvRearAir = document.System.Topology.EnablePvRearAirChannel;
+    }
+
+    private AwgConfigurationDocument BuildDocument()
+    {
+        var baseline = AwgConfigurationLoader.CreateDefaultDocument(enableElectrical);
+        var recirculationFraction = enableRecirculation
+            ? Math.Max(0.1, baseline.System.Topology.InitialRecirculationFraction)
+            : 0.0;
+
+        return baseline with
+        {
+            System = baseline.System with
+            {
+                Ambient = baseline.System.Ambient with
+                {
+                    TemperatureK = ambientTemperatureC + 273.15,
+                    RelativeHumidityFraction = ambientRhPercent / 100.0,
+                    PressurePa = ambientPressurePa,
+                    SolarIrradianceWPerSquareMeter = solarIrradiance,
+                    DryAirMassFlowKgPerSecond = fanMassFlowKgPerS
+                },
+                Fan = baseline.System.Fan with
+                {
+                    DryAirMassFlowKgPerSecond = fanMassFlowKgPerS
+                },
+                WaterTank = baseline.System.WaterTank with
+                {
+                    CapacityKg = tankCapacityKg
+                },
+                Topology = baseline.System.Topology with
+                {
+                    EnableElectricalSubsystem = enableElectrical,
+                    EnableHeatRecovery = enableHeatRecovery,
+                    EnableRecirculation = enableRecirculation,
+                    EnablePvRearAirChannel = enableElectrical && enablePvRearAir,
+                    InitialRecirculationFraction = recirculationFraction
+                }
+            }
+        };
+    }
+
+    private async Task ValidateAsync()
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            validation = await Api.ValidateConfigurationAsync(BuildDocument());
+        }
+        catch (Exception ex)
+        {
+            validation = null;
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private async Task StartAsync()
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            var document = BuildDocument();
+            validation = await Api.ValidateConfigurationAsync(document);
+            if (!validation.IsValid)
+            {
+                return;
+            }
+
+            var created = await Api.CreateSimulationAsync(new CreateSimulationRequest
+            {
+                Configuration = document,
+                DurationSeconds = durationSeconds,
+                TimeStepSeconds = timeStepSeconds
+            });
+            Navigation.NavigateTo($"simulations/{created.SimulationId}");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

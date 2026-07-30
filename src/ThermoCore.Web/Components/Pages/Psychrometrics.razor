@@ -1,0 +1,77 @@
+@page "/psychrometrics"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+
+<PageTitle>Psychrometrics — ThermoCore</PageTitle>
+
+<h1>Psychrometric calculator</h1>
+<p>SI-backed moist-air properties via the application API (unit conversion at the boundary).</p>
+
+<div class="row g-3">
+    <div class="col-md-5">
+        <label class="form-label">Temperature (°C)</label>
+        <input class="form-control" type="number" step="0.1" @bind="temperatureC" />
+
+        <label class="form-label mt-2">Relative humidity (%)</label>
+        <input class="form-control" type="number" step="0.1" min="0" max="100" @bind="relativeHumidityPercent" />
+
+        <label class="form-label mt-2">Absolute pressure (Pa)</label>
+        <input class="form-control" type="number" step="1" @bind="absolutePressurePa" />
+
+        <button class="btn btn-primary mt-3" disabled="@busy" @onclick="CalculateAsync">Calculate</button>
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger mt-3">@error</div>
+        }
+    </div>
+    <div class="col-md-7">
+        @if (result is not null)
+        {
+            <dl class="row">
+                <dt class="col-sm-6">Humidity ratio</dt>
+                <dd class="col-sm-6">@result.HumidityRatioKgPerKgDryAir.ToString("G6") kg/kg</dd>
+                <dt class="col-sm-6">Dew point</dt>
+                <dd class="col-sm-6">@(result.DewPointTemperatureC?.ToString("F2") ?? "—") °C</dd>
+                <dt class="col-sm-6">Specific enthalpy</dt>
+                <dd class="col-sm-6">@result.SpecificEnthalpyKJPerKgDryAir.ToString("F2") kJ/kg</dd>
+                <dt class="col-sm-6">Specific volume</dt>
+                <dd class="col-sm-6">@result.SpecificVolumeM3PerKgDryAir.ToString("F4") m³/kg</dd>
+            </dl>
+        }
+    </div>
+</div>
+
+@code {
+    private double temperatureC = 25.0;
+    private double relativeHumidityPercent = 50.0;
+    private double absolutePressurePa = 101_325.0;
+    private PsychrometricCalculateResponse? result;
+    private string? error;
+    private bool busy;
+
+    private async Task CalculateAsync()
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            result = await Api.CalculatePsychrometricsAsync(new PsychrometricCalculateRequest
+            {
+                TemperatureC = temperatureC,
+                RelativeHumidityPercent = relativeHumidityPercent,
+                AbsolutePressurePa = absolutePressurePa
+            });
+        }
+        catch (Exception ex)
+        {
+            result = null;
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

@@ -1,0 +1,67 @@
+@page "/simulations/new"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.AWG.Configuration
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>New simulation — ThermoCore</PageTitle>
+
+<h1>New AWG simulation</h1>
+<p>Starts a default MVP configuration job through the application services.</p>
+
+<div class="row g-3 col-md-6">
+    <div>
+        <label class="form-label">Duration (s)</label>
+        <input class="form-control" type="number" min="1" @bind="durationSeconds" />
+    </div>
+    <div>
+        <label class="form-label">Timestep (s)</label>
+        <input class="form-control" type="number" min="0.1" step="0.1" @bind="timeStepSeconds" />
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="electrical" @bind="enableElectrical" />
+        <label class="form-check-label" for="electrical">Enable electrical subsystem</label>
+    </div>
+    <div>
+        <button class="btn btn-primary" disabled="@busy" @onclick="StartAsync">Start simulation</button>
+    </div>
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+</div>
+
+@code {
+    private double durationSeconds = 30;
+    private double timeStepSeconds = 1;
+    private bool enableElectrical = true;
+    private bool busy;
+    private string? error;
+
+    private async Task StartAsync()
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            var document = AwgConfigurationLoader.CreateDefaultDocument(enableElectrical);
+            var created = await Api.CreateSimulationAsync(new CreateSimulationRequest
+            {
+                Configuration = document,
+                DurationSeconds = durationSeconds,
+                TimeStepSeconds = timeStepSeconds
+            });
+            Navigation.NavigateTo($"simulations/{created.SimulationId}");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

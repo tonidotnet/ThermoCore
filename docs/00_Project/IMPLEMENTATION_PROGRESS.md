@@ -96,15 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-API v1 endpoints (health, psychrometrics, validate, simulation jobs) are live. Next: remaining result endpoints / Web MVP, or multi-tear HR+recirc.
+API/Web MVP and multi-tear HR+recirculation are live. Next: calibration datasets, comparison page, or Linux deploy.
 ```
 
 ## Recommended next tasks
 
-1. `API-007`/`API-009` — series, diagnostics, export endpoints
-2. `WEB-001`/`WEB-002` — Blazor architecture and first pages against API
-3. Combined heat-recovery + recirculation (multi-tear engine)
-4. Deeper calibration / validation datasets
+1. Deeper calibration / validation datasets
+2. Simulation comparison page / fuller wizard sections
+3. Linux deployment (M4 remaining)
 
 ---
 
@@ -118,7 +117,7 @@ API v1 endpoints (health, psychrometrics, validate, simulation jobs) are live. N
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
-| API and Web | 22 | 9 | 0 | 1 | 12 |
+| API and Web | 22 | 22 | 0 | 0 | 0 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
 The counts are indicative and shall be updated when tasks are added, split or completed.
@@ -165,7 +164,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-017A | `17_Roadmap.md` | P0 | Done | ReadyForImplementation | Yes | Maintain |
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
 | DOC-019A | `19_WebApi.md` | P2 | Done | Implemented | Yes | API v1 MVP implemented |
-| DOC-020A | `20_BlazorWeb.md` | P2 | Planned | Missing | Before Web implementation | Create after API |
+| DOC-020A | `20_BlazorWeb.md` | P2 | Done | Implemented | Yes | Blazor MVP pages; wizard/charts remain |
 | DOC-021A | `21_DataModel.md` | P2 | Planned | Missing | Before persistence | Create after result model |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
 | DOC-023A | `23_Calibration.md` | P3 | Planned | Missing | Before calibration tooling | Later |
@@ -270,7 +269,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | GRAPH-011 | Implement cancellation support | P1 | Done | GRAPH-008 | `18_CodingRules.md` | Passing |
 | GRAPH-012 | Implement progress reporting | P2 | Done | GRAPH-008 | `16_SimulationEngine.md` | Passing |
 | GRAPH-013 | Implement cyclic graph detection | P1 | Done | GRAPH-006 | `16_SimulationEngine.md` | Passing |
-| GRAPH-014 | Implement fixed-point loop solver | P1 | Done | GRAPH-013, DOC-025 | `25_NumericalMethods.md`, `16_SimulationEngine.md` | Passing |
+| GRAPH-014 | Implement fixed-point loop solver | P1 | Done | GRAPH-013, DOC-025 | `25_NumericalMethods.md`, `16_SimulationEngine.md` | Passing | Multi-tear joint fixed-point |
 | GRAPH-015 | Implement relaxation and convergence diagnostics | P1 | Done | GRAPH-014, CORE-004 | `25_NumericalMethods.md` | Passing |
 
 ---
@@ -413,7 +412,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AWG-012 | Implement battery protection | P1 | Done | AWG-008, PWR-005 | `14_ControlSystem.md` | Passing |
 | AWG-013 | Implement thermal safety rules | P1 | Done | AWG-008, SC-005, TEC-007 | `14_ControlSystem.md` | Passing |
 | AWG-014 | Implement water-tank state | P1 | Done | CORE-012, COND-006 | `15_SystemTopology.md` | Passing |
-| AWG-015 | Integrate cyclic recirculation solver | P1 | Done | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | Passing |
+| AWG-015 | Integrate cyclic recirculation solver | P1 | Done | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | Passing | Combined HR+recirc two-tear path |
 | AWG-016 | Run first 24-hour simulation | P1 | Done | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | Passing |
 | AWG-017 | Export first full result dataset | P1 | Done | AWG-016, DOC-029A | `29_ResultFormats.md` | Passing |
 | AWG-018 | Verify system water balance | P0 | Done | AWG-016 | `04_MathematicalModel.md` | Passing |
@@ -446,25 +445,25 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | API-006 | Add status and result endpoints | P2 | Done | API-005 | `19_WebApi.md` | Passing |
 | API-007 | Add cancellation | P2 | Done | API-005, GRAPH-011 | `19_WebApi.md` | Passing |
 | API-008 | Add OpenAPI | P2 | Done | API-002 | `19_WebApi.md` | Passing |
-| API-009 | Add resource limits | P2 | Ready | API-005 | `19_WebApi.md` | NotStarted |
-| API-010 | Add integration tests | P2 | Done | API-003 to API-008 | `22_TestStrategy.md` | Passing |
+| API-009 | Add resource limits | P2 | Done | API-005 | `19_WebApi.md` | Passing |
+| API-010 | Add integration tests | P2 | Done | API-003 to API-009 | `22_TestStrategy.md` | Passing |
 
 ## 18.3 Blazor Web
 
 | ID | Task | Priority | Status | Dependencies | Related doc | Test status |
 |---|---|---|---|---|---|---|
-| WEB-001 | Create Blazor architecture specification | P2 | Ready | API-001 | `20_BlazorWeb.md` | Planned |
-| WEB-002 | Create Blazor Web project | P2 | Blocked | DEV-001, WEB-001 | `20_BlazorWeb.md` | NotStarted |
-| WEB-003 | Create home and project overview | P3 | Blocked | WEB-002 | `20_BlazorWeb.md` | NotStarted |
-| WEB-004 | Create psychrometric calculator page | P2 | Blocked | WEB-002, API-003 | `20_BlazorWeb.md` | NotStarted |
-| WEB-005 | Create AWG configuration editor | P2 | Blocked | WEB-002, API-004 | `20_BlazorWeb.md` | NotStarted |
-| WEB-006 | Create simulation execution UI | P2 | Blocked | WEB-005, API-005 | `20_BlazorWeb.md` | NotStarted |
-| WEB-007 | Add progress and cancellation | P2 | Blocked | WEB-006, API-007 | `20_BlazorWeb.md` | NotStarted |
-| WEB-008 | Add result summary | P2 | Blocked | WEB-006, API-006 | `20_BlazorWeb.md` | NotStarted |
-| WEB-009 | Add charts | P2 | Blocked | WEB-008, DOC-029A | `20_BlazorWeb.md` | NotStarted |
-| WEB-010 | Add balance diagnostics UI | P2 | Blocked | WEB-008 | `20_BlazorWeb.md` | NotStarted |
-| WEB-011 | Add CSV/JSON export | P2 | Blocked | WEB-008, APP-005 | `20_BlazorWeb.md` | NotStarted |
-| WEB-012 | Add Web tests | P2 | Blocked | WEB-004 to WEB-011 | `22_TestStrategy.md` | NotStarted |
+| WEB-001 | Create Blazor architecture specification | P2 | Done | API-001 | `20_BlazorWeb.md` | Passing |
+| WEB-002 | Create Blazor Web project | P2 | Done | DEV-001, WEB-001 | `20_BlazorWeb.md` | Passing |
+| WEB-003 | Create home and project overview | P3 | Done | WEB-002 | `20_BlazorWeb.md` | Passing |
+| WEB-004 | Create psychrometric calculator page | P2 | Done | WEB-002, API-003 | `20_BlazorWeb.md` | Passing |
+| WEB-005 | Create AWG configuration editor | P2 | Done | WEB-002, API-004 | `20_BlazorWeb.md` | Passing |
+| WEB-006 | Create simulation execution UI | P2 | Done | WEB-002, API-005 | `20_BlazorWeb.md` | Passing |
+| WEB-007 | Add progress and cancellation | P2 | Done | WEB-006, API-007 | `20_BlazorWeb.md` | Passing |
+| WEB-008 | Add result summary | P2 | Done | WEB-006, API-006 | `20_BlazorWeb.md` | Passing |
+| WEB-009 | Add charts | P2 | Done | WEB-008, DOC-029A | `20_BlazorWeb.md` | Passing |
+| WEB-010 | Add balance diagnostics UI | P2 | Done | WEB-008 | `20_BlazorWeb.md` | Passing |
+| WEB-011 | Add CSV/JSON export | P2 | Done | WEB-008, APP-005 | `20_BlazorWeb.md` | Passing |
+| WEB-012 | Add Web tests | P2 | Done | WEB-004 to WEB-011 | `22_TestStrategy.md` | Passing |
 
 ---
 
@@ -619,16 +618,16 @@ Completion requirements:
 Status:
 
 ```text
-Blocked
+In progress
 ```
 
 Completion requirements:
 
-- [ ] API
-- [ ] Blazor configuration editor
-- [ ] Simulation jobs
-- [ ] Result charts
-- [ ] CSV/JSON export
+- [x] API
+- [x] Blazor configuration editor
+- [x] Simulation jobs
+- [x] Result charts
+- [x] CSV/JSON export
 - [ ] Linux deployment
 
 ## Milestone M5 — ThermoCore 1.0 Validated Release
@@ -663,10 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. API-009 / remaining result endpoints (series, diagnostics, export)
-2. WEB-001 / WEB-002 — Blazor architecture and first pages
-3. Combined heat-recovery + recirculation (multi-tear engine)
-4. Calibration / validation datasets
+1. Calibration / validation datasets
+2. Simulation comparison page / fuller wizard sections
+3. Linux deployment (M4 remaining)
 ```
 
 ---

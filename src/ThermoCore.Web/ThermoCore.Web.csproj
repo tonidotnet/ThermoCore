@@ -7,4 +7,8 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ThermoCore.Application\ThermoCore.Application.csproj" />
+  </ItemGroup>
+
 </Project>

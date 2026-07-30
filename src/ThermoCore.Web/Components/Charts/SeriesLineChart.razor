@@ -1,0 +1,186 @@
+@*
+  Lightweight SVG time-series chart. Values are display-ready; no physics in UI.
+*@
+
+@if (Values.Count == 0)
+{
+    <p class="text-muted mb-0">No samples for @Title.</p>
+}
+else
+{
+    <figure class="series-chart" aria-label="@Title chart">
+        <figcaption>
+            <strong>@Title</strong>
+            @if (!string.IsNullOrWhiteSpace(Unit))
+            {
+                <span class="unit">(@Unit)</span>
+            }
+        </figcaption>
+        <svg viewBox="0 0 @Width @Height" role="img" aria-labelledby="@($"chart-title-{_id}")">
+            <title id="@($"chart-title-{_id}")">@Title</title>
+            <rect x="0" y="0" width="@Width" height="@Height" class="chart-bg" />
+            @foreach (var y in GridYs)
+            {
+                <line x1="@PadL" y1="@y" x2="@(Width - PadR)" y2="@y" class="grid" />
+            }
+            <polyline points="@Polyline" class="series" fill="none" />
+            <text x="@PadL" y="14" class="axis-label">@_max.ToString("G4")</text>
+            <text x="@PadL" y="@(Height - 6)" class="axis-label">@_min.ToString("G4")</text>
+            <text x="@(Width - PadR)" y="@(Height - 6)" class="axis-label end">t = @((Values.Count - 1) * IntervalSeconds)s</text>
+        </svg>
+        <p class="sr-only">
+            @Title ranges from @_min.ToString("G6") to @_max.ToString("G6") @Unit across @Values.Count samples
+            at @IntervalSeconds s interval.
+        </p>
+    </figure>
+}
+
+@code {
+    private static int _nextId;
+    private readonly int _id = Interlocked.Increment(ref _nextId);
+    private double _min;
+    private double _max = 1;
+
+    [Parameter]
+    public string Title { get; set; } = "Series";
+
+    [Parameter]
+    public string Unit { get; set; } = string.Empty;
+
+    [Parameter]
+    public double IntervalSeconds { get; set; } = 1;
+
+    [Parameter]
+    public IReadOnlyList<double> Values { get; set; } = Array.Empty<double>();
+
+    [Parameter]
+    public int MaxPoints { get; set; } = 240;
+
+    private const double Width = 640;
+    private const double Height = 180;
+    private const double PadL = 8;
+    private const double PadR = 8;
+    private const double PadT = 20;
+    private const double PadB = 22;
+
+    private IReadOnlyList<double> DisplayValues { get; set; } = Array.Empty<double>();
+
+    private string Polyline { get; set; } = string.Empty;
+
+    private IReadOnlyList<double> GridYs { get; set; } = Array.Empty<double>();
+
+    protected override void OnParametersSet()
+    {
+        DisplayValues = Downsample(Values, MaxPoints);
+        if (DisplayValues.Count == 0)
+        {
+            Polyline = string.Empty;
+            GridYs = Array.Empty<double>();
+            return;
+        }
+
+        _min = DisplayValues.Min();
+        _max = DisplayValues.Max();
+        if (Math.Abs(_max - _min) < 1e-12)
+        {
+            _min -= 0.5;
+            _max += 0.5;
+        }
+
+        var plotW = Width - PadL - PadR;
+        var plotH = Height - PadT - PadB;
+        var parts = new string[DisplayValues.Count];
+        for (var i = 0; i < DisplayValues.Count; i++)
+        {
+            var x = PadL + (DisplayValues.Count == 1 ? plotW / 2 : plotW * i / (DisplayValues.Count - 1));
+            var y = PadT + plotH * (1.0 - (DisplayValues[i] - _min) / (_max - _min));
+            parts[i] = FormattableString.Invariant($"{x:F1},{y:F1}");
+        }
+
+        Polyline = string.Join(' ', parts);
+        GridYs = new[]
+        {
+            PadT,
+            PadT + plotH * 0.5,
+            PadT + plotH
+        };
+    }
+
+    private static IReadOnlyList<double> Downsample(IReadOnlyList<double> values, int maxPoints)
+    {
+        if (values.Count <= maxPoints || maxPoints < 2)
+        {
+            return values;
+        }
+
+        var result = new double[maxPoints];
+        var last = maxPoints - 1;
+        for (var i = 0; i < maxPoints; i++)
+        {
+            var index = (int)Math.Round(i * (values.Count - 1.0) / last);
+            result[i] = values[index];
+        }
+
+        return result;
+    }
+}
+
+<style>
+    .series-chart {
+        margin: 0 0 1.25rem;
+    }
+
+    .series-chart figcaption {
+        font-size: 0.95rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .series-chart .unit {
+        color: #5a6a70;
+        margin-left: 0.35rem;
+    }
+
+    .series-chart svg {
+        width: 100%;
+        max-width: 640px;
+        height: auto;
+        display: block;
+        border: 1px solid #d7e0e3;
+        background: linear-gradient(180deg, #f7fbfc 0%, #ffffff 100%);
+    }
+
+    .series-chart .chart-bg {
+        fill: transparent;
+    }
+
+    .series-chart .grid {
+        stroke: #e2eaed;
+        stroke-width: 1;
+    }
+
+    .series-chart .series {
+        stroke: #1f6f84;
+        stroke-width: 2;
+    }
+
+    .series-chart .axis-label {
+        font-size: 11px;
+        fill: #5a6a70;
+        font-family: Candara, Calibri, sans-serif;
+    }
+
+    .series-chart .axis-label.end {
+        text-anchor: end;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
+</style>

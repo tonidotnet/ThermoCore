@@ -98,13 +98,6 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         var diagnostics = new List<SimulationDiagnostic>();
         var topology = configuration.Topology;
 
-        if (topology.EnableHeatRecovery && topology.EnableRecirculation)
-        {
-            diagnostics.Add(Error(
-                "AWG.HEAT_RECOVERY_WITH_RECIRCULATION_UNSUPPORTED",
-                "Heat recovery and recirculation cannot both be enabled in the MVP builder."));
-        }
-
         if (topology.EnablePvRearAirChannel)
         {
             if (!topology.EnableElectricalSubsystem)
@@ -296,7 +289,9 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 calculator: _calculator));
         }
 
-        if (configuration.Topology.EnableRecirculation)
+        var enableRecirculation = configuration.Topology.EnableRecirculation;
+
+        if (enableRecirculation)
         {
             components.Add(new MoistAirMixerComponent(
                 AwgV3TopologyIds.FreshAirMixer,
@@ -306,7 +301,38 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 AwgV3TopologyIds.RecirculationSplitter,
                 [1.0 - recirculationFraction, recirculationFraction],
                 _calculator));
+        }
 
+        if (enableRecirculation && enableHeatRecovery)
+        {
+            // Combined topology (15_SystemTopology.md §3/§6): mixed inlet → HR cold → process → HR hot → splitter.
+            Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.FreshAirMixer, "fresh_in");
+            Connect(
+                connections,
+                AwgV3TopologyIds.RecirculationSplitter,
+                "outlet_1",
+                AwgV3TopologyIds.FreshAirMixer,
+                "recirc_in",
+                AwgV3TopologyIds.RecirculationTearConnectionId);
+            Connect(connections, AwgV3TopologyIds.FreshAirMixer, "outlet", AwgV3TopologyIds.HeatRecovery, "cold_in");
+            Connect(connections, AwgV3TopologyIds.HeatRecovery, "cold_out", AwgV3TopologyIds.ProcessFan, "inlet");
+            ConnectProcessTrain(connections, configuration.Topology.EnablePvRearAirChannel);
+            Connect(
+                connections,
+                AwgV3TopologyIds.Condenser,
+                "outlet",
+                AwgV3TopologyIds.HeatRecovery,
+                "hot_in",
+                AwgV3TopologyIds.HeatRecoveryTearConnectionId);
+            Connect(connections, AwgV3TopologyIds.HeatRecovery, "hot_out", AwgV3TopologyIds.RecirculationSplitter, "inlet");
+            Connect(connections, AwgV3TopologyIds.RecirculationSplitter, "outlet_0", AwgV3TopologyIds.ExhaustSink, "inlet");
+            Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
+
+            AddRecirculationLoop(externalInputs, loops, ambient, processFlow * recirculationFraction);
+            AddHeatRecoveryLoop(externalInputs, loops, ambient, processFlow);
+        }
+        else if (enableRecirculation)
+        {
             Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.FreshAirMixer, "fresh_in");
             Connect(
                 connections,
@@ -321,19 +347,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             Connect(connections, AwgV3TopologyIds.RecirculationSplitter, "outlet_0", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
 
-            var recircGuess = _calculator.CreateFromRelativeHumidity(
-                ambient.TemperatureK,
-                ambient.PressurePa,
-                ambient.RelativeHumidityFraction,
-                processFlow * recirculationFraction);
-            externalInputs[$"{AwgV3TopologyIds.FreshAirMixer}.recirc_in"] = recircGuess;
-            loops.Add(new SimulationLoopDefinition
-            {
-                Id = "awg-recirculation",
-                TearConnectionId = AwgV3TopologyIds.RecirculationTearConnectionId,
-                RelaxationFactor = 0.7,
-                MaximumIterations = 50
-            });
+            AddRecirculationLoop(externalInputs, loops, ambient, processFlow * recirculationFraction);
         }
         else if (enableHeatRecovery)
         {
@@ -350,19 +364,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             Connect(connections, AwgV3TopologyIds.HeatRecovery, "hot_out", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
 
-            var hotGuess = _calculator.CreateFromRelativeHumidity(
-                ambient.TemperatureK,
-                ambient.PressurePa,
-                ambient.RelativeHumidityFraction,
-                processFlow);
-            externalInputs[$"{AwgV3TopologyIds.HeatRecovery}.hot_in"] = hotGuess;
-            loops.Add(new SimulationLoopDefinition
-            {
-                Id = "awg-heat-recovery",
-                TearConnectionId = AwgV3TopologyIds.HeatRecoveryTearConnectionId,
-                RelaxationFactor = 0.7,
-                MaximumIterations = 50
-            });
+            AddHeatRecoveryLoop(externalInputs, loops, ambient, processFlow);
         }
         else
         {
@@ -371,6 +373,46 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             Connect(connections, AwgV3TopologyIds.Condenser, "outlet", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
         }
+    }
+
+    private void AddRecirculationLoop(
+        Dictionary<string, object?> externalInputs,
+        List<SimulationLoopDefinition> loops,
+        AwgAmbientBoundaryConfiguration ambient,
+        double recirculationFlowKgPerSecond)
+    {
+        externalInputs[$"{AwgV3TopologyIds.FreshAirMixer}.recirc_in"] = _calculator.CreateFromRelativeHumidity(
+            ambient.TemperatureK,
+            ambient.PressurePa,
+            ambient.RelativeHumidityFraction,
+            recirculationFlowKgPerSecond);
+        loops.Add(new SimulationLoopDefinition
+        {
+            Id = "awg-recirculation",
+            TearConnectionId = AwgV3TopologyIds.RecirculationTearConnectionId,
+            RelaxationFactor = 0.7,
+            MaximumIterations = 50
+        });
+    }
+
+    private void AddHeatRecoveryLoop(
+        Dictionary<string, object?> externalInputs,
+        List<SimulationLoopDefinition> loops,
+        AwgAmbientBoundaryConfiguration ambient,
+        double processFlowKgPerSecond)
+    {
+        externalInputs[$"{AwgV3TopologyIds.HeatRecovery}.hot_in"] = _calculator.CreateFromRelativeHumidity(
+            ambient.TemperatureK,
+            ambient.PressurePa,
+            ambient.RelativeHumidityFraction,
+            processFlowKgPerSecond);
+        loops.Add(new SimulationLoopDefinition
+        {
+            Id = "awg-heat-recovery",
+            TearConnectionId = AwgV3TopologyIds.HeatRecoveryTearConnectionId,
+            RelaxationFactor = 0.7,
+            MaximumIterations = 50
+        });
     }
 
     private static void ConnectProcessTrain(List<PhysicalConnection> connections, bool enablePvRearAirChannel)

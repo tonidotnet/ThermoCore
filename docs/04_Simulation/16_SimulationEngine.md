@@ -192,7 +192,11 @@ Preferred order:
 
 # 13. Nested loops
 
-MVP may reject nested or overlapping loops.
+Multiple independent tear connections are supported via a joint relaxed fixed-point
+(all tear guesses updated each iteration; converge when every tear meets tolerances).
+
+True nested SCC decomposition remains a later enhancement. Complex overlapping loops
+that remain cyclic after declaring tears still fail with `ENGINE.CYCLE_DETECTED`.
 
 A later engine version may support strongly connected component decomposition.
 

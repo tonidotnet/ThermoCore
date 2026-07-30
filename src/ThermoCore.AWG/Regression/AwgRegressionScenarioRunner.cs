@@ -64,13 +64,6 @@ public sealed class AwgRegressionScenarioRunner
         AwgRegressionScenario scenario)
     {
         ArgumentNullException.ThrowIfNull(scenario);
-        if (scenario.EnableHeatRecovery && scenario.EnableRecirculation)
-        {
-            throw new ArgumentException(
-                "Scenario cannot enable both heat recovery and recirculation in the MVP.",
-                nameof(scenario));
-        }
-
         if (scenario.EnablePvRearAirChannel && !scenario.EnableElectricalSubsystem)
         {
             throw new ArgumentException(

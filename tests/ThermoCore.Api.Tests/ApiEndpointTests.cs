@@ -7,11 +7,11 @@ using ThermoCore.AWG.Configuration;
 
 namespace ThermoCore.Api.Tests;
 
-public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+public class ApiEndpointTests : IClassFixture<WebApplicationFactory<ApiTestMarker>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly WebApplicationFactory<ApiTestMarker> _factory;
 
-    public ApiEndpointTests(WebApplicationFactory<Program> factory)
+    public ApiEndpointTests(WebApplicationFactory<ApiTestMarker> factory)
     {
         _factory = factory;
     }
@@ -117,5 +117,36 @@ public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.True(summary.WaterBalancePassed);
         Assert.True(summary.EnergyBalancePassed);
         Assert.Equal(3, summary.CompletedSteps);
+
+        var seriesResponse = await client.GetAsync($"/api/v1/simulations/{created.SimulationId}/series?pageSize=5");
+        seriesResponse.EnsureSuccessStatusCode();
+        var series = await seriesResponse.Content.ReadFromJsonAsync<SimulationSeriesResponse>();
+        Assert.NotNull(series);
+        Assert.True(series.TotalChannels > 0);
+        Assert.True(series.Channels.Count <= 5);
+
+        var diagnosticsResponse = await client.GetAsync($"/api/v1/simulations/{created.SimulationId}/diagnostics");
+        diagnosticsResponse.EnsureSuccessStatusCode();
+
+        var exportResponse = await client.GetAsync($"/api/v1/simulations/{created.SimulationId}/export?format=json");
+        exportResponse.EnsureSuccessStatusCode();
+        Assert.Equal("application/json", exportResponse.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task Simulations_RejectExcessiveDuration()
+    {
+        var client = _factory.CreateClient();
+        var document = AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false);
+        var response = await client.PostAsJsonAsync(
+            "/api/v1/simulations",
+            new CreateSimulationRequest
+            {
+                Configuration = document,
+                DurationSeconds = 1_000_000,
+                TimeStepSeconds = 1
+            });
+
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

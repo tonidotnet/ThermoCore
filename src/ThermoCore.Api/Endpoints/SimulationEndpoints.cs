@@ -39,6 +39,15 @@ public static class SimulationEndpoints
                         detail = ex.Message
                     });
                 }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.Conflict(new
+                    {
+                        title = "Resource limit",
+                        status = 409,
+                        detail = ex.Message
+                    });
+                }
             })
             .WithName("CreateSimulation")
             .WithTags("Simulations");
@@ -112,6 +121,61 @@ public static class SimulationEndpoints
             .WithName("GetSimulationSummary")
             .WithTags("Simulations");
 
+        app.MapGet("/api/v1/simulations/{simulationId}/series", (
+                string simulationId,
+                SimulationResultQueryService results,
+                string? channels = null,
+                int page = 1,
+                int pageSize = 50) =>
+            {
+                var lookup = results.TryGetCompletedJob(simulationId);
+                return ToHttpResult(lookup)
+                    ?? Results.Ok(results.BuildSeries(lookup.Job!, channels, page, pageSize));
+            })
+            .WithName("GetSimulationSeries")
+            .WithTags("Simulations");
+
+        app.MapGet("/api/v1/simulations/{simulationId}/diagnostics", (
+                string simulationId,
+                SimulationResultQueryService results,
+                string? severity = null,
+                string? componentId = null,
+                string? code = null,
+                int? fromStep = null,
+                int? toStep = null) =>
+            {
+                var lookup = results.TryGetCompletedJob(simulationId);
+                return ToHttpResult(lookup)
+                    ?? Results.Ok(results.BuildDiagnostics(lookup.Job!, severity, componentId, code, fromStep, toStep));
+            })
+            .WithName("GetSimulationDiagnostics")
+            .WithTags("Simulations");
+
+        app.MapGet("/api/v1/simulations/{simulationId}/export", (
+                string simulationId,
+                SimulationResultQueryService results,
+                string format = "json") =>
+            {
+                var lookup = results.TryGetCompletedJob(simulationId);
+                var error = ToHttpResult(lookup);
+                if (error is not null)
+                {
+                    return error;
+                }
+
+                try
+                {
+                    var (content, contentType, fileName) = results.BuildExport(lookup.Job!, format);
+                    return Results.File(content, contentType, fileName);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { detail = ex.Message });
+                }
+            })
+            .WithName("ExportSimulation")
+            .WithTags("Simulations");
+
         return app;
     }
 
@@ -127,5 +191,13 @@ public static class SimulationEndpoints
             StartedAtUtc = job.StartedAtUtc,
             CompletedAtUtc = job.CompletedAtUtc,
             ErrorMessage = job.ErrorMessage
+        };
+
+    private static IResult? ToHttpResult(CompletedJobLookupResult lookup)
+        => lookup.StatusCode switch
+        {
+            404 => Results.NotFound(),
+            409 => Results.Conflict(new { detail = lookup.Detail }),
+            _ => null
         };
 }

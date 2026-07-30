@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermoCore.Web.Tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermoCore.IntegrationTests", "tests\ThermoCore.IntegrationTests\ThermoCore.IntegrationTests.csproj", "{3003E7A0-A908-4B55-B42B-610217F23664}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermoCore.Application", "src\ThermoCore.Application\ThermoCore.Application.csproj", "{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{3003E7A0-A908-4B55-B42B-610217F23664}.Release|x64.Build.0 = Release|Any CPU
 		{3003E7A0-A908-4B55-B42B-610217F23664}.Release|x86.ActiveCfg = Release|Any CPU
 		{3003E7A0-A908-4B55-B42B-610217F23664}.Release|x86.Build.0 = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|x64.Build.0 = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Debug|x86.Build.0 = Debug|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|x64.ActiveCfg = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|x64.Build.0 = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|x86.ActiveCfg = Release|Any CPU
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -172,5 +186,6 @@ Global
 		{03911780-A3AD-4BAA-82B4-180EC6730CF0} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{8D52E955-BDD5-4123-8556-A1B6B81F62C8} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{3003E7A0-A908-4B55-B42B-610217F23664} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{9F420BDE-2A45-4531-A63F-BB4BABBAE0E2} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

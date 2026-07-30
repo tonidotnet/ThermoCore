@@ -6,15 +6,16 @@ Component-based thermodynamic simulation platform with an Atmospheric Water Gene
 
 ```text
 src/
-  ThermoCore.Core      # physics, math, simulation engine
-  ThermoCore.AWG       # atmospheric water generator reference app
-  ThermoCore.Console   # CLI host
-  ThermoCore.Api       # ASP.NET Core API (/api/v1)
-  ThermoCore.Web       # Blazor UI
-tests/                 # xUnit test projects
-docs/                  # engineering documentation
-samples/               # configs, scenarios, result packages
-ai/                    # AI development workspace
+  ThermoCore.Core         # physics, math, simulation engine
+  ThermoCore.AWG          # atmospheric water generator reference app
+  ThermoCore.Application  # shared API/Web job and result services
+  ThermoCore.Console      # CLI host
+  ThermoCore.Api          # ASP.NET Core API (/api/v1)
+  ThermoCore.Web          # Blazor UI
+tests/                    # xUnit test projects
+docs/                     # engineering documentation
+samples/                  # configs, scenarios, result packages
+ai/                       # AI development workspace
 ```
 
 ## Prerequisites
@@ -40,6 +41,9 @@ dotnet run --project src/ThermoCore.Api
 # POST /api/v1/psychrometrics/calculate
 # POST /api/v1/configurations/validate
 # POST /api/v1/simulations
+
+# Blazor UI (in-process application services)
+dotnet run --project src/ThermoCore.Web
 ```
 
 ## Documentation

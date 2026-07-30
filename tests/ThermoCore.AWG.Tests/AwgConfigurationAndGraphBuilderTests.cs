@@ -81,28 +81,22 @@ public class AwgConfigurationAndGraphBuilderTests
     }
 
     [Fact]
-    public void Builder_RejectsHeatRecoveryWithRecirculation()
+    public void Builder_AcceptsHeatRecoveryWithRecirculation()
     {
-        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableElectricalSubsystem: false);
-        configuration = configuration with
-        {
-            Topology = configuration.Topology with
-            {
-                EnableHeatRecovery = true,
-                EnableRecirculation = true,
-                InitialRecirculationFraction = 0.2,
-                ComponentModelSelections = new Dictionary<string, string>(
-                    configuration.Topology.ComponentModelSelections,
-                    StringComparer.Ordinal)
-                {
-                    [AwgV3TopologyIds.HeatRecovery] = AwgV3TopologyIds.ModelIds.SensibleHeatRecoveryPrescribed,
-                    [AwgV3TopologyIds.FreshAirMixer] = AwgV3TopologyIds.ModelIds.MoistAirMixer,
-                    [AwgV3TopologyIds.RecirculationSplitter] = AwgV3TopologyIds.ModelIds.MoistAirSplitter
-                }
-            }
-        };
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(
+            enableElectricalSubsystem: false,
+            enableRecirculation: true,
+            enableHeatRecovery: true);
+        var initial = AwgSystemDefaults.CreateMvpInitialState(configuration);
+        var built = new AwgV3SystemGraphBuilder().Build(configuration, initial);
 
-        Assert.Throws<ArgumentException>(() => configuration.Validate());
+        Assert.Equal(2, built.Loops.Count);
+        Assert.Contains(built.Graph.Components, c => c.Id == AwgV3TopologyIds.HeatRecovery);
+        Assert.Contains(built.Graph.Components, c => c.Id == AwgV3TopologyIds.FreshAirMixer);
+        Assert.Contains(
+            built.Graph.Connections,
+            c => c.SourceComponentId == AwgV3TopologyIds.HeatRecovery
+                && c.TargetComponentId == AwgV3TopologyIds.RecirculationSplitter);
     }
 
     [Fact]

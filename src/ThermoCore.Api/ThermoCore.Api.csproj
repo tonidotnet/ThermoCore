@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ThermoCore.Core\ThermoCore.Core.csproj" />
     <ProjectReference Include="..\ThermoCore.AWG\ThermoCore.AWG.csproj" />
+    <ProjectReference Include="..\ThermoCore.Application\ThermoCore.Application.csproj" />
   </ItemGroup>
 
 </Project>

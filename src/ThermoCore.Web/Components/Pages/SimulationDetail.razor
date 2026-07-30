@@ -1,0 +1,274 @@
+@page "/simulations/{SimulationId}"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.Web.Components.Charts
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+@inject IJSRuntime Js
+@implements IAsyncDisposable
+
+<PageTitle>Simulation @SimulationId — ThermoCore</PageTitle>
+
+<h1>Simulation @SimulationId</h1>
+
+@if (status is null && error is null)
+{
+    <p>Loading…</p>
+}
+else if (error is not null)
+{
+    <div class="alert alert-danger">@error</div>
+}
+else if (status is not null)
+{
+    <dl class="row">
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@status.Status</dd>
+        <dt class="col-sm-3">Progress</dt>
+        <dd class="col-sm-9">@((status.ProgressFraction * 100).ToString("F0"))% (@status.CompletedSteps / @status.TotalSteps)</dd>
+        <dt class="col-sm-3">Simulation time</dt>
+        <dd class="col-sm-9">@(status.SimulationTimeUtc?.ToString("u") ?? "—")</dd>
+        @if (!string.IsNullOrEmpty(status.ErrorMessage))
+        {
+            <dt class="col-sm-3">Error</dt>
+            <dd class="col-sm-9">@status.ErrorMessage</dd>
+        }
+    </dl>
+
+    @if (status.Status is "Queued" or "Running")
+    {
+        <button class="btn btn-outline-danger mb-3" disabled="@busy" @onclick="CancelAsync">Cancel</button>
+    }
+
+    @if (summary is not null)
+    {
+        <h2>Summary</h2>
+        <dl class="row">
+            <dt class="col-sm-4">Succeeded</dt>
+            <dd class="col-sm-8">@(summary.Succeeded ? "yes" : "no")</dd>
+            <dt class="col-sm-4">Topology</dt>
+            <dd class="col-sm-8">@summary.TopologyId</dd>
+            <dt class="col-sm-4">Water balance</dt>
+            <dd class="col-sm-8">@(summary.WaterBalancePassed ? "PASS" : "FAIL")</dd>
+            <dt class="col-sm-4">Energy balance</dt>
+            <dd class="col-sm-8">@(summary.EnergyBalancePassed ? "PASS" : "FAIL")</dd>
+            <dt class="col-sm-4">Water residual</dt>
+            <dd class="col-sm-8">@summary.AggregatedWaterResidualKg.ToString("E3") kg</dd>
+            <dt class="col-sm-4">Energy residual</dt>
+            <dd class="col-sm-8">@summary.AggregatedEnergyResidualJ.ToString("E3") J</dd>
+            <dt class="col-sm-4">Warnings / errors</dt>
+            <dd class="col-sm-8">@summary.WarningCount / @summary.ErrorCount</dd>
+            <dt class="col-sm-4">Tank content</dt>
+            <dd class="col-sm-8">@(summary.FinalWaterTankContentKg?.ToString("F4") ?? "—") kg</dd>
+        </dl>
+
+        <h2>Export</h2>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-secondary" disabled="@busy" @onclick='() => ExportAsync("json")'>JSON</button>
+            <button class="btn btn-secondary" disabled="@busy" @onclick='() => ExportAsync("csv")'>CSV</button>
+            <button class="btn btn-secondary" disabled="@busy" @onclick='() => ExportAsync("zip")'>ZIP bundle</button>
+        </div>
+
+        @if (chartChannels.Count > 0 && series is not null)
+        {
+            <h2>Charts</h2>
+            <p class="text-muted">Downsampled for display · full resolution available via export</p>
+            @foreach (var channel in chartChannels)
+            {
+                <SeriesLineChart Title="@channel.DisplayName"
+                                 Unit="@channel.Unit"
+                                 IntervalSeconds="@series.IntervalSeconds"
+                                 Values="@channel.Values" />
+            }
+        }
+
+        @if (series is not null)
+        {
+            <h2>Series catalog</h2>
+            <p class="text-muted">@series.TotalChannels channels · showing page @series.Page · interval @series.IntervalSeconds s</p>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Unit</th>
+                        <th>Points</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var channel in series.Channels)
+                    {
+                        <tr>
+                            <td><code>@channel.Id</code></td>
+                            <td>@channel.DisplayName</td>
+                            <td>@channel.Unit</td>
+                            <td>@channel.Values.Count</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (diagnostics is not null)
+        {
+            <h2>Diagnostics</h2>
+            <p class="text-muted">@diagnostics.TotalCount total</p>
+            @if (diagnostics.Diagnostics.Count == 0)
+            {
+                <p>No diagnostics recorded.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Code</th>
+                            <th>Component</th>
+                            <th>Message</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var d in diagnostics.Diagnostics.Take(50))
+                        {
+                            <tr>
+                                <td>@d.Severity</td>
+                                <td><code>@d.Code</code></td>
+                                <td>@(d.ComponentId ?? "—")</td>
+                                <td>@d.Message</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public string SimulationId { get; set; } = string.Empty;
+
+    private SimulationStatusResponse? status;
+    private SimulationSummaryResponse? summary;
+    private SimulationSeriesResponse? series;
+    private IReadOnlyList<SimulationSeriesChannelDto> chartChannels = Array.Empty<SimulationSeriesChannelDto>();
+    private SimulationDiagnosticsResponse? diagnostics;
+    private string? error;
+    private bool busy;
+    private CancellationTokenSource? _cts;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        summary = null;
+        series = null;
+        chartChannels = Array.Empty<SimulationSeriesChannelDto>();
+        diagnostics = null;
+        await PollAsync(_cts.Token);
+    }
+
+    private async Task PollAsync(CancellationToken cancellationToken)
+    {
+        error = null;
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                status = await Api.GetSimulationAsync(SimulationId, cancellationToken);
+                if (status is null)
+                {
+                    error = "Simulation not found.";
+                    return;
+                }
+
+                if (status.Status is "Completed" or "Failed" or "Cancelled")
+                {
+                    if (status.Status is "Completed" or "Failed")
+                    {
+                        summary = await Api.GetSummaryAsync(SimulationId, cancellationToken);
+                        series = await Api.GetSeriesAsync(SimulationId, page: 1, pageSize: 80, cancellationToken);
+                        chartChannels = series is null
+                            ? Array.Empty<SimulationSeriesChannelDto>()
+                            : SeriesChartSelector.Select(series.Channels);
+                        diagnostics = await Api.GetDiagnosticsAsync(SimulationId, cancellationToken);
+                    }
+
+                    return;
+                }
+
+                await Task.Delay(250, cancellationToken);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // disposed / navigated away
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        busy = true;
+        try
+        {
+            await Api.CancelSimulationAsync(SimulationId);
+            status = await Api.GetSimulationAsync(SimulationId);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private async Task ExportAsync(string format)
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            var exported = await Api.ExportAsync(SimulationId, format);
+            if (exported is null)
+            {
+                error = "Export is not available for this simulation.";
+                return;
+            }
+
+            var (content, contentType, fileName) = exported.Value;
+            var base64 = Convert.ToBase64String(content);
+            await Js.InvokeVoidAsync(
+                "thermocoreDownload",
+                fileName,
+                contentType,
+                base64);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        return ValueTask.CompletedTask;
+    }
+}

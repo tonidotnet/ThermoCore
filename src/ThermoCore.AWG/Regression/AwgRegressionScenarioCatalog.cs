@@ -41,6 +41,15 @@ public static class AwgRegressionScenarioCatalog
             },
             new AwgRegressionScenario
             {
+                Id = "heat-recovery-recirculation",
+                Description = "Combined heat recovery and recirculation with two torn loops.",
+                EnableHeatRecovery = true,
+                EnableRecirculation = true,
+                EnableElectricalSubsystem = false,
+                DurationSeconds = 20
+            },
+            new AwgRegressionScenario
+            {
                 Id = "warm-humid-day",
                 Description = "Warm humid ambient with electrical subsystem.",
                 AmbientTemperatureC = 32.0,

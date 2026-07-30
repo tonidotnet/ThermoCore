@@ -30,20 +30,27 @@ public class AwgHeatRecoveryWeatherAndExportTests
     }
 
     [Fact]
-    public void HeatRecoveryAndRecirculation_RejectedTogether()
+    public void HeatRecoveryAndRecirculation_ConvergesWithTwoTears()
     {
-        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableElectricalSubsystem: false);
-        configuration = configuration with
-        {
-            Topology = configuration.Topology with
-            {
-                EnableHeatRecovery = true,
-                EnableRecirculation = true,
-                InitialRecirculationFraction = 0.2
-            }
-        };
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(
+            enableElectricalSubsystem: false,
+            enableRecirculation: true,
+            enableHeatRecovery: true);
+        var initial = AwgSystemDefaults.CreateMvpInitialState(configuration);
 
-        Assert.Throws<ArgumentException>(() => configuration.Validate());
+        var run = new AwgSimulationRunner().Run(
+            configuration,
+            initial,
+            AwgSimulationOptions.CreateDefault(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(1)));
+
+        Assert.Equal(2, run.BuiltSystem.Loops.Count);
+        Assert.Contains(run.BuiltSystem.Loops, l => l.TearConnectionId == AwgV3TopologyIds.RecirculationTearConnectionId);
+        Assert.Contains(run.BuiltSystem.Loops, l => l.TearConnectionId == AwgV3TopologyIds.HeatRecoveryTearConnectionId);
+        Assert.True(
+            run.EngineResult.Succeeded,
+            string.Join("; ", run.EngineResult.Diagnostics.Select(d => $"{d.Code}:{d.Message}")));
+        Assert.True(run.BalanceReport.WaterBalancePassed);
+        Assert.True(run.BalanceReport.EnergyBalancePassed);
     }
 
     [Fact]

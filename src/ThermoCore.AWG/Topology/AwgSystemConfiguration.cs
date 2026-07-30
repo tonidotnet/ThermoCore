@@ -64,13 +64,6 @@ public sealed record AwgSystemConfiguration
             load.Validate();
         }
 
-        if (Topology.EnableHeatRecovery && Topology.EnableRecirculation)
-        {
-            throw new ArgumentException(
-                "MVP builder supports heat recovery or recirculation, but not both simultaneously.",
-                nameof(Topology));
-        }
-
         if (Topology.EnablePvRearAirChannel && !Topology.EnableElectricalSubsystem)
         {
             throw new ArgumentException(

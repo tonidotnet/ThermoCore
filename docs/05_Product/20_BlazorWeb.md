@@ -2,9 +2,10 @@
 ## 20_BlazorWeb.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Blazor Web application specification  
-**Applies To:** ThermoCore.Web
+**Applies To:** ThermoCore.Web  
+**Notes:** MVP pages live (home, psychrometrics, simulation start/progress/summary/diagnostics/export). Full configuration wizard and charts remain follow-ups.
 
 ---
 

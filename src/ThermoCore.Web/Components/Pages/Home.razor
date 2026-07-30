@@ -1,7 +1,75 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>ThermoCore</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="hero-block">
+    <p class="eyebrow">ThermoCore</p>
+    <h1>Thermodynamic simulation for atmospheric water generation</h1>
+    <p class="lede">
+        Configure and run AWG reference simulations, inspect balances, and compute psychrometric states
+        through the application API — physics stays in ThermoCore.Core.
+    </p>
+    <div class="cta-row">
+        <a class="btn btn-primary" href="psychrometrics">Psychrometric calculator</a>
+        <a class="btn btn-outline-secondary" href="configurations">Configure AWG</a>
+        <a class="btn btn-outline-secondary" href="simulations/new">Quick run</a>
+    </div>
+</section>
 
-Welcome to your new app.
+<section class="info-block">
+    <h2>Status</h2>
+    <ul>
+        <li>Core + AWG V3 MVP models</li>
+        <li>API v1 jobs, summary, series, diagnostics, export</li>
+        <li>DOC-022 regression scenarios via console <code>regress</code></li>
+    </ul>
+    <p class="disclaimer">
+        Engineering software under active development. Results require engineering judgment and validation
+        before design decisions.
+    </p>
+</section>
+
+<style>
+    .hero-block {
+        padding: 2.5rem 0 1.5rem;
+        background:
+            radial-gradient(1200px 400px at 10% -20%, rgba(20, 90, 120, 0.18), transparent 60%),
+            linear-gradient(180deg, #f3f7f8 0%, #ffffff 70%);
+        margin: -1rem -1.5rem 1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    .eyebrow {
+        font-family: "Segoe UI", Candara, Calibri, sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: #1f5f73;
+        margin-bottom: 0.4rem;
+    }
+    .hero-block h1 {
+        font-family: Cambria, "Times New Roman", serif;
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        max-width: 18ch;
+        line-height: 1.15;
+        color: #16323c;
+    }
+    .lede {
+        max-width: 52ch;
+        color: #3a4a50;
+    }
+    .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+    .info-block h2 {
+        font-size: 1.15rem;
+        margin-top: 0.5rem;
+    }
+    .disclaimer {
+        color: #6a7378;
+        font-size: 0.95rem;
+    }
+</style>

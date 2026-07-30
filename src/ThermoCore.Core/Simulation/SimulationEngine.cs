@@ -7,7 +7,7 @@ using ThermoCore.Core.Psychrometrics;
 namespace ThermoCore.Core.Simulation;
 
 /// <summary>
-/// Simulation engine supporting acyclic execution and single torn-loop fixed-point solves
+/// Simulation engine supporting acyclic execution and multi-tear fixed-point solves
 /// (docs/04_Simulation/16_SimulationEngine.md).
 /// </summary>
 public sealed class SimulationEngine : ISimulationEngine
@@ -62,46 +62,52 @@ public sealed class SimulationEngine : ISimulationEngine
             ]);
         }
 
-        if (request.Loops.Count > 1)
-        {
-            return FailedBeforeSteps(
-            [
-                new SimulationDiagnostic
-                {
-                    Code = "ENGINE.NESTED_LOOPS_UNSUPPORTED",
-                    Severity = DiagnosticSeverity.Critical,
-                    Message = "MVP engine supports at most one torn loop definition."
-                }
-            ]);
-        }
-
         IReadOnlyList<string> order;
-        PhysicalConnection? tearConnection = null;
-        SimulationLoopDefinition? loop = null;
+        IReadOnlyList<ResolvedTear> tears = Array.Empty<ResolvedTear>();
 
         try
         {
-            if (request.Loops.Count == 1)
+            if (request.Loops.Count > 0)
             {
-                loop = request.Loops[0];
-                tearConnection = request.Graph.Connections.FirstOrDefault(c =>
-                    string.Equals(c.Id, loop.TearConnectionId, StringComparison.Ordinal));
-                if (tearConnection is null)
+                var resolved = new List<ResolvedTear>(request.Loops.Count);
+                foreach (var loopDefinition in request.Loops)
                 {
-                    return FailedBeforeSteps(
-                    [
-                        new SimulationDiagnostic
-                        {
-                            Code = "ENGINE.UNKNOWN_TEAR_CONNECTION",
-                            Severity = DiagnosticSeverity.Critical,
-                            Message = $"Unknown tear connection id '{loop.TearConnectionId}'."
-                        }
-                    ]);
+                    var tearConnection = request.Graph.Connections.FirstOrDefault(c =>
+                        string.Equals(c.Id, loopDefinition.TearConnectionId, StringComparison.Ordinal));
+                    if (tearConnection is null)
+                    {
+                        return FailedBeforeSteps(
+                        [
+                            new SimulationDiagnostic
+                            {
+                                Code = "ENGINE.UNKNOWN_TEAR_CONNECTION",
+                                Severity = DiagnosticSeverity.Critical,
+                                Message = $"Unknown tear connection id '{loopDefinition.TearConnectionId}'."
+                            }
+                        ]);
+                    }
+
+                    if (loopDefinition.RelaxationFactor is <= 0.0 or > 1.0)
+                    {
+                        return FailedBeforeSteps(
+                        [
+                            new SimulationDiagnostic
+                            {
+                                Code = "ENGINE.INVALID_RELAXATION",
+                                Severity = DiagnosticSeverity.Critical,
+                                Message =
+                                    $"Loop '{loopDefinition.Id}' has RelaxationFactor outside (0, 1]."
+                            }
+                        ]);
+                    }
+
+                    resolved.Add(new ResolvedTear(loopDefinition, tearConnection));
                 }
 
+                tears = resolved;
                 order = GraphTopology.OrderComponentIdsIgnoringConnections(
                     request.Graph,
-                    [loop.TearConnectionId]);
+                    tears.Select(t => t.Loop.TearConnectionId));
             }
             else
             {
@@ -170,13 +176,12 @@ public sealed class SimulationEngine : ISimulationEngine
                 ElapsedTime = elapsed
             };
 
-            var stepResult = loop is null
+            var stepResult = tears.Count == 0
                 ? ExecuteAcyclicStep(request, order, stepContext, committedPortStates, cancellationToken)
-                : ExecuteLoopStep(
+                : ExecuteTornLoopsStep(
                     request,
                     order,
-                    loop,
-                    tearConnection!,
+                    tears,
                     stepContext,
                     committedPortStates,
                     cancellationToken);
@@ -242,78 +247,62 @@ public sealed class SimulationEngine : ISimulationEngine
             solverIteration: 0,
             cancellationToken);
 
-    private SimulationStepResult ExecuteLoopStep(
+    private SimulationStepResult ExecuteTornLoopsStep(
         SimulationRequest request,
         IReadOnlyList<string> order,
-        SimulationLoopDefinition loop,
-        PhysicalConnection tearConnection,
+        IReadOnlyList<ResolvedTear> tears,
         SimulationContext stepContext,
         IReadOnlyDictionary<string, object?> previousPortStates,
         CancellationToken cancellationToken)
     {
-        var tearTargetKey = PortKey(tearConnection.TargetComponentId, tearConnection.TargetPortId);
-        var tearSourceKey = PortKey(tearConnection.SourceComponentId, tearConnection.SourcePortId);
-
-        if (!TryGetInitialTearGuess(previousPortStates, tearTargetKey, tearSourceKey, out var guess)
-            || guess is not MoistAirState currentGuess)
+        var guesses = new Dictionary<string, MoistAirState>(StringComparer.Ordinal);
+        foreach (var tear in tears)
         {
-            return new SimulationStepResult
+            var tearTargetKey = PortKey(tear.Connection.TargetComponentId, tear.Connection.TargetPortId);
+            var tearSourceKey = PortKey(tear.Connection.SourceComponentId, tear.Connection.SourcePortId);
+            if (!TryGetInitialTearGuess(previousPortStates, tearTargetKey, tearSourceKey, out var guess)
+                || guess is not MoistAirState moistGuess)
             {
-                StepIndex = stepContext.StepIndex,
-                ElapsedTime = stepContext.ElapsedTime,
-                Committed = false,
-                SystemBalance = ConservationBalance.Empty,
-                Diagnostics =
-                [
-                    new SimulationDiagnostic
-                    {
-                        Code = "ENGINE.LOOP_INITIAL_GUESS_MISSING",
-                        Severity = DiagnosticSeverity.Critical,
-                        Message =
-                            $"Loop '{loop.Id}' requires an initial MoistAirState guess at '{tearTargetKey}' " +
-                            $"(provide ExternalInputs or a previous committed tear value).",
-                        StepIndex = stepContext.StepIndex,
-                        SimulationTime = stepContext.ElapsedTime,
-                        SolverIteration = 0
-                    }
-                ],
-                PortStates = previousPortStates
-            };
+                return new SimulationStepResult
+                {
+                    StepIndex = stepContext.StepIndex,
+                    ElapsedTime = stepContext.ElapsedTime,
+                    Committed = false,
+                    SystemBalance = ConservationBalance.Empty,
+                    Diagnostics =
+                    [
+                        new SimulationDiagnostic
+                        {
+                            Code = "ENGINE.LOOP_INITIAL_GUESS_MISSING",
+                            Severity = DiagnosticSeverity.Critical,
+                            Message =
+                                $"Loop '{tear.Loop.Id}' requires an initial MoistAirState guess at '{tearTargetKey}' " +
+                                $"(provide ExternalInputs or a previous committed tear value).",
+                            StepIndex = stepContext.StepIndex,
+                            SimulationTime = stepContext.ElapsedTime,
+                            SolverIteration = 0
+                        }
+                    ],
+                    PortStates = previousPortStates
+                };
+            }
+
+            guesses[tearTargetKey] = moistGuess;
         }
 
-        if (loop.RelaxationFactor is <= 0.0 or > 1.0)
-        {
-            return new SimulationStepResult
-            {
-                StepIndex = stepContext.StepIndex,
-                ElapsedTime = stepContext.ElapsedTime,
-                Committed = false,
-                SystemBalance = ConservationBalance.Empty,
-                Diagnostics =
-                [
-                    new SimulationDiagnostic
-                    {
-                        Code = "ENGINE.INVALID_RELAXATION",
-                        Severity = DiagnosticSeverity.Critical,
-                        Message = "RelaxationFactor must be in (0, 1].",
-                        StepIndex = stepContext.StepIndex
-                    }
-                ],
-                PortStates = previousPortStates
-            };
-        }
-
+        var maximumIterations = tears.Max(t => t.Loop.MaximumIterations);
         ConservationBalance lastBalance = ConservationBalance.Empty;
         var diagnostics = new List<SimulationDiagnostic>();
 
-        for (var iteration = 0; iteration < loop.MaximumIterations; iteration++)
+        for (var iteration = 0; iteration < maximumIterations; iteration++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var tearOverride = new Dictionary<string, object?>(StringComparer.Ordinal)
+            var tearOverride = new Dictionary<string, object?>(StringComparer.Ordinal);
+            foreach (var pair in guesses)
             {
-                [tearTargetKey] = currentGuess
-            };
+                tearOverride[pair.Key] = pair.Value;
+            }
 
             var evaluation = EvaluateOnly(
                 request,
@@ -339,32 +328,49 @@ public sealed class SimulationEngine : ISimulationEngine
                 };
             }
 
-            if (!evaluation.PortStates.TryGetValue(tearSourceKey, out var proposedRaw)
-                || proposedRaw is not MoistAirState proposed)
+            var allConverged = true;
+            var nextGuesses = new Dictionary<string, MoistAirState>(StringComparer.Ordinal);
+            foreach (var tear in tears)
             {
-                return new SimulationStepResult
+                var tearTargetKey = PortKey(tear.Connection.TargetComponentId, tear.Connection.TargetPortId);
+                var tearSourceKey = PortKey(tear.Connection.SourceComponentId, tear.Connection.SourcePortId);
+                var currentGuess = guesses[tearTargetKey];
+
+                if (!evaluation.PortStates.TryGetValue(tearSourceKey, out var proposedRaw)
+                    || proposedRaw is not MoistAirState proposed)
                 {
-                    StepIndex = stepContext.StepIndex,
-                    ElapsedTime = stepContext.ElapsedTime,
-                    Committed = false,
-                    SystemBalance = evaluation.SystemBalance,
-                    Diagnostics =
-                    [
-                        .. diagnostics,
-                        new SimulationDiagnostic
-                        {
-                            Code = "ENGINE.LOOP_TEAR_OUTPUT_MISSING",
-                            Severity = DiagnosticSeverity.Critical,
-                            Message = $"Loop '{loop.Id}' did not produce MoistAirState at '{tearSourceKey}'.",
-                            StepIndex = stepContext.StepIndex,
-                            SolverIteration = iteration
-                        }
-                    ],
-                    PortStates = previousPortStates
-                };
+                    return new SimulationStepResult
+                    {
+                        StepIndex = stepContext.StepIndex,
+                        ElapsedTime = stepContext.ElapsedTime,
+                        Committed = false,
+                        SystemBalance = evaluation.SystemBalance,
+                        Diagnostics =
+                        [
+                            .. diagnostics,
+                            new SimulationDiagnostic
+                            {
+                                Code = "ENGINE.LOOP_TEAR_OUTPUT_MISSING",
+                                Severity = DiagnosticSeverity.Critical,
+                                Message =
+                                    $"Loop '{tear.Loop.Id}' did not produce MoistAirState at '{tearSourceKey}'.",
+                                StepIndex = stepContext.StepIndex,
+                                SolverIteration = iteration
+                            }
+                        ],
+                        PortStates = previousPortStates
+                    };
+                }
+
+                if (!IsConverged(currentGuess, proposed, request.NumericalTolerances))
+                {
+                    allConverged = false;
+                }
+
+                nextGuesses[tearTargetKey] = Relax(currentGuess, proposed, tear.Loop.RelaxationFactor);
             }
 
-            if (IsConverged(currentGuess, proposed, request.NumericalTolerances))
+            if (allConverged)
             {
                 foreach (var componentId in order)
                 {
@@ -382,10 +388,11 @@ public sealed class SimulationEngine : ISimulationEngine
                 };
             }
 
-            currentGuess = Relax(currentGuess, proposed, loop.RelaxationFactor);
+            guesses = nextGuesses;
             lastBalance = evaluation.SystemBalance;
         }
 
+        var loopIds = string.Join(", ", tears.Select(t => t.Loop.Id));
         return new SimulationStepResult
         {
             StepIndex = stepContext.StepIndex,
@@ -400,9 +407,9 @@ public sealed class SimulationEngine : ISimulationEngine
                     Code = "ENGINE.LOOP_NOT_CONVERGED",
                     Severity = DiagnosticSeverity.Critical,
                     Message =
-                        $"Loop '{loop.Id}' did not converge within {loop.MaximumIterations} iterations.",
+                        $"Torn loops [{loopIds}] did not converge within {maximumIterations} iterations.",
                     StepIndex = stepContext.StepIndex,
-                    SolverIteration = loop.MaximumIterations
+                    SolverIteration = maximumIterations
                 }
             ],
             PortStates = previousPortStates
@@ -635,4 +642,8 @@ public sealed class SimulationEngine : ISimulationEngine
         Dictionary<string, object?> PortStates,
         ConservationBalance SystemBalance,
         List<SimulationDiagnostic> Diagnostics);
+
+    private sealed record ResolvedTear(
+        SimulationLoopDefinition Loop,
+        PhysicalConnection Connection);
 }

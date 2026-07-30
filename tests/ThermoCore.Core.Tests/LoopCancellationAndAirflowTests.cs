@@ -103,6 +103,67 @@ public class LoopCancellationAndAirflowTests
     }
 
     [Fact]
+    public void SimulationEngine_TwoTornLoops_ConvergeJointly()
+    {
+        const double flow = 0.02;
+        var fresh = SampleAir(25, 0.40, flow * 0.5);
+        var initialRecirc = SampleAir(28, 0.45, flow * 0.5);
+        var initialHot = SampleAir(32, 0.50, flow);
+
+        var source = new AmbientAirSourceComponent("fresh", fresh);
+        var mixer = new MoistAirMixerComponent("mixer", ["fresh_in", "recirc_in"], _calculator);
+        var heater = new SensibleHeaterComponent("heater", heatRateW: 120.0, _calculator);
+        var hr = new SensibleHeatRecoveryComponent("hr", effectivenessFraction: 0.5, bypassFraction: 0.0, calculator: _calculator);
+        var splitter = new MoistAirSplitterComponent("split", [0.5, 0.5], _calculator);
+        var sink = new ExhaustAirSinkComponent("exhaust");
+
+        var graph = new SimulationGraph(
+            [source, mixer, hr, heater, splitter, sink],
+            [
+                Connect("fresh_mixer", "fresh", "outlet", "mixer", "fresh_in"),
+                Connect("recirc_mixer", "split", "outlet_1", "mixer", "recirc_in"),
+                Connect("mixer_hr_cold", "mixer", "outlet", "hr", "cold_in"),
+                Connect("hr_heater", "hr", "cold_out", "heater", "inlet"),
+                Connect("heater_hr_hot", "heater", "outlet", "hr", "hot_in"),
+                Connect("hr_split", "hr", "hot_out", "split", "inlet"),
+                Connect("split_exhaust", "split", "outlet_0", "exhaust", "inlet")
+            ]);
+
+        var result = new SimulationEngine().Run(new SimulationRequest
+        {
+            Graph = graph,
+            StartTimeUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            Duration = TimeSpan.FromSeconds(1),
+            TimeStep = TimeSpan.FromSeconds(1),
+            ExternalInputs = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["mixer.recirc_in"] = initialRecirc,
+                ["hr.hot_in"] = initialHot
+            },
+            Loops =
+            [
+                new SimulationLoopDefinition
+                {
+                    Id = "recirc",
+                    TearConnectionId = "recirc_mixer",
+                    RelaxationFactor = 0.7,
+                    MaximumIterations = 80
+                },
+                new SimulationLoopDefinition
+                {
+                    Id = "hr-hot",
+                    TearConnectionId = "heater_hr_hot",
+                    RelaxationFactor = 0.7,
+                    MaximumIterations = 80
+                }
+            ]
+        });
+
+        Assert.True(result.Succeeded, string.Join("; ", result.Diagnostics.Select(d => $"{d.Code}:{d.Message}")));
+        Assert.True(result.Steps[0].Committed);
+    }
+
+    [Fact]
     public void SimulationEngine_Cancellation_ThrowsBeforeCommit()
     {
         var source = new AmbientAirSourceComponent("source", SampleAir(25, 0.5, 0.02));

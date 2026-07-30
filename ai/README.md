@@ -9,5 +9,6 @@ Load files in this order:
 5. `../docs/07_ProjectManagement/18_CodingRules.md`
 6. relevant engineering documents
 7. JSON graphs
+8. `AI_PROMPT_LIBRARY.md` when selecting a reusable prompt or template
 
 Files marked as `Planned` or `Local replacement required` must not be used as authoritative implementation specifications.

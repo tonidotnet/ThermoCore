@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-ThermoCore.Core physical models for PV/SC/COND/HR/AIR/TEC/PWR are complete. Next: AWG specs and application layer (blocked on DOC/AWG planning tasks).
+AWG control/topology specs and console host are ready. Next: AWG configuration model (AWG-003) and remaining AWG integration tasks.
 ```
 
 ## Recommended next tasks
 
-1. `AWG-001` — Create detailed control-system specification
-2. `AWG-002` — Create detailed system-topology specification
-3. `DOC-014A` / `DOC-015A` — Expand control and topology specs
-4. `APP-001` — Create console host (after DEV/AWG prerequisites)
-5. `AI-010` — Create reusable coding prompts and templates
+1. `AWG-003` — Implement AWG configuration model
+2. `AWG-004` / `AWG-005` — Graph builder and initial-state wiring (as unblocked)
+3. `APP-002` — Load JSON configuration (after AWG-003)
+4. `DOC-016A` / `DOC-022` / `DOC-025` — Remaining engine/test/numerical doc expansions if still incomplete
+5. `REP-003` / `OSS-001` — License and public README readiness
 
 ---
 
@@ -114,11 +114,11 @@ ThermoCore.Core physical models for PV/SC/COND/HR/AIR/TEC/PWR are complete. Next
 | Area | Total | Done | In progress | Ready | Blocked/Planned |
 |---|---:|---:|---:|---:|---:|
 | Documentation foundations | 12 | 6 | 0 | 4 | 2 |
-| AI workspace | 10 | 9 | 0 | 1 | 0 |
+| AI workspace | 10 | 10 | 0 | 0 | 0 |
 | Repository setup | 12 | 0 | 0 | 3 | 9 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 0 | 0 | 0 | 19 |
+| ThermoCore.AWG | 19 | 2 | 0 | 1 | 16 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -160,8 +160,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-011A | `11_HeatRecovery.md` | P1 | Ready | Outline | Before heat-recovery coding | Expand |
 | DOC-012A | `12_BatteryAndPowerManagement.md` | P1 | Ready | Outline | Before battery coding | Expand |
 | DOC-013A | `13_FanAndAirflow.md` | P1 | Ready | Outline | Before airflow coding | Expand |
-| DOC-014A | `14_ControlSystem.md` | P1 | Planned | Missing | Before AWG control coding | Create detailed spec |
-| DOC-015A | `15_SystemTopology.md` | P1 | Planned | Missing | Before AWG integration | Create detailed spec |
+| DOC-014A | `14_ControlSystem.md` | P1 | Done | ReadyForImplementation | Before AWG control coding | Detailed control + observation/parameter contracts |
+| DOC-015A | `15_SystemTopology.md` | P1 | Done | ReadyForImplementation | Before AWG integration | Detailed topology + Core type mapping |
 | DOC-016A | `16_SimulationEngine.md` | P0 | Planned | Missing | Before engine implementation | Create detailed spec |
 | DOC-017A | `17_Roadmap.md` | P0 | Done | ReadyForImplementation | Yes | Maintain |
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
@@ -193,7 +193,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AI-007 | Create component graph JSON | P1 | Done | DOC-003 | `ai/graphs/COMPONENT_GRAPH.json` | Maintain with code |
 | AI-008 | Create document graph JSON | P1 | Done | DOC-003 | `ai/graphs/DOCUMENT_GRAPH.json` | Maintain with docs |
 | AI-009 | Create implementation graph JSON | P1 | Done | DOC-017A | `ai/graphs/IMPLEMENTATION_GRAPH.json` | Maintain with milestones |
-| AI-010 | Create reusable coding prompts and templates | P1 | Ready | AI-001 to AI-009 | `ai/prompts/`, `ai/templates/`, `ai/agents/` | Next AI workspace expansion |
+| AI-010 | Create reusable coding prompts and templates | P1 | Done | AI-001 to AI-009 | `ai/prompts/`, `ai/templates/`, `ai/agents/` | Prompt library index + reusable prompts/templates |
 
 ---
 
@@ -400,9 +400,9 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related docs | Test status |
 |---|---|---|---|---|---|---|
-| AWG-001 | Create detailed control-system specification | P1 | Planned | COND-001, HR-001, AIR-001, PWR-001 | `14_ControlSystem.md` | Planned |
-| AWG-002 | Create detailed system-topology specification | P1 | Planned | AWG-001 | `15_SystemTopology.md` | Planned |
-| AWG-003 | Implement AWG configuration model | P1 | Blocked | AWG-002 | `15_SystemTopology.md` | NotStarted |
+| AWG-001 | Create detailed control-system specification | P1 | Done | COND-001, HR-001, AIR-001, PWR-001 | `14_ControlSystem.md` | NotApplicable |
+| AWG-002 | Create detailed system-topology specification | P1 | Done | AWG-001 | `15_SystemTopology.md` | NotApplicable |
+| AWG-003 | Implement AWG configuration model | P1 | Ready | AWG-002 | `15_SystemTopology.md` | NotStarted |
 | AWG-004 | Implement V3 airflow graph builder | P1 | Blocked | AWG-003, GRAPH-008, AIR-002 | `15_SystemTopology.md` | NotStarted |
 | AWG-005 | Implement electrical graph | P1 | Blocked | AWG-003, PWR-002, PV-001 | `15_SystemTopology.md` | NotStarted |
 | AWG-006 | Implement water-flow graph | P1 | Blocked | AWG-003, COND-006 | `15_SystemTopology.md` | NotStarted |
@@ -428,7 +428,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Test status |
 |---|---|---|---|---|---|
-| APP-001 | Create console host | P1 | Blocked | DEV-001 | NotStarted |
+| APP-001 | Create console host | P1 | Done | DEV-001 | Passing |
 | APP-002 | Load JSON configuration | P1 | Blocked | APP-001, AWG-003 | NotStarted |
 | APP-003 | Run simulation | P1 | Blocked | APP-002, GRAPH-008 | NotStarted |
 | APP-004 | Print summary | P1 | Blocked | APP-003 | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. AWG-001 — Create detailed control-system specification
-2. AWG-002 — Create detailed system-topology specification
-3. DOC-014A / DOC-015A — Expand control and topology specs
-4. APP-001 — Create console host (after DEV/AWG prerequisites)
-5. AI-010 — Create reusable coding prompts and templates
+1. AWG-003 — Implement AWG configuration model
+2. AWG graph-builder / initial-state tasks unblocked by AWG-003
+3. APP-002 — Load JSON configuration
+4. Remaining DOC expansions (engine/test/result formats) as needed
+5. Repository/OSS readiness (license, CI)
 ```
 
 ---

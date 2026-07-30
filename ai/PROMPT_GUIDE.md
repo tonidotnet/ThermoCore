@@ -17,6 +17,7 @@ Guide AI coding assistants when implementing ThermoCore.
 4. Keep Core platform independent.
 5. Write tests before implementation.
 6. Update documentation.
+7. Prefer prompts/templates from `AI_PROMPT_LIBRARY.md`.
 
 ## Forbidden
 - UI code in Core

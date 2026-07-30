@@ -1,12 +1,13 @@
 # ThermoCore
 ## 14_ControlSystem.md
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** ReadyForImplementation  
 **Document Type:** AWG control architecture and state-machine specification  
 **Applies To:** ThermoCore.AWG  
 **Internal units:** SI  
 **Primary implementation language:** C#
+**Related tasks:** AWG-001, DOC-014A, AWG-008+
 
 ---
 
@@ -528,6 +529,134 @@ The control system is accepted when:
 5. controller logic contains no duplicated component equations;
 6. anti-chatter behavior is tested;
 7. failure states are explicit and auditable.
+
+# 31. Observation and parameter contracts
+
+These contracts complete the controller interface in §24. Implementations shall live under `ThermoCore.AWG.Control` and must not embed component physics.
+
+```csharp
+public sealed record AwgSystemObservation
+{
+    public required DateTimeOffset SimulationTimeUtc { get; init; }
+
+    public required double AmbientTemperatureK { get; init; }
+
+    public required double AmbientRelativeHumidityFraction { get; init; }
+
+    public required double AmbientVaporPressurePa { get; init; }
+
+    public required double SolarIrradianceWPerSquareMeter { get; init; }
+
+    public required double BatteryStateOfChargeFraction { get; init; }
+
+    public required double AvailableElectricalPowerW { get; init; }
+
+    public required double SilicaGelLoadingKgPerKg { get; init; }
+
+    public required double SilicaGelTemperatureK { get; init; }
+
+    public required double CondenserSurfaceTemperatureK { get; init; }
+
+    public required double InletDewPointTemperatureK { get; init; }
+
+    public required double CondenserInletDewPointTemperatureK { get; init; }
+
+    public required double PeltierHotSideTemperatureK { get; init; }
+
+    public required double PeltierColdSideTemperatureK { get; init; }
+
+    public required double ProcessDryAirMassFlowKgPerSecond { get; init; }
+
+    public required double WaterTankLevelFraction { get; init; }
+
+    public required bool FanOperatingPointValid { get; init; }
+
+    public required IReadOnlyCollection<SimulationDiagnostic> ComponentDiagnostics { get; init; }
+}
+
+public sealed record AwgControlParameters
+{
+    public required double AdsorptionTargetLoadingKgPerKg { get; init; }
+
+    public required double RegenerationEntryLoadingKgPerKg { get; init; }
+
+    public required double RegenerationExitLoadingKgPerKg { get; init; }
+
+    public required double MinimumAdsorptionDrivingForceKgPerKg { get; init; }
+
+    public required double CondensationDewPointMarginK { get; init; }
+
+    public required double TargetDewPointApproachK { get; init; }
+
+    public required double MaximumRecirculationFraction { get; init; }
+
+    public required double ReserveBatterySocFraction { get; init; }
+
+    public required double CriticalBatterySocFraction { get; init; }
+
+    public required TimeSpan MinimumModeDwell { get; init; }
+
+    public required double PeltierHotSideLimitK { get; init; }
+
+    public required double SilicaGelTemperatureLimitK { get; init; }
+
+    public required double CollectorAbsorberTemperatureLimitK { get; init; }
+
+    public required double MinimumSafeDryAirMassFlowKgPerSecond { get; init; }
+}
+
+public sealed record AwgDecisionTraceEntry
+{
+    public required string ReasonCode { get; init; }
+
+    public required string PreviousMode { get; init; }
+
+    public required string RequestedMode { get; init; }
+
+    public required string ActiveLimitingConstraint { get; init; }
+
+    public required IReadOnlyDictionary<string, double> ScalarInputs { get; init; }
+}
+```
+
+# 32. Implementation mapping
+
+| Control concern | Consumes / observes | Issues request to |
+|---|---|---|
+| Adsorption / regeneration mode | `SilicaGelBedComponent` loading and temperature | Bed enable + regeneration heat enable flags |
+| Condensation enable | `CondenserComponent` surface and inlet dew point | `CondenserEnabled`, Peltier power request |
+| Peltier power | `AnalyticalPeltierComponent` / `ConstantCopPeltierComponent` temperatures and available bus power | `PeltierPowerRequestW` |
+| Fan airflow | `CurveBasedFanComponent` / `PrescribedFlowFanComponent` operating point | `FanControlFraction` |
+| Recirculation | `MoistAirMixerComponent` + `MoistAirSplitterComponent` | `RecirculationFraction` |
+| Heat-recovery bypass | `SensibleHeatRecoveryComponent` | `HeatRecoveryBypassOpen` |
+| Battery protection | `BatteryStorageComponent`, `PowerManagementComponent` | Load derating via power request limits |
+| Water-tank full | Liquid-water tank / sink inventory | Disable condensation / drainage diversion |
+
+Recommended AWG layout:
+
+```text
+ThermoCore.AWG/
+  Control/
+    IAwgController.cs
+    RuleBasedAwgController.cs
+    AwgOperatingMode.cs
+    AwgControlRequest.cs
+    AwgControllerState.cs
+    AwgSystemObservation.cs
+    AwgControlParameters.cs
+    AwgControlStepResult.cs
+    AwgFaultCode.cs
+```
+
+# 33. MVP coding order
+
+1. Enums, records and `IAwgController` contracts (no physics).
+2. Pure rule-based controller with injectable thresholds.
+3. Unit tests from §28 using synthetic observations.
+4. Wire controller into AWG graph builder after AWG-003.
+5. Integration tests from §29 after topology assembly.
+
+Controller evaluation shall be deterministic for identical observation, state and parameters.
 
 ---
 

@@ -1,11 +1,12 @@
 # ThermoCore
 ## 15_SystemTopology.md
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** ReadyForImplementation  
 **Document Type:** AWG V3 system topology specification  
 **Applies To:** ThermoCore.AWG  
-**Internal units:** SI
+**Internal units:** SI  
+**Related tasks:** AWG-002, DOC-015A, AWG-003+
 
 ---
 
@@ -501,6 +502,61 @@ The topology is accepted when:
 4. recirculation uses the cyclic solver;
 5. system metadata is sufficient for reproducibility;
 6. optional variants do not require changes to ThermoCore.Core.
+
+# 26. Core component type mapping (V3 MVP)
+
+| Topology ID | Recommended Core type | Notes |
+|---|---|---|
+| `ambient-source` | `AmbientAirSourceComponent` | Boundary moist-air inlet |
+| `fresh-air-mixer` | `MoistAirMixerComponent` | Fresh + recirculation |
+| `peltier-hot-side-hx` | Pass-through or dedicated HX when available; MVP may use `SensibleHeaterComponent` / Peltier air ports | Hot-side rejection into process air |
+| `pv-panel` | `DynamicElectrothermalSolarPanelComponent` or `TemperatureCorrectedSolarPanelComponent` | Electrical + thermal |
+| `pv-rear-channel` | Rear-air ports on dynamic PV model | Optional via configuration |
+| `solar-collector` | `DynamicLumpedSolarCollectorComponent` | Absorber + process air |
+| `silica-gel-bed` | `SilicaGelBedComponent` | Adsorption / desorption |
+| `condenser` | `CondenserComponent` | Liquid water + moist air |
+| `heat-recovery` | `SensibleHeatRecoveryComponent` | Optional bypass |
+| `recirculation-splitter` | `MoistAirSplitterComponent` | Exhaust vs recirculation |
+| `exhaust-sink` | `ExhaustAirSinkComponent` | Moist-air boundary |
+| `water-tank` | `LiquidWaterSinkComponent` (MVP inventory) | Explicit water path |
+| `battery` | `BatteryStorageComponent` | Electrical storage |
+| `power-manager` | `PowerManagementComponent` | Allocation |
+| `process-fan` | `CurveBasedFanComponent` or `PrescribedFlowFanComponent` | Airflow driver |
+| `awg-controller` | AWG control module (not a physical component) | Issues control requests |
+
+Stable topology ID: `awg-v3-mvp`.
+
+# 27. Port and connection conventions
+
+- Moist-air ports use `inlet` / `outlet` unless a multi-port component requires named sides (`hotIn`, `hotOut`, `coldIn`, `coldOut`, `freshIn`, `recirculationIn`, `exhaustOut`).
+- Electrical ports use `electricalIn` / `electricalOut` or domain-specific names already defined by the Core component.
+- Liquid-water ports use `liquidOut` / `inlet` consistent with `CondenserComponent` and sinks.
+- Connection IDs shall be deterministic: `{sourceId}.{sourcePort}->{targetId}.{targetPort}`.
+- Graph hash input shall include topology ID, version, component model selections and sorted connection IDs.
+
+# 28. Graph-builder coding order
+
+1. Configuration and initial-state records (`AwgV3TopologyConfiguration`, `AwgSystemConfiguration`, `AwgInitialState`).
+2. Component factory selecting Core implementations from model IDs.
+3. Connection builder for moist-air, thermal, electrical and liquid-water graphs.
+4. Validation rules from §14.
+5. Acyclic build path with recirculation disabled.
+6. Cyclic build path with recirculation enabled (requires GRAPH cyclic solver).
+7. Topology metadata on every `SimulationResult`.
+
+Recommended AWG layout:
+
+```text
+ThermoCore.AWG/
+  Topology/
+    AwgV3TopologyIds.cs
+    AwgSystemConfiguration.cs
+    AwgInitialState.cs
+    AwgV3TopologyConfiguration.cs
+    IAwgSystemGraphBuilder.cs
+    AwgV3SystemGraphBuilder.cs
+    AwgTopologyValidation.cs
+```
 
 ---
 

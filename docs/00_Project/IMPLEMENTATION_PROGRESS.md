@@ -96,15 +96,15 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-AWG Level-5 regression pack, PV rear-air path, and OSS community files are in place. Next: API/Web or further OSS release polish.
+API v1 endpoints (health, psychrometrics, validate, simulation jobs) are live. Next: remaining result endpoints / Web MVP, or multi-tear HR+recirc.
 ```
 
 ## Recommended next tasks
 
-1. API specification / first API endpoints (`API-001`+)
-2. Remaining OSS release polish (`OSS-002`, release workflow)
-3. Combined heat-recovery + recirculation (needs multi-tear engine support)
-4. Web MVP after API contracts stabilize
+1. `API-007`/`API-009` — series, diagnostics, export endpoints
+2. `WEB-001`/`WEB-002` — Blazor architecture and first pages against API
+3. Combined heat-recovery + recirculation (multi-tear engine)
+4. Deeper calibration / validation datasets
 
 ---
 
@@ -118,7 +118,7 @@ AWG Level-5 regression pack, PV rear-air path, and OSS community files are in pl
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
-| API and Web | 22 | 0 | 0 | 0 | 22 |
+| API and Web | 22 | 9 | 0 | 1 | 12 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
 The counts are indicative and shall be updated when tasks are added, split or completed.
@@ -164,7 +164,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-016A | `16_SimulationEngine.md` | P0 | Planned | Missing | Before engine implementation | Create detailed spec |
 | DOC-017A | `17_Roadmap.md` | P0 | Done | ReadyForImplementation | Yes | Maintain |
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
-| DOC-019A | `19_WebApi.md` | P2 | Planned | Missing | Before API implementation | Create after engine contract stabilizes |
+| DOC-019A | `19_WebApi.md` | P2 | Done | Implemented | Yes | API v1 MVP implemented |
 | DOC-020A | `20_BlazorWeb.md` | P2 | Planned | Missing | Before Web implementation | Create after API |
 | DOC-021A | `21_DataModel.md` | P2 | Planned | Missing | Before persistence | Create after result model |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
@@ -438,22 +438,22 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related doc | Test status |
 |---|---|---|---|---|---|---|
-| API-001 | Create API specification | P2 | Planned | DOC-016A, DOC-021A, DOC-029A | `19_WebApi.md` | Planned |
-| API-002 | Create ASP.NET Core API project | P2 | Blocked | DEV-001, API-001 | `19_WebApi.md` | NotStarted |
-| API-003 | Add psychrometric calculator endpoint | P2 | Blocked | API-002, CORE-010 | `19_WebApi.md` | NotStarted |
-| API-004 | Add simulation validation endpoint | P2 | Blocked | API-002, AWG-003 | `19_WebApi.md` | NotStarted |
-| API-005 | Add simulation job endpoint | P2 | Blocked | API-002, AWG-016 | `19_WebApi.md` | NotStarted |
-| API-006 | Add status and result endpoints | P2 | Blocked | API-005 | `19_WebApi.md` | NotStarted |
-| API-007 | Add cancellation | P2 | Blocked | API-005, GRAPH-011 | `19_WebApi.md` | NotStarted |
-| API-008 | Add OpenAPI | P2 | Blocked | API-002 | `19_WebApi.md` | NotStarted |
-| API-009 | Add resource limits | P2 | Blocked | API-005 | `19_WebApi.md` | NotStarted |
-| API-010 | Add integration tests | P2 | Blocked | API-003 to API-009 | `22_TestStrategy.md` | NotStarted |
+| API-001 | Create API specification | P2 | Done | DOC-029A | `19_WebApi.md` | Passing |
+| API-002 | Create ASP.NET Core API project | P2 | Done | DEV-001, API-001 | `19_WebApi.md` | Passing |
+| API-003 | Add psychrometric calculator endpoint | P2 | Done | API-002, CORE-010 | `19_WebApi.md` | Passing |
+| API-004 | Add simulation validation endpoint | P2 | Done | API-002, AWG-003 | `19_WebApi.md` | Passing |
+| API-005 | Add simulation job endpoint | P2 | Done | API-002, AWG-016 | `19_WebApi.md` | Passing |
+| API-006 | Add status and result endpoints | P2 | Done | API-005 | `19_WebApi.md` | Passing |
+| API-007 | Add cancellation | P2 | Done | API-005, GRAPH-011 | `19_WebApi.md` | Passing |
+| API-008 | Add OpenAPI | P2 | Done | API-002 | `19_WebApi.md` | Passing |
+| API-009 | Add resource limits | P2 | Ready | API-005 | `19_WebApi.md` | NotStarted |
+| API-010 | Add integration tests | P2 | Done | API-003 to API-008 | `22_TestStrategy.md` | Passing |
 
 ## 18.3 Blazor Web
 
 | ID | Task | Priority | Status | Dependencies | Related doc | Test status |
 |---|---|---|---|---|---|---|
-| WEB-001 | Create Blazor architecture specification | P2 | Planned | API-001 | `20_BlazorWeb.md` | Planned |
+| WEB-001 | Create Blazor architecture specification | P2 | Ready | API-001 | `20_BlazorWeb.md` | Planned |
 | WEB-002 | Create Blazor Web project | P2 | Blocked | DEV-001, WEB-001 | `20_BlazorWeb.md` | NotStarted |
 | WEB-003 | Create home and project overview | P3 | Blocked | WEB-002 | `20_BlazorWeb.md` | NotStarted |
 | WEB-004 | Create psychrometric calculator page | P2 | Blocked | WEB-002, API-003 | `20_BlazorWeb.md` | NotStarted |
@@ -488,10 +488,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Output |
 |---|---|---|---|---|---|
 | OSS-001 | Finalize open-source license | P1 | Done | REP-003 | ADR and LICENSE |
-| OSS-002 | Create public project README | P1 | Planned | REP-002, DOC-002 | GitHub landing page |
+| OSS-002 | Create public project README | P1 | Done | REP-002, DOC-002 | GitHub landing page |
 | OSS-003 | Add architecture diagram assets | P2 | Planned | OSS-002 | `docs/Images/` |
 | OSS-004 | Create first-good-issue backlog | P3 | Planned | REP-010 | GitHub issues |
-| OSS-005 | Add release process | P2 | Planned | REP-012 | GitHub workflow |
+| OSS-005 | Add release process | P2 | Done | REP-012 | GitHub workflow |
 | DOCSITE-001 | Select MkDocs Material | P2 | Planned | DOC-006 | ADR |
 | DOCSITE-002 | Create `mkdocs.yml` | P2 | Blocked | DOCSITE-001, DOC-012 | Documentation site |
 | DOCSITE-003 | Add Mermaid support | P2 | Blocked | DOCSITE-002 | Diagram rendering |
@@ -663,10 +663,10 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. API-001+ — API specification and first endpoints
-2. OSS-002 / release polish — public README hardening, release workflow
+1. API-009 / remaining result endpoints (series, diagnostics, export)
+2. WEB-001 / WEB-002 — Blazor architecture and first pages
 3. Combined heat-recovery + recirculation (multi-tear engine)
-4. Web MVP after API contracts stabilize
+4. Calibration / validation datasets
 ```
 
 ---

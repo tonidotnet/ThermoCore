@@ -2,10 +2,10 @@
 ## 19_WebApi.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** ASP.NET Core Web API specification  
 **Applies To:** ThermoCore.Api  
-**Primary runtime:** .NET 8 or newer  
+**Primary runtime:** .NET 10 or newer  
 **Internal units:** SI
 
 ---

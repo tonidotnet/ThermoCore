@@ -1,6 +1,20 @@
-@ThermoCore.Api_HostAddress = http://localhost:5238
+@ThermoCore.Api_HostAddress = http://localhost:5080
 
-GET {{ThermoCore.Api_HostAddress}}/weatherforecast/
+GET {{ThermoCore.Api_HostAddress}}/api/v1/health
 Accept: application/json
 
 ###
+
+GET {{ThermoCore.Api_HostAddress}}/api/v1/models
+Accept: application/json
+
+###
+
+POST {{ThermoCore.Api_HostAddress}}/api/v1/psychrometrics/calculate
+Content-Type: application/json
+
+{
+  "temperatureC": 30.0,
+  "relativeHumidityPercent": 50.0,
+  "absolutePressurePa": 101325.0
+}

@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ThermoCore.sln
+
+      - name: Build
+        run: dotnet build ThermoCore.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ThermoCore.sln --configuration Release --no-build --verbosity normal
+
+      - name: Pack notes
+        run: |
+          echo "ThermoCore ${GITHUB_REF_NAME}" > release-notes.md
+          echo "" >> release-notes.md
+          echo "See CHANGELOG.md for details." >> release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

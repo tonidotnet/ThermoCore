@@ -1,6 +1,6 @@
 # ThermoCore
 
-Component-based thermodynamic simulation platform.
+Component-based thermodynamic simulation platform with an Atmospheric Water Generator (AWG) reference application.
 
 ## Structure
 
@@ -9,10 +9,11 @@ src/
   ThermoCore.Core      # physics, math, simulation engine
   ThermoCore.AWG       # atmospheric water generator reference app
   ThermoCore.Console   # CLI host
-  ThermoCore.Api       # ASP.NET Core API
+  ThermoCore.Api       # ASP.NET Core API (/api/v1)
   ThermoCore.Web       # Blazor UI
 tests/                 # xUnit test projects
 docs/                  # engineering documentation
+samples/               # configs, scenarios, result packages
 ai/                    # AI development workspace
 ```
 
@@ -20,17 +21,32 @@ ai/                    # AI development workspace
 
 - .NET SDK 10.0 or newer (see `global.json`)
 
-## Build
+## Quick start
 
 ```bash
 dotnet build ThermoCore.sln
 dotnet test ThermoCore.sln
-dotnet run --project src/ThermoCore.Console
+
+# Console AWG run + DOC-029 export
+dotnet run --project src/ThermoCore.Console -- run samples/awg-v3-mvp.json --duration 30 --dt 1 --export samples/results/awg-v3-mvp-smoke
+
+# Level-5 regression pack
+dotnet run --project src/ThermoCore.Console -- regress
+
+# HTTP API
+dotnet run --project src/ThermoCore.Api
+# GET  /api/v1/health
+# GET  /openapi/v1.json
+# POST /api/v1/psychrometrics/calculate
+# POST /api/v1/configurations/validate
+# POST /api/v1/simulations
 ```
 
 ## Documentation
 
 Start at `README_FIRST.md`, then `docs/00_Project/DOCUMENT_INVENTORY.md` and `docs/00_Project/IMPLEMENTATION_PROGRESS.md`.
+
+API contract: `docs/05_Product/19_WebApi.md`.
 
 ## License
 

@@ -1,4 +1,3 @@
-using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
 
 namespace ThermoCore.AWG.Topology;

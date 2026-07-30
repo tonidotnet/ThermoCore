@@ -21,9 +21,16 @@ public static class AwgSystemDefaults
             [AwgV3TopologyIds.SolarCollector] = AwgV3TopologyIds.ModelIds.DynamicLumpedCollector,
             [AwgV3TopologyIds.SilicaGelBed] = AwgV3TopologyIds.ModelIds.SilicaGelLdfLinear,
             [AwgV3TopologyIds.Condenser] = AwgV3TopologyIds.ModelIds.CondenserBypassFactor,
+            [AwgV3TopologyIds.WaterTank] = AwgV3TopologyIds.ModelIds.WaterTankInventory,
             [AwgV3TopologyIds.PvPanel] = AwgV3TopologyIds.ModelIds.ConstantEfficiencyPv,
             [AwgV3TopologyIds.PowerManager] = AwgV3TopologyIds.ModelIds.PowerManagerWithBattery
         };
+
+        if (enableRecirculation)
+        {
+            modelSelections[AwgV3TopologyIds.FreshAirMixer] = AwgV3TopologyIds.ModelIds.MoistAirMixer;
+            modelSelections[AwgV3TopologyIds.RecirculationSplitter] = AwgV3TopologyIds.ModelIds.MoistAirSplitter;
+        }
 
         return new AwgSystemConfiguration
         {
@@ -80,6 +87,11 @@ public static class AwgSystemDefaults
                 FallbackSurfaceTemperatureK = UnitConversions.CelsiusToKelvin(5.0),
                 FallbackAvailableCoolingPowerW = 200.0,
                 MaximumRetainedFilmKg = 0.01
+            },
+            WaterTank = new AwgWaterTankParameters
+            {
+                CapacityKg = 20.0,
+                InitialTemperatureK = ambientTemperatureK
             },
             Pv = new AwgPvParameters
             {

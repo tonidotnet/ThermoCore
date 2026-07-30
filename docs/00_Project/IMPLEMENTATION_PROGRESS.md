@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-AWG console run/summary, measurement points and actuator controllers are ready. Next: water-tank state, cyclic recirculation, and longer weather-driven runs.
+AWG water-tank inventory and cyclic recirculation are ready. Next: CSV/result export and longer weather-driven runs.
 ```
 
 ## Recommended next tasks
 
-1. `AWG-014` — Implement water-tank state
-2. `AWG-015` — Integrate cyclic recirculation solver
-3. `APP-005` / `DOC-029A` — CSV/result export formats
-4. `AWG-016` — First 24-hour weather-driven simulation (after weather doc)
-5. Repository/OSS readiness (license, CI)
+1. `APP-005` / `DOC-029A` — CSV/result export formats
+2. `DOC-028A` / `AWG-016` — Weather model and first 24-hour simulation
+3. Heat-recovery path enablement in V3 builder
+4. Repository/OSS readiness (license, CI)
+5. `AWG-017` / balance verification after first full dataset
 
 ---
 
@@ -118,7 +118,7 @@ AWG console run/summary, measurement points and actuator controllers are ready. 
 | Repository setup | 12 | 0 | 0 | 3 | 9 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 13 | 0 | 1 | 5 |
+| ThermoCore.AWG | 19 | 15 | 0 | 0 | 4 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -413,8 +413,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AWG-011 | Implement recirculation control | P1 | Done | AWG-008, HR-002, GEN-007, GEN-008 | `14_ControlSystem.md` | Passing |
 | AWG-012 | Implement battery protection | P1 | Done | AWG-008, PWR-005 | `14_ControlSystem.md` | Passing |
 | AWG-013 | Implement thermal safety rules | P1 | Done | AWG-008, SC-005, TEC-007 | `14_ControlSystem.md` | Passing |
-| AWG-014 | Implement water-tank state | P1 | Ready | CORE-012, COND-006 | `15_SystemTopology.md` | NotStarted |
-| AWG-015 | Integrate cyclic recirculation solver | P1 | Ready | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | NotStarted |
+| AWG-014 | Implement water-tank state | P1 | Done | CORE-012, COND-006 | `15_SystemTopology.md` | Passing |
+| AWG-015 | Integrate cyclic recirculation solver | P1 | Done | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | Passing |
 | AWG-016 | Run first 24-hour simulation | P1 | Blocked | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | NotStarted |
 | AWG-017 | Export first full result dataset | P1 | Blocked | AWG-016, DOC-029A | `29_ResultFormats.md` | NotStarted |
 | AWG-018 | Verify system water balance | P0 | Blocked | AWG-016 | `04_MathematicalModel.md` | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. AWG-014 — Implement water-tank state
-2. AWG-015 — Integrate cyclic recirculation solver
-3. APP-005 / DOC-029A — CSV/result export
-4. AWG-016 — 24-hour weather-driven simulation
-5. Repository/OSS readiness (license, CI)
+1. APP-005 / DOC-029A — CSV/result export formats
+2. DOC-028A / AWG-016 — Weather model and 24-hour simulation
+3. Heat-recovery path in V3 builder
+4. Repository/OSS readiness (license, CI)
+5. AWG-017/018/019 — Full result dataset and balance verification
 ```
 
 ---

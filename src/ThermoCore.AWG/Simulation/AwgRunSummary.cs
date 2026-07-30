@@ -1,8 +1,3 @@
-using ThermoCore.AWG.Topology;
-using ThermoCore.Core.Diagnostics;
-using ThermoCore.Core.Simulation;
-using ThermoCore.Core.Validation;
-
 namespace ThermoCore.AWG.Simulation;
 
 /// <summary>Human- and machine-readable summary of an AWG run (APP-004).</summary>
@@ -43,4 +38,8 @@ public sealed record AwgRunSummary
     public double? FinalBusPowerW { get; init; }
 
     public double? FinalCurtailedPowerW { get; init; }
+
+    public double? FinalWaterTankContentKg { get; init; }
+
+    public double? FinalWaterTankLevelFraction { get; init; }
 }

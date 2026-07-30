@@ -22,6 +22,8 @@ public sealed record AwgSystemConfiguration
 
     public required AwgCondenserParameters Condenser { get; init; }
 
+    public required AwgWaterTankParameters WaterTank { get; init; }
+
     public required AwgPvParameters Pv { get; init; }
 
     public required BatteryParameters Battery { get; init; }
@@ -40,6 +42,7 @@ public sealed record AwgSystemConfiguration
         ArgumentNullException.ThrowIfNull(SolarCollector);
         ArgumentNullException.ThrowIfNull(SilicaGel);
         ArgumentNullException.ThrowIfNull(Condenser);
+        ArgumentNullException.ThrowIfNull(WaterTank);
         ArgumentNullException.ThrowIfNull(Pv);
         ArgumentNullException.ThrowIfNull(Battery);
         ArgumentNullException.ThrowIfNull(ElectricalLoads);
@@ -50,6 +53,7 @@ public sealed record AwgSystemConfiguration
         SolarCollector.Validate();
         SilicaGel.Validate();
         Condenser.Validate();
+        WaterTank.Validate();
         Pv.Validate();
         Battery.Validate();
         foreach (var load in ElectricalLoads)

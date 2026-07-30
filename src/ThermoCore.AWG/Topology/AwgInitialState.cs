@@ -53,6 +53,13 @@ public sealed record AwgInitialState
                 "Initial battery energy exceeds nominal capacity.");
         }
 
+        if (WaterTankContentKg > configuration.WaterTank.CapacityKg)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(WaterTankContentKg),
+                "Initial water-tank content exceeds tank capacity.");
+        }
+
         if (RecirculationFraction is < 0.0 or > 1.0)
         {
             throw new ArgumentOutOfRangeException(nameof(RecirculationFraction));

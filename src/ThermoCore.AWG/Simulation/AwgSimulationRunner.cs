@@ -1,5 +1,4 @@
 using ThermoCore.AWG.Topology;
-using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Simulation;
 using ThermoCore.Core.Validation;
 
@@ -9,10 +8,14 @@ namespace ThermoCore.AWG.Simulation;
 public sealed class AwgSimulationRunner
 {
     private readonly IAwgSystemGraphBuilder _graphBuilder;
+    private readonly ISimulationEngine _engine;
 
-    public AwgSimulationRunner(IAwgSystemGraphBuilder? graphBuilder = null)
+    public AwgSimulationRunner(
+        IAwgSystemGraphBuilder? graphBuilder = null,
+        ISimulationEngine? engine = null)
     {
         _graphBuilder = graphBuilder ?? new AwgV3SystemGraphBuilder();
+        _engine = engine ?? new SimulationEngine();
     }
 
     public AwgSimulationRunResult Run(
@@ -27,13 +30,15 @@ public sealed class AwgSimulationRunner
         options.Validate();
 
         var built = _graphBuilder.Build(configuration, initialState);
-        var engineResult = new AcyclicSimulationEngine().Run(
+        var engineResult = _engine.Run(
             new SimulationRequest
             {
                 Graph = built.Graph,
                 StartTimeUtc = options.StartTimeUtc,
                 Duration = options.Duration,
-                TimeStep = options.TimeStep
+                TimeStep = options.TimeStep,
+                ExternalInputs = built.ExternalInputs,
+                Loops = built.Loops
             },
             cancellationToken);
 

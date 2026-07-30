@@ -41,6 +41,9 @@ public static class AwgV3TopologyIds
 
     public const string RecirculationSplitter = "recirculation-splitter";
 
+    public const string RecirculationTearConnectionId =
+        "recirculation-splitter.outlet_1->fresh-air-mixer.recirc_in";
+
     public static class ModelIds
     {
         public const string PrescribedFlowFan = "prescribed-flow-fan";
@@ -56,5 +59,11 @@ public static class AwgV3TopologyIds
         public const string ConstantEfficiencyPv = "constant-efficiency-pv";
 
         public const string PowerManagerWithBattery = "power-manager-with-battery";
+
+        public const string MoistAirMixer = "moist-air-mixer";
+
+        public const string MoistAirSplitter = "moist-air-splitter";
+
+        public const string WaterTankInventory = "water-tank-inventory";
     }
 }

@@ -47,16 +47,32 @@ public class AwgConfigurationAndGraphBuilderTests
     }
 
     [Fact]
-    public void Builder_RejectsRecirculationUntilCyclicIntegration()
+    public void Builder_BuildsRecirculationLoopWithTearDefinition()
     {
-        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableRecirculation: true);
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(
+            enableElectricalSubsystem: false,
+            enableRecirculation: true);
+        var initial = AwgSystemDefaults.CreateMvpInitialState(configuration);
+        var built = new AwgV3SystemGraphBuilder().Build(configuration, initial);
+
+        Assert.True(built.RequiresCyclicSolver);
+        Assert.Contains(built.Graph.Components, c => c.Id == AwgV3TopologyIds.FreshAirMixer);
+        Assert.Contains(built.Graph.Components, c => c.Id == AwgV3TopologyIds.RecirculationSplitter);
+        Assert.Contains(built.Loops, l => l.TearConnectionId == AwgV3TopologyIds.RecirculationTearConnectionId);
+        Assert.True(built.ExternalInputs.ContainsKey($"{AwgV3TopologyIds.FreshAirMixer}.recirc_in"));
+    }
+
+    [Fact]
+    public void Builder_StillRejectsHeatRecovery()
+    {
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableHeatRecovery: true);
 
         var ex = Assert.Throws<AwgConfigurationException>(() =>
             new AwgV3SystemGraphBuilder().Build(
                 configuration,
                 AwgSystemDefaults.CreateMvpInitialState(configuration)));
 
-        Assert.Contains(ex.Diagnostics, d => d.Code == "AWG.RECIRCULATION_UNSUPPORTED");
+        Assert.Contains(ex.Diagnostics, d => d.Code == "AWG.HEAT_RECOVERY_UNSUPPORTED");
     }
 
     [Fact]

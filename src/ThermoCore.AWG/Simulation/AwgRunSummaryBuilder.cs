@@ -1,5 +1,6 @@
 using ThermoCore.AWG.Measurement;
 using ThermoCore.AWG.Topology;
+using ThermoCore.Core.Components;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
 using ThermoCore.Core.Simulation;
@@ -50,6 +51,15 @@ public static class AwgRunSummaryBuilder
             }
         }
 
+        double? tankContent = null;
+        double? tankLevel = null;
+        if (built.Graph.Components.FirstOrDefault(c => c.Id == AwgV3TopologyIds.WaterTank)
+            is WaterTankComponent tank)
+        {
+            tankContent = tank.StoredMassKg;
+            tankLevel = tank.LevelFraction;
+        }
+
         return new AwgRunSummary
         {
             Succeeded = engineResult.Succeeded,
@@ -69,7 +79,9 @@ public static class AwgRunSummaryBuilder
             FinalMoistAirTemperaturesC = temperatures,
             FinalHumidityRatiosKgPerKg = humidity,
             FinalBusPowerW = busPower,
-            FinalCurtailedPowerW = curtailedPower
+            FinalCurtailedPowerW = curtailedPower,
+            FinalWaterTankContentKg = tankContent,
+            FinalWaterTankLevelFraction = tankLevel
         };
     }
 }

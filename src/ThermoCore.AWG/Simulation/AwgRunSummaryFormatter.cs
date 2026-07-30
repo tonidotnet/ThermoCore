@@ -1,10 +1,3 @@
-using ThermoCore.AWG.Measurement;
-using ThermoCore.AWG.Topology;
-using ThermoCore.Core.Diagnostics;
-using ThermoCore.Core.Graph;
-using ThermoCore.Core.Simulation;
-using ThermoCore.Core.Units;
-
 namespace ThermoCore.AWG.Simulation;
 
 /// <summary>Formats an <see cref="AwgRunSummary"/> for console output.</summary>
@@ -33,6 +26,15 @@ public static class AwgRunSummaryFormatter
         if (summary.FinalCurtailedPowerW is { } curtail)
         {
             lines.Add($"Curtailed power: {curtail:F2} W");
+        }
+
+        if (summary.FinalWaterTankContentKg is { } tankKg)
+        {
+            lines.Add(
+                $"Water tank: {tankKg:F4} kg" +
+                (summary.FinalWaterTankLevelFraction is { } level
+                    ? $" ({level:P1} full)"
+                    : string.Empty));
         }
 
         if (summary.FinalMoistAirTemperaturesC.Count > 0)

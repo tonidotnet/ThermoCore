@@ -15,6 +15,7 @@
         "solar-collector": "dynamic-lumped-collector",
         "silica-gel-bed": "silica-gel-ldf-linear",
         "condenser": "condenser-bypass-factor",
+        "water-tank": "water-tank-inventory",
         "pv-panel": "constant-efficiency-pv",
         "power-manager": "power-manager-with-battery"
       }
@@ -75,6 +76,10 @@
       "fallbackAvailableCoolingPowerW": 200,
       "maximumRetainedFilmKg": 0.01,
       "filmCarryoverFraction": 0
+    },
+    "waterTank": {
+      "capacityKg": 20,
+      "initialTemperatureK": 298.15
     },
     "pv": {
       "efficiencyFraction": 0.18,

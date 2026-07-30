@@ -24,3 +24,4 @@ Guide AI coding assistants when implementing ThermoCore.
 - Mutable global state
 - Hidden unit conversions
 - Ignoring conservation laws
+- Multiple top-level types in one `.cs` file

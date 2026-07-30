@@ -2,26 +2,6 @@ using ThermoCore.Core.Diagnostics;
 
 namespace ThermoCore.Core.Graph;
 
-public sealed class SimulationGraphException : Exception
-{
-    public SimulationGraphException(string message)
-        : base(message)
-    {
-    }
-
-    public SimulationGraphException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
-}
-
-public sealed record GraphValidationResult
-{
-    public required bool IsValid { get; init; }
-
-    public required IReadOnlyList<SimulationDiagnostic> Diagnostics { get; init; }
-}
-
 public sealed class SimulationGraph
 {
     private readonly Dictionary<string, ISimulationComponent> _components;

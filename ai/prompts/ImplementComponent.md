@@ -17,6 +17,7 @@ Specification: `{DOC_PATH}`
 
 ## Requirements
 - Implement `ISimulationComponent` (`Initialize`, `Evaluate`, `Commit`, ports, diagnostics).
+- One top-level type per file; file name matches the type name.
 - Use SI units only inside Core.
 - Return `ConservationBalance` for the timestep.
 - Reject NaN/Infinity via existing validation helpers.

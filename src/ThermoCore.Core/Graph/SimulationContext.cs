@@ -14,13 +14,3 @@ public sealed record SimulationContext
 
     public NumericalTolerances NumericalTolerances { get; init; } = NumericalTolerances.Default;
 }
-
-public sealed record ComponentStepContext
-{
-    public required SimulationContext Simulation { get; init; }
-
-    public int SolverIteration { get; init; }
-
-    public IReadOnlyDictionary<string, object?> InputStates { get; init; }
-        = new Dictionary<string, object?>(StringComparer.Ordinal);
-}

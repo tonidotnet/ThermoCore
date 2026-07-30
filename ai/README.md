@@ -10,5 +10,6 @@ Load files in this order:
 6. relevant engineering documents
 7. JSON graphs
 8. `AI_PROMPT_LIBRARY.md` when selecting a reusable prompt or template
+9. `AI_DEVELOPMENT_GUIDE.md` for contribution rules (including one type per file)
 
 Files marked as `Planned` or `Local replacement required` must not be used as authoritative implementation specifications.

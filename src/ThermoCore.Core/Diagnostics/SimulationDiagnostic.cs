@@ -1,13 +1,5 @@
 namespace ThermoCore.Core.Diagnostics;
 
-public enum DiagnosticSeverity
-{
-    Information,
-    Warning,
-    Error,
-    Critical
-}
-
 /// <summary>
 /// Structured simulation diagnostic (docs/07_ProjectManagement/18_CodingRules.md §21).
 /// </summary>

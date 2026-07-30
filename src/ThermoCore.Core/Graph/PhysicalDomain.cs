@@ -12,10 +12,3 @@ public enum PhysicalDomain
     MechanicalFlow,
     ControlSignal
 }
-
-public enum PortDirection
-{
-    Input,
-    Output,
-    Bidirectional
-}

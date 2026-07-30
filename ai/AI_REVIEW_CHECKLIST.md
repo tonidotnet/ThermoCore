@@ -5,6 +5,7 @@ Before submitting code verify:
 - [ ] Correct architecture layer
 - [ ] SI units
 - [ ] Immutable records where possible
+- [ ] One top-level type per source file
 - [ ] No duplicated physics
 - [ ] Mass balance closes
 - [ ] Energy balance closes

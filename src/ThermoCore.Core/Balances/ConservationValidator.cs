@@ -4,59 +4,6 @@ using ThermoCore.Core.Validation;
 
 namespace ThermoCore.Core.Balances;
 
-public sealed record BalanceTolerance
-{
-    public double AbsoluteDryAirMassKg { get; init; } = 1e-9;
-
-    public double AbsoluteWaterMassKg { get; init; } = 1e-9;
-
-    public double AbsoluteEnergyJ { get; init; } = 1e-5;
-
-    public double AbsoluteElectricalEnergyJ { get; init; } = 1e-5;
-
-    public double Relative { get; init; } = 1e-7;
-
-    public double MinimumScale { get; init; } = 1e-12;
-
-    public static BalanceTolerance Default { get; } = new();
-
-    public static BalanceTolerance FromNumericalTolerances(NumericalTolerances tolerances)
-    {
-        ArgumentNullException.ThrowIfNull(tolerances);
-        tolerances.Validate();
-
-        return new BalanceTolerance
-        {
-            AbsoluteDryAirMassKg = tolerances.MassKg,
-            AbsoluteWaterMassKg = tolerances.MassKg,
-            AbsoluteEnergyJ = tolerances.EnergyJ,
-            AbsoluteElectricalEnergyJ = tolerances.EnergyJ,
-            Relative = tolerances.Relative,
-            MinimumScale = 1e-12
-        };
-    }
-}
-
-public sealed record BalanceValidationResult
-{
-    public required bool IsValid { get; init; }
-
-    public required double RelativeDryAirMassResidual { get; init; }
-
-    public required double RelativeWaterMassResidual { get; init; }
-
-    public required double RelativeEnergyResidual { get; init; }
-
-    public required double RelativeElectricalEnergyResidual { get; init; }
-
-    public required IReadOnlyList<SimulationDiagnostic> Diagnostics { get; init; }
-}
-
-public interface IConservationValidator
-{
-    BalanceValidationResult Validate(ConservationBalance balance, BalanceTolerance? tolerance = null);
-}
-
 public sealed class ConservationValidator : IConservationValidator
 {
     public BalanceValidationResult Validate(ConservationBalance balance, BalanceTolerance? tolerance = null)

@@ -1,0 +1,36 @@
+using ThermoCore.AWG.Topology;
+using ThermoCore.Core.Diagnostics;
+using ThermoCore.Core.Simulation;
+using ThermoCore.Core.Validation;
+
+namespace ThermoCore.AWG.Simulation;
+
+/// <summary>Timing and execution options for an AWG simulation run (APP-003).</summary>
+public sealed record AwgSimulationOptions
+{
+    public required DateTimeOffset StartTimeUtc { get; init; }
+
+    public required TimeSpan Duration { get; init; }
+
+    public required TimeSpan TimeStep { get; init; }
+
+    public AwgSimulationOptions Validate()
+    {
+        FiniteNumber.RequirePositive(Duration.TotalSeconds, nameof(Duration));
+        FiniteNumber.RequirePositive(TimeStep.TotalSeconds, nameof(TimeStep));
+        if (TimeStep > Duration)
+        {
+            throw new ArgumentException("Time step cannot exceed duration.", nameof(TimeStep));
+        }
+
+        return this;
+    }
+
+    public static AwgSimulationOptions CreateDefault(TimeSpan? duration = null, TimeSpan? timeStep = null)
+        => new AwgSimulationOptions
+        {
+            StartTimeUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            Duration = duration ?? TimeSpan.FromSeconds(60),
+            TimeStep = timeStep ?? TimeSpan.FromSeconds(1)
+        }.Validate();
+}

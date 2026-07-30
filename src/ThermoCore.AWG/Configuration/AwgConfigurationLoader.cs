@@ -4,14 +4,6 @@ using ThermoCore.AWG.Topology;
 
 namespace ThermoCore.AWG.Configuration;
 
-/// <summary>Root JSON document for AWG configuration loading (APP-002).</summary>
-public sealed record AwgConfigurationDocument
-{
-    public required AwgSystemConfiguration System { get; init; }
-
-    public required AwgInitialState InitialState { get; init; }
-}
-
 /// <summary>Loads and saves AWG configuration documents from JSON.</summary>
 public static class AwgConfigurationLoader
 {

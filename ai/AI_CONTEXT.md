@@ -242,6 +242,7 @@ Stop and request clarification instead of guessing.
 - PROMPT_GUIDE.md
 - IMPLEMENTATION_PLAYBOOK.md
 - AI_REVIEW_CHECKLIST.md
+- AI_DEVELOPMENT_GUIDE.md
 
 ---
 

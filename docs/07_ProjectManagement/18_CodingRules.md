@@ -1291,6 +1291,8 @@ Do not manually align code with spaces in ways the formatter will undo.
 
 Use file-scoped namespaces where consistent.
 
+**One top-level type per file:** each `.cs` file shall contain exactly one top-level `class`, `interface`, `record`, `enum`, or `struct`. The file name shall match the type name. Nested private helpers inside the owning type are allowed. See `ai/AI_DEVELOPMENT_GUIDE.md`.
+
 Use braces for all control blocks.
 
 Preferred:

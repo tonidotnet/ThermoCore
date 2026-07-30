@@ -7,12 +7,6 @@ using ThermoCore.Core.Validation;
 
 namespace ThermoCore.Core.Components;
 
-public enum HeatRecoveryModelType
-{
-    PrescribedEffectiveness,
-    CounterFlowNtu
-}
-
 /// <summary>
 /// Two-stream sensible heat recovery with prescribed effectiveness or counter-flow ε–NTU
 /// (docs/03_Components/11_HeatRecovery.md §4–§7, HR-002/HR-003).

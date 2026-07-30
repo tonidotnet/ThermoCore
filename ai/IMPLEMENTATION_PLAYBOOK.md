@@ -12,6 +12,7 @@
 
 ## For each component
 - Read dependency documents
+- One top-level type per file (see `AI_DEVELOPMENT_GUIDE.md`)
 - Implement interfaces
 - Add unit tests
 - Add integration tests

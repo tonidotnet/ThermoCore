@@ -527,7 +527,7 @@ public sealed class RuleBasedAwgController : IAwgController
             0.0,
             parameters.MaximumRecirculationFraction);
 
-        return new AwgControlRequest
+        var baseRequest = new AwgControlRequest
         {
             RequestedMode = mode,
             FanControlFraction = fan,
@@ -539,6 +539,17 @@ public sealed class RuleBasedAwgController : IAwgController
             CondenserEnabled = condenserEnabled,
             ReasonCode = reasonCode,
             ActiveFaultCode = faultCode
+        };
+
+        // Refine actuator setpoints through dedicated controllers (AWG-009/010/011).
+        return baseRequest with
+        {
+            FanControlFraction = AwgFanController.ResolveControlFraction(
+                baseRequest, observation, parameters),
+            PeltierPowerRequestW = AwgPeltierController.ResolvePowerRequestW(
+                baseRequest, observation, parameters),
+            RecirculationFraction = AwgRecirculationController.ResolveRecirculationFraction(
+                baseRequest, observation, parameters)
         };
     }
 

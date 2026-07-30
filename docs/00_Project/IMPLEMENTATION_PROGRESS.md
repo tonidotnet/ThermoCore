@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-AWG rule-based operating-mode controller is ready. Next: console run/summary (APP-003/004) and remaining actuator control wiring (AWG-009 to AWG-011).
+AWG console run/summary, measurement points and actuator controllers are ready. Next: water-tank state, cyclic recirculation, and longer weather-driven runs.
 ```
 
 ## Recommended next tasks
 
-1. `APP-003` / `APP-004` — Run simulation from loaded config and print summary
-2. `AWG-009` / `AWG-010` — Fan and Peltier control wiring to graph actuators
-3. `AWG-011` — Recirculation control (after heat-recovery/mixer path)
-4. `AWG-007` — Sensor and measurement points
-5. `AWG-015` — Cyclic recirculation solver integration
+1. `AWG-014` — Implement water-tank state
+2. `AWG-015` — Integrate cyclic recirculation solver
+3. `APP-005` / `DOC-029A` — CSV/result export formats
+4. `AWG-016` — First 24-hour weather-driven simulation (after weather doc)
+5. Repository/OSS readiness (license, CI)
 
 ---
 
@@ -118,7 +118,7 @@ AWG rule-based operating-mode controller is ready. Next: console run/summary (AP
 | Repository setup | 12 | 0 | 0 | 3 | 9 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 9 | 0 | 3 | 7 |
+| ThermoCore.AWG | 19 | 13 | 0 | 1 | 5 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -406,15 +406,15 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AWG-004 | Implement V3 airflow graph builder | P1 | Done | AWG-003, GRAPH-008, AIR-002 | `15_SystemTopology.md` | Passing |
 | AWG-005 | Implement electrical graph | P1 | Done | AWG-003, PWR-002, PV-001 | `15_SystemTopology.md` | Passing |
 | AWG-006 | Implement water-flow graph | P1 | Done | AWG-003, COND-006 | `15_SystemTopology.md` | Passing |
-| AWG-007 | Implement sensor and measurement points | P2 | Ready | AWG-003 | `15_SystemTopology.md` | NotStarted |
+| AWG-007 | Implement sensor and measurement points | P2 | Done | AWG-003 | `15_SystemTopology.md` | Passing |
 | AWG-008 | Implement operating-mode state machine | P1 | Done | AWG-001, AWG-003 | `14_ControlSystem.md` | Passing |
-| AWG-009 | Implement fan control | P1 | Ready | AWG-008, AIR-002 | `14_ControlSystem.md` | NotStarted |
-| AWG-010 | Implement Peltier control | P1 | Ready | AWG-008, TEC-003 | `14_ControlSystem.md` | NotStarted |
-| AWG-011 | Implement recirculation control | P1 | Ready | AWG-008, HR-002, GEN-007, GEN-008 | `14_ControlSystem.md` | NotStarted |
+| AWG-009 | Implement fan control | P1 | Done | AWG-008, AIR-002 | `14_ControlSystem.md` | Passing |
+| AWG-010 | Implement Peltier control | P1 | Done | AWG-008, TEC-003 | `14_ControlSystem.md` | Passing |
+| AWG-011 | Implement recirculation control | P1 | Done | AWG-008, HR-002, GEN-007, GEN-008 | `14_ControlSystem.md` | Passing |
 | AWG-012 | Implement battery protection | P1 | Done | AWG-008, PWR-005 | `14_ControlSystem.md` | Passing |
 | AWG-013 | Implement thermal safety rules | P1 | Done | AWG-008, SC-005, TEC-007 | `14_ControlSystem.md` | Passing |
-| AWG-014 | Implement water-tank state | P1 | Blocked | CORE-012, COND-006 | `15_SystemTopology.md` | NotStarted |
-| AWG-015 | Integrate cyclic recirculation solver | P1 | Blocked | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | NotStarted |
+| AWG-014 | Implement water-tank state | P1 | Ready | CORE-012, COND-006 | `15_SystemTopology.md` | NotStarted |
+| AWG-015 | Integrate cyclic recirculation solver | P1 | Ready | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | NotStarted |
 | AWG-016 | Run first 24-hour simulation | P1 | Blocked | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | NotStarted |
 | AWG-017 | Export first full result dataset | P1 | Blocked | AWG-016, DOC-029A | `29_ResultFormats.md` | NotStarted |
 | AWG-018 | Verify system water balance | P0 | Blocked | AWG-016 | `04_MathematicalModel.md` | NotStarted |
@@ -430,8 +430,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|
 | APP-001 | Create console host | P1 | Done | DEV-001 | Passing |
 | APP-002 | Load JSON configuration | P1 | Done | APP-001, AWG-003 | Passing |
-| APP-003 | Run simulation | P1 | Ready | APP-002, GRAPH-008 | NotStarted |
-| APP-004 | Print summary | P1 | Blocked | APP-003 | NotStarted |
+| APP-003 | Run simulation | P1 | Done | APP-002, GRAPH-008 | Passing |
+| APP-004 | Print summary | P1 | Done | APP-003 | Passing |
 | APP-005 | Export CSV | P1 | Blocked | APP-003, DOC-029A | NotStarted |
 | APP-006 | Add regression scenarios | P1 | Blocked | APP-003, DOC-022 | NotStarted |
 
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. APP-003 / APP-004 — Run simulation from config and print summary
-2. AWG-009 / AWG-010 — Fan and Peltier control wiring
-3. AWG-007 — Sensor and measurement points
-4. AWG-011 / AWG-015 — Recirculation control + cyclic solver
-5. Remaining DOC/OSS readiness items
+1. AWG-014 — Implement water-tank state
+2. AWG-015 — Integrate cyclic recirculation solver
+3. APP-005 / DOC-029A — CSV/result export
+4. AWG-016 — 24-hour weather-driven simulation
+5. Repository/OSS readiness (license, CI)
 ```
 
 ---

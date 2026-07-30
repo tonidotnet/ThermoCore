@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.Text.Json;
 using ThermoCore.AWG.Configuration;
+using ThermoCore.AWG.Simulation;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Components;
+using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
 using ThermoCore.Core.Physics;
 using ThermoCore.Core.Psychrometrics;
@@ -11,7 +14,7 @@ using ThermoCore.Core.Units;
 namespace ThermoCore.Console;
 
 /// <summary>
-/// Minimal console host for Core smoke demos and AWG configuration loading.
+/// Console host for Core demos and AWG configuration / simulation commands.
 /// </summary>
 internal static class DemoHost
 {
@@ -38,6 +41,11 @@ internal static class DemoHost
             return LoadAndBuildConfiguration(args[1]);
         }
 
+        if (args.Length >= 2 && args[0] is "run" or "--run")
+        {
+            return RunAwgSimulation(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -60,15 +68,91 @@ internal static class DemoHost
             Usage:
               dotnet run --project src/ThermoCore.Console -- demo
               dotnet run --project src/ThermoCore.Console -- config <path.json>
+              dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
             Commands:
               demo                      Run a Core moist-air heater chain smoke simulation
               config <path>             Load AWG JSON configuration and build the V3 graph
+              run <path>                Run an AWG simulation and print a summary (APP-003/004)
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
             """);
+    }
+
+    private static int RunAwgSimulation(string[] args)
+    {
+        try
+        {
+            var path = args[1];
+            var durationSeconds = 60.0;
+            var timeStepSeconds = 1.0;
+
+            for (var i = 2; i < args.Length; i++)
+            {
+                if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown run option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var document = AwgConfigurationLoader.LoadFromFile(path);
+            var options = AwgSimulationOptions.CreateDefault(
+                TimeSpan.FromSeconds(durationSeconds),
+                TimeSpan.FromSeconds(timeStepSeconds));
+            var run = new AwgSimulationRunner().Run(document.System, document.InitialState, options);
+
+            System.Console.WriteLine(AwgRunSummaryFormatter.Format(run.Summary));
+
+            if (!run.EngineResult.Succeeded)
+            {
+                foreach (var diagnostic in run.EngineResult.Diagnostics
+                             .Where(d => d.Severity is DiagnosticSeverity.Error or DiagnosticSeverity.Critical)
+                             .Take(20))
+                {
+                    System.Console.Error.WriteLine($"  [{diagnostic.Severity}] {diagnostic.Code}: {diagnostic.Message}");
+                }
+
+                return ExitSimulationFailed;
+            }
+
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (ex is AwgConfigurationException or JsonException or FileNotFoundException or ArgumentException)
+        {
+            System.Console.Error.WriteLine($"Configuration/simulation error: {ex.Message}");
+            if (ex is AwgConfigurationException awg)
+            {
+                foreach (var diagnostic in awg.Diagnostics)
+                {
+                    System.Console.Error.WriteLine($"  [{diagnostic.Severity}] {diagnostic.Code}: {diagnostic.Message}");
+                }
+            }
+
+            return ExitConfigurationFailed;
+        }
     }
 
     private static int LoadAndBuildConfiguration(string path)
@@ -84,27 +168,7 @@ internal static class DemoHost
             System.Console.WriteLine($"Connections: {built.Graph.Connections.Count}");
             System.Console.WriteLine($"Electrical: {built.Metadata.EnableElectricalSubsystem}");
             System.Console.WriteLine($"Fingerprint: {built.Metadata.GraphFingerprint}");
-
-            var result = new AcyclicSimulationEngine().Run(new SimulationRequest
-            {
-                Graph = built.Graph,
-                StartTimeUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
-                Duration = TimeSpan.FromSeconds(1),
-                TimeStep = TimeSpan.FromSeconds(1)
-            });
-
-            if (!result.Succeeded)
-            {
-                System.Console.Error.WriteLine("Configuration graph simulation failed.");
-                foreach (var diagnostic in result.Diagnostics)
-                {
-                    System.Console.Error.WriteLine($"  [{diagnostic.Severity}] {diagnostic.Code}: {diagnostic.Message}");
-                }
-
-                return ExitSimulationFailed;
-            }
-
-            System.Console.WriteLine("Smoke simulation succeeded.");
+            System.Console.WriteLine("Tip: use 'run <path.json>' for a timed simulation with summary.");
             return ExitSuccess;
         }
         catch (Exception ex) when (ex is AwgConfigurationException or JsonException or FileNotFoundException or ArgumentException)

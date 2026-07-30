@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-AWG water-tank inventory and cyclic recirculation are ready. Next: CSV/result export and longer weather-driven runs.
+CSV export, weather-driven 24h AWG runs, and heat-recovery topology are in place. Next: full result dataset export and balance verification, then repo/OSS readiness.
 ```
 
 ## Recommended next tasks
 
-1. `APP-005` / `DOC-029A` — CSV/result export formats
-2. `DOC-028A` / `AWG-016` — Weather model and first 24-hour simulation
-3. Heat-recovery path enablement in V3 builder
-4. Repository/OSS readiness (license, CI)
-5. `AWG-017` / balance verification after first full dataset
+1. `AWG-017` — Export first full result dataset
+2. `AWG-018` / `AWG-019` — Verify system water and energy balances
+3. Repository/OSS readiness (license, CI)
+4. `APP-006` — Regression scenarios
+5. PV rear-air channel / combined HR+recirculation (deferred MVP limits)
 
 ---
 
@@ -113,12 +113,12 @@ AWG water-tank inventory and cyclic recirculation are ready. Next: CSV/result ex
 
 | Area | Total | Done | In progress | Ready | Blocked/Planned |
 |---|---:|---:|---:|---:|---:|
-| Documentation foundations | 12 | 6 | 0 | 4 | 2 |
+| Documentation foundations | 12 | 8 | 0 | 4 | 0 |
 | AI workspace | 10 | 10 | 0 | 0 | 0 |
 | Repository setup | 12 | 0 | 0 | 3 | 9 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 15 | 0 | 0 | 4 |
+| ThermoCore.AWG | 19 | 16 | 0 | 0 | 3 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -174,8 +174,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-025 | `25_NumericalMethods.md` | P0 | Ready | Missing | Yes | Highest-priority next document |
 | DOC-026 | `26_Constants.md` | P0 | Ready | Missing | Yes | Required before physics coding |
 | DOC-027 | `27_Units.md` | P0 | Ready | Missing | Yes | Required before API and Core types |
-| DOC-028A | `28_WeatherModel.md` | P2 | Planned | Missing | Before 24-hour simulation | Later |
-| DOC-029A | `29_ResultFormats.md` | P2 | Planned | Missing | Before API/export | Later |
+| DOC-028A | `28_WeatherModel.md` | P2 | Done | Implemented | Yes | Weather providers + AWG wiring |
+| DOC-029A | `29_ResultFormats.md` | P2 | Done | Implemented | Yes | CSV export (APP-005) |
 | DOC-030A | `30_Deployment.md` | P3 | Planned | Missing | Before public deployment | Later |
 
 ---
@@ -415,10 +415,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | AWG-013 | Implement thermal safety rules | P1 | Done | AWG-008, SC-005, TEC-007 | `14_ControlSystem.md` | Passing |
 | AWG-014 | Implement water-tank state | P1 | Done | CORE-012, COND-006 | `15_SystemTopology.md` | Passing |
 | AWG-015 | Integrate cyclic recirculation solver | P1 | Done | GRAPH-014, AWG-011 | `16_SimulationEngine.md` | Passing |
-| AWG-016 | Run first 24-hour simulation | P1 | Blocked | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | NotStarted |
-| AWG-017 | Export first full result dataset | P1 | Blocked | AWG-016, DOC-029A | `29_ResultFormats.md` | NotStarted |
-| AWG-018 | Verify system water balance | P0 | Blocked | AWG-016 | `04_MathematicalModel.md` | NotStarted |
-| AWG-019 | Verify system energy balance | P0 | Blocked | AWG-016 | `04_MathematicalModel.md` | NotStarted |
+| AWG-016 | Run first 24-hour simulation | P1 | Done | AWG-004 to AWG-015, DOC-028A | `28_WeatherModel.md` | Passing |
+| AWG-017 | Export first full result dataset | P1 | Ready | AWG-016, DOC-029A | `29_ResultFormats.md` | NotStarted |
+| AWG-018 | Verify system water balance | P0 | Ready | AWG-016 | `04_MathematicalModel.md` | NotStarted |
+| AWG-019 | Verify system energy balance | P0 | Ready | AWG-016 | `04_MathematicalModel.md` | NotStarted |
 
 ---
 
@@ -432,7 +432,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | APP-002 | Load JSON configuration | P1 | Done | APP-001, AWG-003 | Passing |
 | APP-003 | Run simulation | P1 | Done | APP-002, GRAPH-008 | Passing |
 | APP-004 | Print summary | P1 | Done | APP-003 | Passing |
-| APP-005 | Export CSV | P1 | Blocked | APP-003, DOC-029A | NotStarted |
+| APP-005 | Export CSV | P1 | Done | APP-003, DOC-029A | Passing |
 | APP-006 | Add regression scenarios | P1 | Blocked | APP-003, DOC-022 | NotStarted |
 
 ## 18.2 API
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. APP-005 / DOC-029A — CSV/result export formats
-2. DOC-028A / AWG-016 — Weather model and 24-hour simulation
-3. Heat-recovery path in V3 builder
-4. Repository/OSS readiness (license, CI)
-5. AWG-017/018/019 — Full result dataset and balance verification
+1. AWG-017 — Export first full result dataset
+2. AWG-018 / AWG-019 — Verify system water and energy balances
+3. Repository/OSS readiness (license, CI)
+4. APP-006 — Regression scenarios
+5. PV rear-air / combined heat-recovery+recirculation (MVP currently exclusive)
 ```
 
 ---

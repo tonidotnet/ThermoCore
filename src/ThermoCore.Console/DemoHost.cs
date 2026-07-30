@@ -68,7 +68,7 @@ internal static class DemoHost
             Usage:
               dotnet run --project src/ThermoCore.Console -- demo
               dotnet run --project src/ThermoCore.Console -- config <path.json>
-              dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1]
+              dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -78,6 +78,11 @@ internal static class DemoHost
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
+
+            Run options:
+              --duration / -d <sec>     Simulation duration in seconds (default 60)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
+              --export <dir>            Write DOC-029 CSV result bundle to directory (APP-005)
             """);
     }
 
@@ -88,6 +93,7 @@ internal static class DemoHost
             var path = args[1];
             var durationSeconds = 60.0;
             var timeStepSeconds = 1.0;
+            string? exportDirectory = null;
 
             for (var i = 2; i < args.Length; i++)
             {
@@ -111,6 +117,16 @@ internal static class DemoHost
                         return ExitUsageError;
                     }
                 }
+                else if (args[i] is "--export")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --export directory.");
+                        return ExitUsageError;
+                    }
+
+                    exportDirectory = args[i];
+                }
                 else
                 {
                     System.Console.Error.WriteLine($"Unknown run option: {args[i]}");
@@ -125,6 +141,12 @@ internal static class DemoHost
             var run = new AwgSimulationRunner().Run(document.System, document.InitialState, options);
 
             System.Console.WriteLine(AwgRunSummaryFormatter.Format(run.Summary));
+
+            if (exportDirectory is not null)
+            {
+                AwgResultExporter.ExportCsv(run, exportDirectory);
+                System.Console.WriteLine($"Exported CSV results to: {exportDirectory}");
+            }
 
             if (!run.EngineResult.Succeeded)
             {

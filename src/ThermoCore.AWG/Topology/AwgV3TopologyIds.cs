@@ -44,6 +44,9 @@ public static class AwgV3TopologyIds
     public const string RecirculationTearConnectionId =
         "recirculation-splitter.outlet_1->fresh-air-mixer.recirc_in";
 
+    public const string HeatRecoveryTearConnectionId =
+        "condenser.outlet->heat-recovery.hot_in";
+
     public static class ModelIds
     {
         public const string PrescribedFlowFan = "prescribed-flow-fan";
@@ -65,5 +68,7 @@ public static class AwgV3TopologyIds
         public const string MoistAirSplitter = "moist-air-splitter";
 
         public const string WaterTankInventory = "water-tank-inventory";
+
+        public const string SensibleHeatRecoveryPrescribed = "sensible-heat-recovery-prescribed";
     }
 }

@@ -24,6 +24,8 @@ public sealed record AwgSystemConfiguration
 
     public required AwgWaterTankParameters WaterTank { get; init; }
 
+    public AwgHeatRecoveryParameters HeatRecovery { get; init; } = new();
+
     public required AwgPvParameters Pv { get; init; }
 
     public required BatteryParameters Battery { get; init; }
@@ -54,11 +56,19 @@ public sealed record AwgSystemConfiguration
         SilicaGel.Validate();
         Condenser.Validate();
         WaterTank.Validate();
+        HeatRecovery.Validate();
         Pv.Validate();
         Battery.Validate();
         foreach (var load in ElectricalLoads)
         {
             load.Validate();
+        }
+
+        if (Topology.EnableHeatRecovery && Topology.EnableRecirculation)
+        {
+            throw new ArgumentException(
+                "MVP builder supports heat recovery or recirculation, but not both simultaneously.",
+                nameof(Topology));
         }
 
         if (Topology.EnableElectricalSubsystem && ElectricalLoads.Count == 0)

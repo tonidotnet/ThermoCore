@@ -63,16 +63,46 @@ public class AwgConfigurationAndGraphBuilderTests
     }
 
     [Fact]
-    public void Builder_StillRejectsHeatRecovery()
+    public void Builder_BuildsHeatRecoveryLoopWithTearDefinition()
     {
-        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableHeatRecovery: true);
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(
+            enableElectricalSubsystem: false,
+            enableHeatRecovery: true);
+        var initial = AwgSystemDefaults.CreateMvpInitialState(configuration);
+        var built = new AwgV3SystemGraphBuilder().Build(configuration, initial);
 
-        var ex = Assert.Throws<AwgConfigurationException>(() =>
-            new AwgV3SystemGraphBuilder().Build(
-                configuration,
-                AwgSystemDefaults.CreateMvpInitialState(configuration)));
+        Assert.True(built.RequiresCyclicSolver);
+        Assert.Contains(built.Graph.Components, c => c.Id == AwgV3TopologyIds.HeatRecovery);
+        Assert.Contains(built.Loops, l => l.TearConnectionId == AwgV3TopologyIds.HeatRecoveryTearConnectionId);
+        Assert.True(built.ExternalInputs.ContainsKey($"{AwgV3TopologyIds.HeatRecovery}.hot_in"));
+        Assert.Contains(
+            built.Graph.Connections,
+            c => c.SourceComponentId == AwgV3TopologyIds.HeatRecovery && c.TargetPortId == "inlet");
+    }
 
-        Assert.Contains(ex.Diagnostics, d => d.Code == "AWG.HEAT_RECOVERY_UNSUPPORTED");
+    [Fact]
+    public void Builder_RejectsHeatRecoveryWithRecirculation()
+    {
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableElectricalSubsystem: false);
+        configuration = configuration with
+        {
+            Topology = configuration.Topology with
+            {
+                EnableHeatRecovery = true,
+                EnableRecirculation = true,
+                InitialRecirculationFraction = 0.2,
+                ComponentModelSelections = new Dictionary<string, string>(
+                    configuration.Topology.ComponentModelSelections,
+                    StringComparer.Ordinal)
+                {
+                    [AwgV3TopologyIds.HeatRecovery] = AwgV3TopologyIds.ModelIds.SensibleHeatRecoveryPrescribed,
+                    [AwgV3TopologyIds.FreshAirMixer] = AwgV3TopologyIds.ModelIds.MoistAirMixer,
+                    [AwgV3TopologyIds.RecirculationSplitter] = AwgV3TopologyIds.ModelIds.MoistAirSplitter
+                }
+            }
+        };
+
+        Assert.Throws<ArgumentException>(() => configuration.Validate());
     }
 
     [Fact]

@@ -4,6 +4,7 @@ using ThermoCore.Core.Components;
 using ThermoCore.Core.Components.Adsorption;
 using ThermoCore.Core.Components.Power;
 using ThermoCore.Core.Diagnostics;
+using ThermoCore.Core.Environment;
 using ThermoCore.Core.Graph;
 using ThermoCore.Core.Psychrometrics;
 using ThermoCore.Core.Simulation;
@@ -12,7 +13,7 @@ namespace ThermoCore.AWG.Topology;
 
 /// <summary>
 /// Builds the AWG V3 MVP moist-air, liquid-water and optional electrical graphs
-/// (docs/04_Simulation/15_SystemTopology.md). Supports acyclic and recirculation paths.
+/// (docs/04_Simulation/15_SystemTopology.md). Supports acyclic, recirculation, and heat-recovery paths.
 /// </summary>
 public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
 {
@@ -23,7 +24,10 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         _calculator = calculator ?? new PsychrometricCalculator();
     }
 
-    public AwgBuiltSystem Build(AwgSystemConfiguration configuration, AwgInitialState initialState)
+    public AwgBuiltSystem Build(
+        AwgSystemConfiguration configuration,
+        AwgInitialState initialState,
+        IWeatherProvider? weatherProvider = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(initialState);
@@ -47,6 +51,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         BuildAirflowAndWater(
             configuration,
             initialState,
+            weatherProvider,
             components,
             connections,
             loops,
@@ -54,7 +59,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
 
         if (configuration.Topology.EnableElectricalSubsystem)
         {
-            BuildElectrical(configuration, initialState, components, connections);
+            BuildElectrical(configuration, initialState, weatherProvider, components, connections);
         }
 
         var graph = new SimulationGraph(components, connections);
@@ -93,11 +98,11 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         var diagnostics = new List<SimulationDiagnostic>();
         var topology = configuration.Topology;
 
-        if (topology.EnableHeatRecovery)
+        if (topology.EnableHeatRecovery && topology.EnableRecirculation)
         {
             diagnostics.Add(Error(
-                "AWG.HEAT_RECOVERY_UNSUPPORTED",
-                "Heat-recovery path is not enabled in the MVP builder."));
+                "AWG.HEAT_RECOVERY_WITH_RECIRCULATION_UNSUPPORTED",
+                "Heat recovery and recirculation cannot both be enabled in the MVP builder."));
         }
 
         if (topology.EnablePvRearAirChannel)
@@ -152,6 +157,15 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 AwgV3TopologyIds.ModelIds.MoistAirSplitter);
         }
 
+        if (topology.EnableHeatRecovery)
+        {
+            RequireModel(
+                diagnostics,
+                topology,
+                AwgV3TopologyIds.HeatRecovery,
+                AwgV3TopologyIds.ModelIds.SensibleHeatRecoveryPrescribed);
+        }
+
         if (topology.EnableElectricalSubsystem)
         {
             RequireModel(
@@ -172,6 +186,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
     private void BuildAirflowAndWater(
         AwgSystemConfiguration configuration,
         AwgInitialState initialState,
+        IWeatherProvider? weatherProvider,
         List<ISimulationComponent> components,
         List<PhysicalConnection> connections,
         List<SimulationLoopDefinition> loops,
@@ -183,6 +198,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             : 0.0;
         var processFlow = configuration.Fan.DryAirMassFlowKgPerSecond;
         var freshFlow = processFlow * (1.0 - recirculationFraction);
+        var enableHeatRecovery = configuration.Topology.EnableHeatRecovery;
 
         var freshInlet = _calculator.CreateFromRelativeHumidity(
             ambient.TemperatureK,
@@ -202,7 +218,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         var isotherm = GenericPolynomialIsotherm.CreateLinear(
             configuration.SilicaGel.MaximumWaterLoadingKgPerKgDryAdsorbent);
 
-        components.Add(new AmbientAirSourceComponent(AwgV3TopologyIds.AmbientSource, freshInlet));
+        components.Add(CreateAmbientSource(weatherProvider, freshFlow, freshInlet));
         components.Add(new PrescribedFlowFanComponent(
             AwgV3TopologyIds.ProcessFan,
             processFlow,
@@ -247,9 +263,20 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             configuration.WaterTank.CapacityKg,
             initialState.WaterTankContentKg,
             configuration.WaterTank.InitialTemperatureK));
-        components.Add(new SolarRadiationSourceComponent(
+        components.Add(CreateSolarSource(
             AwgV3TopologyIds.SolarRadiation,
+            weatherProvider,
             ambient.SolarIrradianceWPerSquareMeter));
+
+        if (enableHeatRecovery)
+        {
+            configuration.HeatRecovery.Validate();
+            components.Add(new SensibleHeatRecoveryComponent(
+                AwgV3TopologyIds.HeatRecovery,
+                configuration.HeatRecovery.EffectivenessFraction,
+                configuration.HeatRecovery.BypassFraction,
+                calculator: _calculator));
+        }
 
         if (configuration.Topology.EnableRecirculation)
         {
@@ -271,11 +298,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 "recirc_in",
                 AwgV3TopologyIds.RecirculationTearConnectionId);
             Connect(connections, AwgV3TopologyIds.FreshAirMixer, "outlet", AwgV3TopologyIds.ProcessFan, "inlet");
-            Connect(connections, AwgV3TopologyIds.ProcessFan, "outlet", AwgV3TopologyIds.PeltierHotSideHx, "inlet");
-            Connect(connections, AwgV3TopologyIds.PeltierHotSideHx, "outlet", AwgV3TopologyIds.SolarCollector, "inlet");
-            Connect(connections, AwgV3TopologyIds.SolarRadiation, "outlet", AwgV3TopologyIds.SolarCollector, "solar");
-            Connect(connections, AwgV3TopologyIds.SolarCollector, "outlet", AwgV3TopologyIds.SilicaGelBed, "inlet");
-            Connect(connections, AwgV3TopologyIds.SilicaGelBed, "outlet", AwgV3TopologyIds.Condenser, "inlet");
+            ConnectProcessTrain(connections);
             Connect(connections, AwgV3TopologyIds.Condenser, "outlet", AwgV3TopologyIds.RecirculationSplitter, "inlet");
             Connect(connections, AwgV3TopologyIds.RecirculationSplitter, "outlet_0", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
@@ -294,22 +317,77 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 MaximumIterations = 50
             });
         }
+        else if (enableHeatRecovery)
+        {
+            Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.HeatRecovery, "cold_in");
+            Connect(connections, AwgV3TopologyIds.HeatRecovery, "cold_out", AwgV3TopologyIds.ProcessFan, "inlet");
+            ConnectProcessTrain(connections);
+            Connect(
+                connections,
+                AwgV3TopologyIds.Condenser,
+                "outlet",
+                AwgV3TopologyIds.HeatRecovery,
+                "hot_in",
+                AwgV3TopologyIds.HeatRecoveryTearConnectionId);
+            Connect(connections, AwgV3TopologyIds.HeatRecovery, "hot_out", AwgV3TopologyIds.ExhaustSink, "inlet");
+            Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
+
+            var hotGuess = _calculator.CreateFromRelativeHumidity(
+                ambient.TemperatureK,
+                ambient.PressurePa,
+                ambient.RelativeHumidityFraction,
+                processFlow);
+            externalInputs[$"{AwgV3TopologyIds.HeatRecovery}.hot_in"] = hotGuess;
+            loops.Add(new SimulationLoopDefinition
+            {
+                Id = "awg-heat-recovery",
+                TearConnectionId = AwgV3TopologyIds.HeatRecoveryTearConnectionId,
+                RelaxationFactor = 0.7,
+                MaximumIterations = 50
+            });
+        }
         else
         {
             Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.ProcessFan, "inlet");
-            Connect(connections, AwgV3TopologyIds.ProcessFan, "outlet", AwgV3TopologyIds.PeltierHotSideHx, "inlet");
-            Connect(connections, AwgV3TopologyIds.PeltierHotSideHx, "outlet", AwgV3TopologyIds.SolarCollector, "inlet");
-            Connect(connections, AwgV3TopologyIds.SolarRadiation, "outlet", AwgV3TopologyIds.SolarCollector, "solar");
-            Connect(connections, AwgV3TopologyIds.SolarCollector, "outlet", AwgV3TopologyIds.SilicaGelBed, "inlet");
-            Connect(connections, AwgV3TopologyIds.SilicaGelBed, "outlet", AwgV3TopologyIds.Condenser, "inlet");
+            ConnectProcessTrain(connections);
             Connect(connections, AwgV3TopologyIds.Condenser, "outlet", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
         }
     }
 
+    private static void ConnectProcessTrain(List<PhysicalConnection> connections)
+    {
+        Connect(connections, AwgV3TopologyIds.ProcessFan, "outlet", AwgV3TopologyIds.PeltierHotSideHx, "inlet");
+        Connect(connections, AwgV3TopologyIds.PeltierHotSideHx, "outlet", AwgV3TopologyIds.SolarCollector, "inlet");
+        Connect(connections, AwgV3TopologyIds.SolarRadiation, "outlet", AwgV3TopologyIds.SolarCollector, "solar");
+        Connect(connections, AwgV3TopologyIds.SolarCollector, "outlet", AwgV3TopologyIds.SilicaGelBed, "inlet");
+        Connect(connections, AwgV3TopologyIds.SilicaGelBed, "outlet", AwgV3TopologyIds.Condenser, "inlet");
+    }
+
+    private ISimulationComponent CreateAmbientSource(
+        IWeatherProvider? weatherProvider,
+        double freshFlow,
+        MoistAirState freshInlet)
+        => weatherProvider is null
+            ? new AmbientAirSourceComponent(AwgV3TopologyIds.AmbientSource, freshInlet)
+            : new WeatherDrivenAmbientAirSourceComponent(
+                AwgV3TopologyIds.AmbientSource,
+                weatherProvider,
+                freshFlow,
+                _calculator);
+
+    private static ISimulationComponent CreateSolarSource(
+        string id,
+        IWeatherProvider? weatherProvider,
+        double fallbackIrradianceWPerM2)
+        => weatherProvider is null
+            ? new SolarRadiationSourceComponent(id, fallbackIrradianceWPerM2)
+            : new WeatherDrivenSolarRadiationSourceComponent(id, weatherProvider);
+
     private static void BuildElectrical(
         AwgSystemConfiguration configuration,
         AwgInitialState initialState,
+        IWeatherProvider? weatherProvider,
         List<ISimulationComponent> components,
         List<PhysicalConnection> connections)
     {
@@ -318,8 +396,9 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             configuration.Battery.NominalCapacityJ,
             configuration.Ambient.TemperatureK);
 
-        components.Add(new SolarRadiationSourceComponent(
+        components.Add(CreateSolarSource(
             AwgV3TopologyIds.PvSolarRadiation,
+            weatherProvider,
             configuration.Ambient.SolarIrradianceWPerSquareMeter));
         components.Add(new ConstantEfficiencySolarPanelComponent(
             AwgV3TopologyIds.PvPanel,

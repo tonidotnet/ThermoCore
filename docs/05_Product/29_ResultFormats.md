@@ -2,7 +2,7 @@
 ## 29_ResultFormats.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Result, export and serialization specification  
 **Applies To:** Console, API, Web, persistence and analysis tools
 

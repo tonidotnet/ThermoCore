@@ -2,7 +2,7 @@
 ## 28_WeatherModel.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Weather and solar-environment input specification  
 **Applies To:** ThermoCore.Core environment contracts and ThermoCore.AWG scenarios  
 **Internal units:** SI

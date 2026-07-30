@@ -29,7 +29,7 @@ public sealed class AwgSimulationRunner
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        var built = _graphBuilder.Build(configuration, initialState);
+        var built = _graphBuilder.Build(configuration, initialState, options.WeatherProvider);
         var engineResult = _engine.Run(
             new SimulationRequest
             {

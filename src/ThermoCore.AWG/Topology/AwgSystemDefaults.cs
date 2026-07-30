@@ -32,6 +32,12 @@ public static class AwgSystemDefaults
             modelSelections[AwgV3TopologyIds.RecirculationSplitter] = AwgV3TopologyIds.ModelIds.MoistAirSplitter;
         }
 
+        if (enableHeatRecovery)
+        {
+            modelSelections[AwgV3TopologyIds.HeatRecovery] =
+                AwgV3TopologyIds.ModelIds.SensibleHeatRecoveryPrescribed;
+        }
+
         return new AwgSystemConfiguration
         {
             TopologyId = AwgV3TopologyIds.TopologyId,
@@ -92,6 +98,11 @@ public static class AwgSystemDefaults
             {
                 CapacityKg = 20.0,
                 InitialTemperatureK = ambientTemperatureK
+            },
+            HeatRecovery = new AwgHeatRecoveryParameters
+            {
+                EffectivenessFraction = 0.65,
+                BypassFraction = 0.0
             },
             Pv = new AwgPvParameters
             {

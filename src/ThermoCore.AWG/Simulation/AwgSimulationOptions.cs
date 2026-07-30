@@ -1,6 +1,5 @@
 using ThermoCore.AWG.Topology;
-using ThermoCore.Core.Diagnostics;
-using ThermoCore.Core.Simulation;
+using ThermoCore.Core.Environment;
 using ThermoCore.Core.Validation;
 
 namespace ThermoCore.AWG.Simulation;
@@ -13,6 +12,8 @@ public sealed record AwgSimulationOptions
     public required TimeSpan Duration { get; init; }
 
     public required TimeSpan TimeStep { get; init; }
+
+    public IWeatherProvider? WeatherProvider { get; init; }
 
     public AwgSimulationOptions Validate()
     {

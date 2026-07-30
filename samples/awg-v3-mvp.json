@@ -1,0 +1,121 @@
+{
+  "system": {
+    "topologyId": "awg-v3-mvp",
+    "topologyVersion": "1.0",
+    "topology": {
+      "enableRecirculation": false,
+      "enableHeatRecovery": false,
+      "enablePvRearAirChannel": false,
+      "enableElectricalSubsystem": true,
+      "initialRecirculationFraction": 0,
+      "heatRecoveryColdSideSource": "mixed-inlet",
+      "componentModelSelections": {
+        "process-fan": "prescribed-flow-fan",
+        "peltier-hot-side-hx": "moist-air-pass-through",
+        "solar-collector": "dynamic-lumped-collector",
+        "silica-gel-bed": "silica-gel-ldf-linear",
+        "condenser": "condenser-bypass-factor",
+        "pv-panel": "constant-efficiency-pv",
+        "power-manager": "power-manager-with-battery"
+      }
+    },
+    "ambient": {
+      "temperatureK": 298.15,
+      "pressurePa": 101325,
+      "relativeHumidityFraction": 0.5,
+      "dryAirMassFlowKgPerSecond": 0.02,
+      "solarIrradianceWPerSquareMeter": 800
+    },
+    "fan": {
+      "dryAirMassFlowKgPerSecond": 0.02,
+      "pressureRisePa": 100,
+      "fanEfficiency": 0.6,
+      "driverEfficiency": 0.9
+    },
+    "solarCollector": {
+      "opticalEfficiencyFraction": 0.75,
+      "apertureAreaM2": 2,
+      "effectiveThermalCapacityJPerK": 8000,
+      "absorberToAirUaWPerK": 40,
+      "overallLossCoefficientWPerM2K": 4,
+      "incidenceAngleModifierFraction": 1,
+      "windSpeedMPerSecond": 0,
+      "windLossCoefficientWPerM2KPerMps": 0,
+      "maximumAllowedAbsorberTemperatureK": 423.15
+    },
+    "silicaGel": {
+      "dryAdsorbentMassKg": 2,
+      "maximumWaterLoadingKgPerKgDryAdsorbent": 0.35,
+      "minimumRegeneratedLoadingKgPerKgDryAdsorbent": 0.02,
+      "effectiveSpecificHeatJPerKgK": 920,
+      "bedHousingThermalCapacityJPerK": 500,
+      "effectiveHeatOfAdsorptionJPerKgWater": 2600000,
+      "bedHeatLossCoefficientWPerK": 0.5,
+      "referenceMassTransferCoefficientPerSecond": 0.02,
+      "activationEnergyJPerMol": 0,
+      "referenceKineticTemperatureK": 298.15,
+      "ambientTemperatureK": 298.15,
+      "airBedHeatTransferCoefficientWPerK": 80,
+      "nearEquilibriumLoadingToleranceKgPerKg": 0.0001,
+      "enableEnergyLimitedDesorption": true,
+      "minimumDesorptionBedTemperatureK": 250,
+      "referencePressureDropPa": 0,
+      "referenceVolumetricFlowM3PerSecond": 0.01,
+      "pressureDropFlowExponent": 2,
+      "enableErgunPressureDrop": false,
+      "bedVoidFraction": 0.4,
+      "bedCrossSectionAreaM2": 0,
+      "bedLengthM": 0,
+      "particleDiameterM": 0
+    },
+    "condenser": {
+      "bypassFactor": 0.15,
+      "drainageEfficiency": 0.9,
+      "fallbackSurfaceTemperatureK": 278.15,
+      "fallbackAvailableCoolingPowerW": 200,
+      "maximumRetainedFilmKg": 0.01,
+      "filmCarryoverFraction": 0
+    },
+    "pv": {
+      "efficiencyFraction": 0.18,
+      "areaM2": 1.5
+    },
+    "battery": {
+      "nominalCapacityJ": 3600000,
+      "minimumSocFraction": 0.1,
+      "maximumSocFraction": 0.9,
+      "chargeEfficiencyFraction": 0.95,
+      "dischargeEfficiencyFraction": 0.95,
+      "maximumChargePowerW": 200,
+      "maximumDischargePowerW": 200,
+      "selfDischargePowerW": 0,
+      "initialTemperatureK": 298.15
+    },
+    "electricalLoads": [
+      {
+        "loadId": "controller",
+        "requestedPowerW": 10,
+        "priority": 0,
+        "isEssential": true,
+        "minimumAcceptedPowerW": 0
+      },
+      {
+        "loadId": "fan",
+        "requestedPowerW": 40,
+        "priority": 1,
+        "isEssential": true,
+        "minimumAcceptedPowerW": 0
+      }
+    ],
+    "mpptEfficiencyFraction": 0.95
+  },
+  "initialState": {
+    "silicaGelLoadingKgPerKg": 0.08,
+    "silicaGelTemperatureK": 298.15,
+    "solarCollectorAbsorberTemperatureK": 298.15,
+    "batteryStoredEnergyJ": 1800000,
+    "waterTankContentKg": 0,
+    "recirculationFraction": 0,
+    "controllerMode": "Adsorption"
+  }
+}

@@ -96,16 +96,16 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-AWG control/topology specs and console host are ready. Next: AWG configuration model (AWG-003) and remaining AWG integration tasks.
+AWG V3 configuration, acyclic graph builder and JSON loading are ready. Next: operating-mode controller (AWG-008) and console run/summary (APP-003/004).
 ```
 
 ## Recommended next tasks
 
-1. `AWG-003` — Implement AWG configuration model
-2. `AWG-004` / `AWG-005` — Graph builder and initial-state wiring (as unblocked)
-3. `APP-002` — Load JSON configuration (after AWG-003)
-4. `DOC-016A` / `DOC-022` / `DOC-025` — Remaining engine/test/numerical doc expansions if still incomplete
-5. `REP-003` / `OSS-001` — License and public README readiness
+1. `AWG-008` — Implement operating-mode state machine
+2. `APP-003` / `APP-004` — Run simulation from loaded config and print summary
+3. `AWG-009` to `AWG-013` — Fan/Peltier/recirculation/battery/thermal control (as unblocked)
+4. `AWG-007` — Sensor and measurement points
+5. `AWG-015` — Cyclic recirculation solver integration
 
 ---
 
@@ -118,7 +118,7 @@ AWG control/topology specs and console host are ready. Next: AWG configuration m
 | Repository setup | 12 | 0 | 0 | 3 | 9 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
-| ThermoCore.AWG | 19 | 2 | 0 | 1 | 16 |
+| ThermoCore.AWG | 19 | 6 | 0 | 1 | 12 |
 | API and Web | 22 | 0 | 0 | 0 | 22 |
 | Validation and optimization | 15 | 0 | 0 | 0 | 15 |
 
@@ -402,12 +402,12 @@ The counts are indicative and shall be updated when tasks are added, split or co
 |---|---|---|---|---|---|---|
 | AWG-001 | Create detailed control-system specification | P1 | Done | COND-001, HR-001, AIR-001, PWR-001 | `14_ControlSystem.md` | NotApplicable |
 | AWG-002 | Create detailed system-topology specification | P1 | Done | AWG-001 | `15_SystemTopology.md` | NotApplicable |
-| AWG-003 | Implement AWG configuration model | P1 | Ready | AWG-002 | `15_SystemTopology.md` | NotStarted |
-| AWG-004 | Implement V3 airflow graph builder | P1 | Blocked | AWG-003, GRAPH-008, AIR-002 | `15_SystemTopology.md` | NotStarted |
-| AWG-005 | Implement electrical graph | P1 | Blocked | AWG-003, PWR-002, PV-001 | `15_SystemTopology.md` | NotStarted |
-| AWG-006 | Implement water-flow graph | P1 | Blocked | AWG-003, COND-006 | `15_SystemTopology.md` | NotStarted |
-| AWG-007 | Implement sensor and measurement points | P2 | Blocked | AWG-003 | `15_SystemTopology.md` | NotStarted |
-| AWG-008 | Implement operating-mode state machine | P1 | Blocked | AWG-001, AWG-003 | `14_ControlSystem.md` | NotStarted |
+| AWG-003 | Implement AWG configuration model | P1 | Done | AWG-002 | `15_SystemTopology.md` | Passing |
+| AWG-004 | Implement V3 airflow graph builder | P1 | Done | AWG-003, GRAPH-008, AIR-002 | `15_SystemTopology.md` | Passing |
+| AWG-005 | Implement electrical graph | P1 | Done | AWG-003, PWR-002, PV-001 | `15_SystemTopology.md` | Passing |
+| AWG-006 | Implement water-flow graph | P1 | Done | AWG-003, COND-006 | `15_SystemTopology.md` | Passing |
+| AWG-007 | Implement sensor and measurement points | P2 | Ready | AWG-003 | `15_SystemTopology.md` | NotStarted |
+| AWG-008 | Implement operating-mode state machine | P1 | Ready | AWG-001, AWG-003 | `14_ControlSystem.md` | NotStarted |
 | AWG-009 | Implement fan control | P1 | Blocked | AWG-008, AIR-002 | `14_ControlSystem.md` | NotStarted |
 | AWG-010 | Implement Peltier control | P1 | Blocked | AWG-008, TEC-003 | `14_ControlSystem.md` | NotStarted |
 | AWG-011 | Implement recirculation control | P1 | Blocked | AWG-008, HR-002, GEN-007, GEN-008 | `14_ControlSystem.md` | NotStarted |
@@ -429,8 +429,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | ID | Task | Priority | Status | Dependencies | Test status |
 |---|---|---|---|---|---|
 | APP-001 | Create console host | P1 | Done | DEV-001 | Passing |
-| APP-002 | Load JSON configuration | P1 | Blocked | APP-001, AWG-003 | NotStarted |
-| APP-003 | Run simulation | P1 | Blocked | APP-002, GRAPH-008 | NotStarted |
+| APP-002 | Load JSON configuration | P1 | Done | APP-001, AWG-003 | Passing |
+| APP-003 | Run simulation | P1 | Ready | APP-002, GRAPH-008 | NotStarted |
 | APP-004 | Print summary | P1 | Blocked | APP-003 | NotStarted |
 | APP-005 | Export CSV | P1 | Blocked | APP-003, DOC-029A | NotStarted |
 | APP-006 | Add regression scenarios | P1 | Blocked | APP-003, DOC-022 | NotStarted |
@@ -664,11 +664,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. AWG-003 — Implement AWG configuration model
-2. AWG graph-builder / initial-state tasks unblocked by AWG-003
-3. APP-002 — Load JSON configuration
-4. Remaining DOC expansions (engine/test/result formats) as needed
-5. Repository/OSS readiness (license, CI)
+1. AWG-008 — Implement operating-mode state machine
+2. APP-003 / APP-004 — Run simulation from config and print summary
+3. AWG-009 to AWG-013 — Control actuators and protections
+4. AWG-007 — Sensor and measurement points
+5. AWG-015 — Cyclic recirculation solver integration
 ```
 
 ---

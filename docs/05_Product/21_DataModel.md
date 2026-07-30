@@ -2,9 +2,10 @@
 ## 21_DataModel.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Persistence and application data model specification  
-**Applies To:** ThermoCore.Api, ThermoCore.Web and infrastructure
+**Applies To:** ThermoCore.Api, ThermoCore.Web and infrastructure  
+**Notes:** SQLite MVP in `ThermoCore.Persistence` covers configuration versions, simulation summaries, and calibration runs. PostgreSQL and full series storage remain later.
 
 ---
 
@@ -419,14 +420,19 @@ Result capture policy
 
 # 29. Acceptance criteria
 
-The data model is accepted when:
+MVP SQLite store (`ThermoCore.Persistence.SqliteThermoCoreStore`) is accepted when:
 
 1. Core domain types remain persistence-independent;
-2. every simulation stores reproducibility metadata;
-3. configurations are versioned;
-4. completed results are immutable;
-5. large series are stored efficiently;
-6. SQLite and PostgreSQL can share application contracts.
+2. configuration versions store JSON + content hash;
+3. simulation summaries and calibration runs persist;
+4. save/load round-trips pass unit tests.
+
+Full acceptance (later):
+
+1. every simulation stores reproducibility metadata;
+2. completed results are immutable;
+3. large series are stored efficiently;
+4. SQLite and PostgreSQL can share application contracts.
 
 ---
 

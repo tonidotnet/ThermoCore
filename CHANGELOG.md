@@ -9,6 +9,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Bounded coordinate-descent parameter fitting (`calibrate`) and SQLite calibration provenance
+- `ThermoCore.Persistence` SQLite store for configuration versions, summaries, calibration runs
 - Measurement CSV import, timestamp alignment, and RMSE/MAE/bias comparison (CAL-002…005)
 - Sample validation dataset under `samples/calibration/` and console `validate` command
 - Blazor simulation comparison page and `GET /api/v1/simulations` list

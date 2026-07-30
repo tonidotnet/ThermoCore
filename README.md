@@ -9,6 +9,7 @@ src/
   ThermoCore.Core         # physics, math, simulation engine
   ThermoCore.AWG          # atmospheric water generator reference app
   ThermoCore.Application  # shared API/Web job and result services
+  ThermoCore.Persistence  # SQLite store for configs / summaries / calibration
   ThermoCore.Console      # CLI host
   ThermoCore.Api          # ASP.NET Core API (/api/v1)
   ThermoCore.Web          # Blazor UI
@@ -47,6 +48,9 @@ dotnet run --project src/ThermoCore.Web
 
 # Measurement validation (CAL)
 dotnet run --project src/ThermoCore.Console -- validate samples/calibration/awg-mvp-ambient-smoke.csv --duration 3 --dt 1 --max-rmse 1e-6
+
+# Parameter calibration + SQLite provenance
+dotnet run --project src/ThermoCore.Console -- calibrate samples/calibration/awg-mvp-ambient-smoke.csv --duration 3 --dt 1 --params condenser.bypassFactor --db samples/results/calibration.db
 
 # Linux container (Web)
 docker compose up --build

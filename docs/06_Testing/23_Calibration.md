@@ -110,43 +110,66 @@ dotnet run --project src/ThermoCore.Console -- validate samples/calibration/awg-
 
 ---
 
-# 6. Calibration outputs
+# 6. Parameter fitting (CAL-006)
 
-- Optimized parameter set (later — CAL-006)
+Algorithm: bounded coordinate descent with golden-section search on each scalar parameter.
+
+Default AWG calibratable ids:
+
+```text
+condenser.bypassFactor
+condenser.drainageEfficiency
+silicaGel.referenceMassTransferCoefficientPerSecond
+solarCollector.overallLossCoefficientWPerM2K
+heatRecovery.effectivenessFraction   (when HR enabled)
+```
+
+Console:
+
+```bash
+dotnet run --project src/ThermoCore.Console -- calibrate samples/calibration/awg-mvp-ambient-smoke.csv \
+  --duration 3 --dt 1 --params condenser.bypassFactor --db samples/results/calibration.db
+```
+
+# 7. Calibration outputs
+
+- Optimized parameter set — implemented
 - Error metrics (RMSE, MAE, Bias) — implemented
 - Calibration report — MVP console / `MeasurementComparisonReport`
+- Provenance in SQLite via `ThermoCore.Persistence` (CAL-007 MVP)
 - Validation report — later holdout workflow
 
 ---
 
-# 7. Workflow
+# 8. Workflow
 
 1. Import measurements.
 2. Validate data quality.
 3. Synchronize timestamps.
 4. Run baseline simulation.
 5. Compute residuals.
-6. Optimize selected parameters (not yet implemented).
+6. Optimize selected parameters (bounded coordinate descent).
 7. Re-run simulation.
 8. Compare before/after.
-9. Save calibrated parameter set with provenance (requires persistence).
+9. Save calibrated parameter set with provenance (`--db`).
 
 ---
 
-# 8. Acceptance criteria
+# 9. Acceptance criteria
 
-MVP measurement comparison is accepted when:
+MVP measurement comparison and fitting are accepted when:
 
 1. CSV schema is documented and imported;
 2. timestamps align to simulation steps;
 3. RMSE / MAE / bias are reported per channel;
-4. synthetic ambient smoke dataset yields near-zero RMSE on the default MVP boundary.
+4. synthetic ambient smoke dataset yields near-zero RMSE on the default MVP boundary;
+5. bounded fitting can reduce RMSE versus a wrong initial parameter on synthetic condenser data;
+6. calibration provenance can be stored in SQLite.
 
-Full calibration acceptance (later):
+Later:
 
-- Lower total RMSE than baseline after fitting;
-- No violation of physical limits;
-- All calibration metadata stored.
+- Holdout validation report;
+- Broader multi-parameter campaigns with physical-limit audits.
 
 ---
 

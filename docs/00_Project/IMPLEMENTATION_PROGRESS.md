@@ -96,14 +96,14 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Calibration import/metrics, compare page, and Linux Web container are live. Next: parameter fitting, persistence, or docs site.
+Parameter fitting + SQLite persistence MVP are live. Next: docs site, fuller wizard, or OPT sweeps.
 ```
 
 ## Recommended next tasks
 
-1. `CAL-006` parameter fitting (bounded optimization)
-2. Persistence / data model (`DATA-001`+)
-3. Fuller configuration wizard sections / docs site
+1. Docs site (MkDocs) / fuller configuration wizard sections
+2. `OPT-001`/`OPT-002` parameter sweeps
+3. PostgreSQL provider / full result-series persistence
 
 ---
 
@@ -165,7 +165,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-018A | `18_CodingRules.md` | P0 | Done | ReadyForImplementation | Yes | Enforce in repository |
 | DOC-019A | `19_WebApi.md` | P2 | Done | Implemented | Yes | API v1 MVP implemented |
 | DOC-020A | `20_BlazorWeb.md` | P2 | Done | Implemented | Yes | Blazor MVP pages; wizard/charts remain |
-| DOC-021A | `21_DataModel.md` | P2 | Planned | Missing | Before persistence | Create after result model |
+| DOC-021A | `21_DataModel.md` | P2 | Done | Implemented | Yes | SQLite MVP; PostgreSQL later |
 | DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
 | DOC-023A | `23_Calibration.md` | P3 | Done | Implemented | Yes | Import/align/metrics MVP; fitting later |
 | DOC-024A | `24_Optimization.md` | P3 | Planned | Missing | Before optimization | Later |
@@ -471,10 +471,10 @@ The counts are indicative and shall be updated when tasks are added, split or co
 
 | ID | Task | Priority | Status | Dependencies | Related doc | Test status |
 |---|---|---|---|---|---|---|
-| DATA-001 | Create data-model specification | P2 | Planned | DOC-016A, DOC-029A | `21_DataModel.md` | Planned |
-| DATA-002 | Define configuration schema versioning | P2 | Blocked | DATA-001 | `21_DataModel.md` | NotStarted |
-| DATA-003 | Define simulation-run metadata | P2 | Blocked | DATA-001 | `21_DataModel.md` | NotStarted |
-| DATA-004 | Add SQLite persistence | P3 | Blocked | DATA-002, DATA-003 | `21_DataModel.md` | NotStarted |
+| DATA-001 | Create data-model specification | P2 | Done | DOC-016A, DOC-029A | `21_DataModel.md` | Passing |
+| DATA-002 | Define configuration schema versioning | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
+| DATA-003 | Define simulation-run metadata | P2 | Done | DATA-001 | `21_DataModel.md` | Passing |
+| DATA-004 | Add SQLite persistence | P3 | Done | DATA-002, DATA-003 | `21_DataModel.md` | Passing |
 | DATA-005 | Add PostgreSQL provider | P3 | Blocked | DATA-004 | `21_DataModel.md` | NotStarted |
 | DATA-006 | Save and reload configurations | P2 | Blocked | DATA-004 | `21_DataModel.md` | NotStarted |
 | DATA-007 | Save result summaries | P2 | Blocked | DATA-004, DOC-029A | `21_DataModel.md` | NotStarted |
@@ -510,8 +510,8 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | CAL-003 | Implement measurement import | P3 | Done | CAL-002 | `23_Calibration.md` | Passing |
 | CAL-004 | Implement time-series alignment | P3 | Done | CAL-003 | `23_Calibration.md` | Passing |
 | CAL-005 | Implement RMSE and bias | P3 | Done | CAL-004 | `23_Calibration.md` | Passing |
-| CAL-006 | Implement parameter fitting | P3 | Ready | CAL-005, DOC-025 | `23_Calibration.md` | NotStarted |
-| CAL-007 | Store calibrated parameter provenance | P3 | Blocked | CAL-006, DATA-003 | `23_Calibration.md` | NotStarted |
+| CAL-006 | Implement parameter fitting | P3 | Done | CAL-005, DOC-025 | `23_Calibration.md` | Passing |
+| CAL-007 | Store calibrated parameter provenance | P3 | Done | CAL-006, DATA-003 | `23_Calibration.md` | Passing |
 | OPT-001 | Create optimization specification | P3 | Planned | CAL-001 | `24_Optimization.md` | Planned |
 | OPT-002 | Implement parameter sweeps | P3 | Blocked | OPT-001, AWG-016 | `24_Optimization.md` | NotStarted |
 | OPT-003 | Implement sensitivity analysis | P3 | Blocked | OPT-002 | `24_Optimization.md` | NotStarted |
@@ -662,9 +662,9 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. CAL-006 parameter fitting
-2. DATA-001 persistence / data model
-3. Docs site / fuller wizard sections
+1. Docs site (MkDocs) / fuller wizard sections
+2. OPT-001 / OPT-002 parameter sweeps
+3. PostgreSQL provider / full series persistence
 ```
 
 ---

@@ -6,6 +6,7 @@ using ThermoCore.AWG.Regression;
 using ThermoCore.AWG.Simulation;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Components;
+using ThermoCore.Persistence;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
 using ThermoCore.Core.Physics;
@@ -58,6 +59,11 @@ internal static class DemoHost
             return RunMeasurementValidation(args);
         }
 
+        if (args.Length >= 2 && args[0] is "calibrate" or "--calibrate")
+        {
+            return RunParameterCalibration(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -83,6 +89,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
+              dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -92,6 +99,7 @@ internal static class DemoHost
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
               regress                   Run DOC-022 / APP-006 regression scenarios
               validate <csv>            Compare simulation channels to measurement CSV (CAL)
+              calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
 
@@ -108,7 +116,170 @@ internal static class DemoHost
               --duration / -d <sec>     Simulation duration (default 30)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
               --max-rmse <value>        Fail if overall RMSE exceeds threshold
+
+            Calibrate options:
+              --config <path>           Baseline AWG configuration JSON
+              --duration / -d <sec>     Simulation duration (default 10)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
+              --params <id,id,...>      Calibratable parameter ids (default catalog)
+              --db <path>               SQLite path for provenance (CAL-007)
+              --write-fitted <path>     Write fitted configuration JSON
             """);
+    }
+
+    private static int RunParameterCalibration(string[] args)
+    {
+        try
+        {
+            var measurementPath = args[1];
+            string? configurationPath = null;
+            var durationSeconds = 10.0;
+            var timeStepSeconds = 1.0;
+            string? parameterList = null;
+            string? databasePath = null;
+            string? fittedPath = null;
+
+            for (var i = 2; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--params")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --params value.");
+                        return ExitUsageError;
+                    }
+
+                    parameterList = args[i];
+                }
+                else if (args[i] is "--db")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --db path.");
+                        return ExitUsageError;
+                    }
+
+                    databasePath = args[i];
+                }
+                else if (args[i] is "--write-fitted")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --write-fitted path.");
+                        return ExitUsageError;
+                    }
+
+                    fittedPath = args[i];
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown calibrate option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            IEnumerable<string>? parameterIds = parameterList?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            var result = new AwgParameterCalibrationRunner().CalibrateFromFiles(
+                measurementPath,
+                configurationPath,
+                durationSeconds,
+                timeStepSeconds,
+                parameterIds);
+
+            System.Console.WriteLine("=== Parameter calibration ===");
+            System.Console.WriteLine(
+                $"Objective: {result.Fitting.InitialObjective.ToString("G6", CultureInfo.InvariantCulture)} -> " +
+                $"{result.Fitting.FinalObjective.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"(evals={result.Fitting.EvaluationCount}, passes={result.Fitting.PassCount})");
+            foreach (var pair in result.Fitting.FittedValues.OrderBy(p => p.Key, StringComparer.Ordinal))
+            {
+                var initial = result.Fitting.InitialValues[pair.Key];
+                System.Console.WriteLine(
+                    $"  {pair.Key}: {initial.ToString("G6", CultureInfo.InvariantCulture)} -> " +
+                    $"{pair.Value.ToString("G6", CultureInfo.InvariantCulture)}");
+            }
+
+            System.Console.WriteLine(
+                $"RMSE baseline={result.BaselineReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"fitted={result.FittedReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)}");
+
+            if (fittedPath is not null)
+            {
+                var document = new AwgConfigurationDocument
+                {
+                    System = result.FittedConfiguration,
+                    InitialState = AwgSystemDefaults.CreateMvpInitialState(result.FittedConfiguration)
+                };
+                AwgConfigurationLoader.SaveToFile(document, fittedPath);
+                System.Console.WriteLine($"Wrote fitted configuration: {fittedPath}");
+            }
+
+            if (databasePath is not null)
+            {
+                using var store = new SqliteThermoCoreStore(databasePath);
+                store.EnsureCreated();
+                var baselineDoc = new AwgConfigurationDocument
+                {
+                    System = result.BaselineConfiguration,
+                    InitialState = AwgSystemDefaults.CreateMvpInitialState(result.BaselineConfiguration)
+                };
+                var fittedDoc = new AwgConfigurationDocument
+                {
+                    System = result.FittedConfiguration,
+                    InitialState = AwgSystemDefaults.CreateMvpInitialState(result.FittedConfiguration)
+                };
+                var baselineVersion = store.SaveConfiguration(baselineDoc, "calibration-baseline");
+                var fittedVersion = store.SaveConfiguration(fittedDoc, "calibration-fitted");
+                var stored = store.SaveCalibrationRun(
+                    result,
+                    measurementPath,
+                    baselineVersion.Id,
+                    fittedVersion.Id);
+                System.Console.WriteLine($"Saved calibration provenance: {stored.Id:N} in {databasePath}");
+            }
+
+            return result.Fitting.Improved || result.Fitting.FinalObjective <= result.Fitting.InitialObjective
+                ? ExitSuccess
+                : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (
+            ex is FileNotFoundException or FormatException or ArgumentException or AwgConfigurationException)
+        {
+            System.Console.Error.WriteLine($"Calibration error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
     }
 
     private static int RunMeasurementValidation(string[] args)

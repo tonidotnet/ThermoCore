@@ -61,6 +61,8 @@ public static class AwgV3TopologyIds
 
         public const string ConstantEfficiencyPv = "constant-efficiency-pv";
 
+        public const string DynamicElectrothermalPv = "dynamic-electrothermal-pv";
+
         public const string PowerManagerWithBattery = "power-manager-with-battery";
 
         public const string MoistAirMixer = "moist-air-mixer";

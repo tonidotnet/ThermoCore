@@ -11,8 +11,14 @@ public static class AwgSystemDefaults
     public static AwgSystemConfiguration CreateMvpConfiguration(
         bool enableElectricalSubsystem = true,
         bool enableRecirculation = false,
-        bool enableHeatRecovery = false)
+        bool enableHeatRecovery = false,
+        bool enablePvRearAirChannel = false)
     {
+        if (enablePvRearAirChannel)
+        {
+            enableElectricalSubsystem = true;
+        }
+
         var ambientTemperatureK = UnitConversions.CelsiusToKelvin(25.0);
         var modelSelections = new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -22,7 +28,9 @@ public static class AwgSystemDefaults
             [AwgV3TopologyIds.SilicaGelBed] = AwgV3TopologyIds.ModelIds.SilicaGelLdfLinear,
             [AwgV3TopologyIds.Condenser] = AwgV3TopologyIds.ModelIds.CondenserBypassFactor,
             [AwgV3TopologyIds.WaterTank] = AwgV3TopologyIds.ModelIds.WaterTankInventory,
-            [AwgV3TopologyIds.PvPanel] = AwgV3TopologyIds.ModelIds.ConstantEfficiencyPv,
+            [AwgV3TopologyIds.PvPanel] = enablePvRearAirChannel
+                ? AwgV3TopologyIds.ModelIds.DynamicElectrothermalPv
+                : AwgV3TopologyIds.ModelIds.ConstantEfficiencyPv,
             [AwgV3TopologyIds.PowerManager] = AwgV3TopologyIds.ModelIds.PowerManagerWithBattery
         };
 
@@ -46,7 +54,7 @@ public static class AwgSystemDefaults
             {
                 EnableRecirculation = enableRecirculation,
                 EnableHeatRecovery = enableHeatRecovery,
-                EnablePvRearAirChannel = false,
+                EnablePvRearAirChannel = enablePvRearAirChannel,
                 EnableElectricalSubsystem = enableElectricalSubsystem,
                 InitialRecirculationFraction = enableRecirculation ? 0.2 : 0.0,
                 HeatRecoveryColdSideSource = "mixed-inlet",
@@ -107,7 +115,12 @@ public static class AwgSystemDefaults
             Pv = new AwgPvParameters
             {
                 EfficiencyFraction = 0.18,
-                AreaM2 = 1.5
+                AreaM2 = 1.5,
+                RatedPowerW = 270.0,
+                OpticalAbsorptanceFraction = 0.90,
+                EffectiveThermalCapacityJPerK = 5_000.0,
+                EnvironmentalLossUaWPerK = 12.0,
+                RearAirUaWPerK = enablePvRearAirChannel ? 35.0 : 0.0
             },
             Battery = new BatteryParameters
             {

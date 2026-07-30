@@ -71,6 +71,13 @@ public sealed record AwgSystemConfiguration
                 nameof(Topology));
         }
 
+        if (Topology.EnablePvRearAirChannel && !Topology.EnableElectricalSubsystem)
+        {
+            throw new ArgumentException(
+                "PV rear-air channel requires the electrical subsystem.",
+                nameof(Topology));
+        }
+
         if (Topology.EnableElectricalSubsystem && ElectricalLoads.Count == 0)
         {
             throw new ArgumentException(

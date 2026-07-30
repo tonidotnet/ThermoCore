@@ -1,0 +1,17 @@
+{
+  "id": "warm-humid-day",
+  "description": "Warm humid ambient with electrical subsystem.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 32,
+  "relativeHumidityFraction": 0.75,
+  "solarIrradianceWPerSquareMeter": 700,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

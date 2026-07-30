@@ -1,0 +1,17 @@
+{
+  "id": "heat-recovery",
+  "description": "Sensible heat recovery on exhaust/inlet with torn loop.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": false,
+  "enableRecirculation": false,
+  "enableHeatRecovery": true,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 800,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

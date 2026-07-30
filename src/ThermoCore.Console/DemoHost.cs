@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using ThermoCore.AWG.Configuration;
+using ThermoCore.AWG.Regression;
 using ThermoCore.AWG.Simulation;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Components;
@@ -46,6 +47,11 @@ internal static class DemoHost
             return RunAwgSimulation(args);
         }
 
+        if (args.Length >= 1 && args[0] is "regress" or "--regress")
+        {
+            return RunRegressionScenarios(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -69,6 +75,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- demo
               dotnet run --project src/ThermoCore.Console -- config <path.json>
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>]
+              dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -76,6 +83,7 @@ internal static class DemoHost
               demo                      Run a Core moist-air heater chain smoke simulation
               config <path>             Load AWG JSON configuration and build the V3 graph
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
+              regress                   Run DOC-022 / APP-006 regression scenarios
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
 
@@ -83,7 +91,66 @@ internal static class DemoHost
               --duration / -d <sec>     Simulation duration in seconds (default 60)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
               --export <dir>            Write DOC-029 full result export bundle (AWG-017)
+
+            Regress options:
+              --dir <path>              Load scenarios from JSON directory (default: built-in catalog)
             """);
+    }
+
+    private static int RunRegressionScenarios(string[] args)
+    {
+        try
+        {
+            string? directory = null;
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--dir")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --dir value.");
+                        return ExitUsageError;
+                    }
+
+                    directory = args[i];
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown regress option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            IReadOnlyList<AwgRegressionScenario> scenarios = directory is null
+                ? AwgRegressionScenarioCatalog.CreateDefaultScenarios()
+                : AwgRegressionScenarioCatalog.LoadFromDirectory(directory);
+
+            var results = new AwgRegressionScenarioRunner().RunAll(scenarios);
+            var failed = 0;
+            foreach (var result in results)
+            {
+                var mark = result.Passed ? "PASS" : "FAIL";
+                System.Console.WriteLine(
+                    $"[{mark}] {result.Scenario.Id} — steps={result.Run.EngineResult.Steps.Count}, " +
+                    $"balance={(result.Run.BalanceReport.AllPassed ? "ok" : "fail")}");
+                if (!result.Passed)
+                {
+                    failed++;
+                    foreach (var failure in result.Failures)
+                    {
+                        System.Console.Error.WriteLine($"  {failure}");
+                    }
+                }
+            }
+
+            System.Console.WriteLine($"Regression complete: {results.Count - failed}/{results.Count} passed.");
+            return failed == 0 ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is DirectoryNotFoundException or JsonException or ArgumentException or AwgConfigurationException)
+        {
+            System.Console.Error.WriteLine($"Regression error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
     }
 
     private static int RunAwgSimulation(string[] args)

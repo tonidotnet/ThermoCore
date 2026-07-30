@@ -1,0 +1,17 @@
+{
+  "id": "pv-rear-air",
+  "description": "Process air through PV rear channel before collector.",
+  "durationSeconds": 20,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": true,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 800,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

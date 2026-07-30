@@ -1,0 +1,17 @@
+{
+  "id": "low-battery",
+  "description": "Low initial battery state of charge.",
+  "durationSeconds": 20,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 800,
+  "initialBatterySocFraction": 0.12,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

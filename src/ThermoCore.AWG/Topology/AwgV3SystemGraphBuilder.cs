@@ -107,9 +107,18 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
 
         if (topology.EnablePvRearAirChannel)
         {
-            diagnostics.Add(Error(
-                "AWG.PV_REAR_CHANNEL_UNSUPPORTED",
-                "PV rear-air channel coupling is not enabled in the MVP builder."));
+            if (!topology.EnableElectricalSubsystem)
+            {
+                diagnostics.Add(Error(
+                    "AWG.PV_REAR_REQUIRES_ELECTRICAL",
+                    "PV rear-air channel requires the electrical subsystem."));
+            }
+
+            RequireModel(
+                diagnostics,
+                topology,
+                AwgV3TopologyIds.PvPanel,
+                AwgV3TopologyIds.ModelIds.DynamicElectrothermalPv);
         }
 
         RequireModel(
@@ -168,11 +177,15 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
 
         if (topology.EnableElectricalSubsystem)
         {
-            RequireModel(
-                diagnostics,
-                topology,
-                AwgV3TopologyIds.PvPanel,
-                AwgV3TopologyIds.ModelIds.ConstantEfficiencyPv);
+            if (!topology.EnablePvRearAirChannel)
+            {
+                RequireModel(
+                    diagnostics,
+                    topology,
+                    AwgV3TopologyIds.PvPanel,
+                    AwgV3TopologyIds.ModelIds.ConstantEfficiencyPv);
+            }
+
             RequireModel(
                 diagnostics,
                 topology,
@@ -268,6 +281,11 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             weatherProvider,
             ambient.SolarIrradianceWPerSquareMeter));
 
+        if (configuration.Topology.EnablePvRearAirChannel)
+        {
+            components.Add(CreateDynamicPvPanel(configuration));
+        }
+
         if (enableHeatRecovery)
         {
             configuration.HeatRecovery.Validate();
@@ -298,7 +316,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
                 "recirc_in",
                 AwgV3TopologyIds.RecirculationTearConnectionId);
             Connect(connections, AwgV3TopologyIds.FreshAirMixer, "outlet", AwgV3TopologyIds.ProcessFan, "inlet");
-            ConnectProcessTrain(connections);
+            ConnectProcessTrain(connections, configuration.Topology.EnablePvRearAirChannel);
             Connect(connections, AwgV3TopologyIds.Condenser, "outlet", AwgV3TopologyIds.RecirculationSplitter, "inlet");
             Connect(connections, AwgV3TopologyIds.RecirculationSplitter, "outlet_0", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
@@ -321,7 +339,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         {
             Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.HeatRecovery, "cold_in");
             Connect(connections, AwgV3TopologyIds.HeatRecovery, "cold_out", AwgV3TopologyIds.ProcessFan, "inlet");
-            ConnectProcessTrain(connections);
+            ConnectProcessTrain(connections, configuration.Topology.EnablePvRearAirChannel);
             Connect(
                 connections,
                 AwgV3TopologyIds.Condenser,
@@ -349,19 +367,61 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         else
         {
             Connect(connections, AwgV3TopologyIds.AmbientSource, "outlet", AwgV3TopologyIds.ProcessFan, "inlet");
-            ConnectProcessTrain(connections);
+            ConnectProcessTrain(connections, configuration.Topology.EnablePvRearAirChannel);
             Connect(connections, AwgV3TopologyIds.Condenser, "outlet", AwgV3TopologyIds.ExhaustSink, "inlet");
             Connect(connections, AwgV3TopologyIds.Condenser, "liquid_out", AwgV3TopologyIds.WaterTank, "inlet");
         }
     }
 
-    private static void ConnectProcessTrain(List<PhysicalConnection> connections)
+    private static void ConnectProcessTrain(List<PhysicalConnection> connections, bool enablePvRearAirChannel)
     {
         Connect(connections, AwgV3TopologyIds.ProcessFan, "outlet", AwgV3TopologyIds.PeltierHotSideHx, "inlet");
-        Connect(connections, AwgV3TopologyIds.PeltierHotSideHx, "outlet", AwgV3TopologyIds.SolarCollector, "inlet");
+        if (enablePvRearAirChannel)
+        {
+            Connect(
+                connections,
+                AwgV3TopologyIds.PeltierHotSideHx,
+                "outlet",
+                AwgV3TopologyIds.PvPanel,
+                "rear_air_in");
+            Connect(
+                connections,
+                AwgV3TopologyIds.PvPanel,
+                "rear_air_out",
+                AwgV3TopologyIds.SolarCollector,
+                "inlet");
+        }
+        else
+        {
+            Connect(
+                connections,
+                AwgV3TopologyIds.PeltierHotSideHx,
+                "outlet",
+                AwgV3TopologyIds.SolarCollector,
+                "inlet");
+        }
+
         Connect(connections, AwgV3TopologyIds.SolarRadiation, "outlet", AwgV3TopologyIds.SolarCollector, "solar");
         Connect(connections, AwgV3TopologyIds.SolarCollector, "outlet", AwgV3TopologyIds.SilicaGelBed, "inlet");
         Connect(connections, AwgV3TopologyIds.SilicaGelBed, "outlet", AwgV3TopologyIds.Condenser, "inlet");
+    }
+
+    private static DynamicElectrothermalSolarPanelComponent CreateDynamicPvPanel(
+        AwgSystemConfiguration configuration)
+    {
+        var pv = configuration.Pv;
+        return new DynamicElectrothermalSolarPanelComponent(
+            AwgV3TopologyIds.PvPanel,
+            ratedPowerW: pv.RatedPowerW,
+            areaM2: pv.AreaM2,
+            effectiveThermalCapacityJPerK: pv.EffectiveThermalCapacityJPerK,
+            opticalAbsorptanceFraction: pv.OpticalAbsorptanceFraction,
+            environmentalLossUaWPerK: pv.EnvironmentalLossUaWPerK,
+            initialCellTemperatureK: configuration.Ambient.TemperatureK,
+            ambientTemperatureK: configuration.Ambient.TemperatureK,
+            rearAirUaWPerK: pv.RearAirUaWPerK,
+            mpptEfficiencyFraction: configuration.MpptEfficiencyFraction,
+            fallbackIrradianceWPerM2: configuration.Ambient.SolarIrradianceWPerSquareMeter);
     }
 
     private ISimulationComponent CreateAmbientSource(
@@ -400,11 +460,16 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             AwgV3TopologyIds.PvSolarRadiation,
             weatherProvider,
             configuration.Ambient.SolarIrradianceWPerSquareMeter));
-        components.Add(new ConstantEfficiencySolarPanelComponent(
-            AwgV3TopologyIds.PvPanel,
-            configuration.Pv.EfficiencyFraction,
-            configuration.Pv.AreaM2,
-            fallbackIrradianceWPerM2: configuration.Ambient.SolarIrradianceWPerSquareMeter));
+
+        if (!configuration.Topology.EnablePvRearAirChannel)
+        {
+            components.Add(new ConstantEfficiencySolarPanelComponent(
+                AwgV3TopologyIds.PvPanel,
+                configuration.Pv.EfficiencyFraction,
+                configuration.Pv.AreaM2,
+                fallbackIrradianceWPerM2: configuration.Ambient.SolarIrradianceWPerSquareMeter));
+        }
+
         components.Add(new PowerManagementComponent(
             AwgV3TopologyIds.PowerManager,
             configuration.Battery,
@@ -470,6 +535,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             .Append(configuration.TopologyVersion).Append('|')
             .Append(configuration.Topology.EnableRecirculation).Append('|')
             .Append(configuration.Topology.EnableHeatRecovery).Append('|')
+            .Append(configuration.Topology.EnablePvRearAirChannel).Append('|')
             .Append(configuration.Topology.EnableElectricalSubsystem).Append('|');
 
         foreach (var pair in configuration.Topology.ComponentModelSelections.OrderBy(p => p.Key, StringComparer.Ordinal))

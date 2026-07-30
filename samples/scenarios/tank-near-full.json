@@ -1,0 +1,18 @@
+{
+  "id": "tank-near-full",
+  "description": "Water tank starts near capacity.",
+  "durationSeconds": 15,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 800,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0.95,
+  "waterTankCapacityKg": 1,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

@@ -1,0 +1,17 @@
+{
+  "id": "hot-dry-day",
+  "description": "Hot dry high-solar regeneration case.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 40,
+  "relativeHumidityFraction": 0.2,
+  "solarIrradianceWPerSquareMeter": 1000,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

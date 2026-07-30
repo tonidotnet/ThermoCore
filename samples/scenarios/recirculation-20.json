@@ -1,0 +1,17 @@
+{
+  "id": "recirculation-20",
+  "description": "20% recirculation with cyclic tear solver.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": false,
+  "enableRecirculation": true,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 800,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

@@ -96,15 +96,15 @@ Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
 ## Current highest-priority objective
 
 ```text
-Full DOC-029 export packages and system balance verification are available. Next: regression scenarios and remaining OSS polish.
+AWG Level-5 regression pack, PV rear-air path, and OSS community files are in place. Next: API/Web or further OSS release polish.
 ```
 
 ## Recommended next tasks
 
-1. `APP-006` — Regression scenarios (needs DOC-022 or lightweight scenario pack)
-2. Remaining OSS polish (`REP-005`/`REP-006`/`REP-007`, PR template)
-3. PV rear-air channel / combined HR+recirculation (deferred MVP limits)
-4. API/Web after Core/AWG acceptance hardening
+1. API specification / first API endpoints (`API-001`+)
+2. Remaining OSS release polish (`OSS-002`, release workflow)
+3. Combined heat-recovery + recirculation (needs multi-tear engine support)
+4. Web MVP after API contracts stabilize
 
 ---
 
@@ -114,7 +114,7 @@ Full DOC-029 export packages and system balance verification are available. Next
 |---|---:|---:|---:|---:|---:|
 | Documentation foundations | 12 | 8 | 0 | 4 | 0 |
 | AI workspace | 10 | 10 | 0 | 0 | 0 |
-| Repository setup | 12 | 7 | 0 | 0 | 5 |
+| Repository setup | 12 | 12 | 0 | 0 | 0 |
 | ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
 | Physical components | 38 | 0 | 0 | 0 | 38 |
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
@@ -167,7 +167,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | DOC-019A | `19_WebApi.md` | P2 | Planned | Missing | Before API implementation | Create after engine contract stabilizes |
 | DOC-020A | `20_BlazorWeb.md` | P2 | Planned | Missing | Before Web implementation | Create after API |
 | DOC-021A | `21_DataModel.md` | P2 | Planned | Missing | Before persistence | Create after result model |
-| DOC-022 | `22_TestStrategy.md` | P0 | Ready | Missing | Yes | One of next documents |
+| DOC-022 | `22_TestStrategy.md` | P0 | Done | Implemented | Yes | Scenario pack under samples/scenarios |
 | DOC-023A | `23_Calibration.md` | P3 | Planned | Missing | Before calibration tooling | Later |
 | DOC-024A | `24_Optimization.md` | P3 | Planned | Missing | Before optimization | Later |
 | DOC-025 | `25_NumericalMethods.md` | P0 | Ready | Missing | Yes | Highest-priority next document |
@@ -204,13 +204,13 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | REP-002 | Add root README | P1 | Done | REP-001 | `README.md` | Explains ThermoCore and AWG reference app |
 | REP-003 | Select and add license | P1 | Done | REP-001 | `LICENSE` | Apache-2.0 + ADR-001 |
 | REP-004 | Add contribution guide | P2 | Done | REP-002, REP-003 | `CONTRIBUTING.md` | Includes development workflow |
-| REP-005 | Add code of conduct | P2 | Planned | REP-001 | `CODE_OF_CONDUCT.md` | Standard open-source policy |
-| REP-006 | Add security policy | P2 | Planned | REP-001 | `SECURITY.md` | Vulnerability reporting |
-| REP-007 | Add change log | P2 | Planned | REP-001 | `CHANGELOG.md` | Keep a release history |
+| REP-005 | Add code of conduct | P2 | Done | REP-001 | `CODE_OF_CONDUCT.md` | Contributor Covenant 2.1 |
+| REP-006 | Add security policy | P2 | Done | REP-001 | `SECURITY.md` | Vulnerability reporting |
+| REP-007 | Add change log | P2 | Done | REP-001 | `CHANGELOG.md` | Keep a release history |
 | REP-008 | Add `.gitignore` | P0 | Done | REP-001 | `.gitignore` | .NET, IDE and OS exclusions |
 | REP-009 | Add `.editorconfig` | P0 | Done | REP-001, DOC-018A | `.editorconfig` | Matches coding rules |
-| REP-010 | Add issue templates | P3 | Planned | REP-004 | `.github/ISSUE_TEMPLATE/` | Bug, feature, model validation |
-| REP-011 | Add pull-request template | P2 | Planned | REP-004 | `.github/pull_request_template.md` | Includes test and balance checklist |
+| REP-010 | Add issue templates | P3 | Done | REP-004 | `.github/ISSUE_TEMPLATE/` | Bug and feature templates |
+| REP-011 | Add pull-request template | P2 | Done | REP-004 | `.github/pull_request_template.md` | Includes test and balance checklist |
 | REP-012 | Add CI workflow | P1 | Done | DEV-001 | `.github/workflows/build.yml` | Build + test on .NET 10 |
 
 ---
@@ -432,7 +432,7 @@ The counts are indicative and shall be updated when tasks are added, split or co
 | APP-003 | Run simulation | P1 | Done | APP-002, GRAPH-008 | Passing |
 | APP-004 | Print summary | P1 | Done | APP-003 | Passing |
 | APP-005 | Export CSV | P1 | Done | APP-003, DOC-029A | Passing |
-| APP-006 | Add regression scenarios | P1 | Blocked | APP-003, DOC-022 | NotStarted |
+| APP-006 | Add regression scenarios | P1 | Done | APP-003, DOC-022 | Passing |
 
 ## 18.2 API
 
@@ -663,10 +663,10 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. APP-006 — Regression scenarios (DOC-022 or lightweight scenario pack)
-2. Remaining OSS polish (CODE_OF_CONDUCT, SECURITY, CHANGELOG, PR template)
-3. PV rear-air / combined heat-recovery+recirculation (MVP currently exclusive)
-4. API/Web after AWG acceptance hardening
+1. API-001+ — API specification and first endpoints
+2. OSS-002 / release polish — public README hardening, release workflow
+3. Combined heat-recovery + recirculation (multi-tear engine)
+4. Web MVP after API contracts stabilize
 ```
 
 ---

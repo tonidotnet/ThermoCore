@@ -66,6 +66,7 @@ nav:
       - Master index: 00_Project/MASTER_INDEX.md
       - Document inventory: 00_Project/DOCUMENT_INVENTORY.md
       - Implementation progress: 00_Project/IMPLEMENTATION_PROGRESS.md
+      - Next implementation sessions: 00_Project/NEXT_IMPLEMENTATION_SESSIONS.md
       - Architecture map: 00_Project/ARCHITECTURE_MAP.md
       - Dependency graph: 00_Project/DOCUMENT_DEPENDENCY_GRAPH.md
   - Architecture:

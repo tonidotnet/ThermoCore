@@ -29,8 +29,8 @@
 | 18_CodingRules.md | Preserved | Detailed | Use as mandatory AI rule set |
 | 19–21, 29–30 Product docs | Preserved | ReadyForImplementation | After engine contract |
 | 22_TestStrategy.md | Preserved | ReadyForImplementation | Enforce for all coding |
-| 23_Calibration.md | Outline | Thin draft | Later |
-| 24_Optimization.md | Outline | Thin draft | Later |
+| 23_Calibration.md | Implemented | MVP import/align/fit/provenance | Keep |
+| 24_Optimization.md | Implemented | Sweep/sensitivity/Pareto MVP | Keep |
 | 25_NumericalMethods.md | Repaired | ReadyForImplementation | In use by Core.Numerics |
 | 26_Constants.md | New | ReadyForImplementation | In use by Core.Physics |
 | 27_Units.md | New | ReadyForImplementation | In use by Core.Units |

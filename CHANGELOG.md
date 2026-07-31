@@ -9,6 +9,7 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Gap audit and session backlog (`docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`)
 - PostgreSQL `IThermoCoreStore` provider with `BYTEA` series payloads (DATA-005)
 - Persisted simulation list/compare API and Blazor compare source toggle (DATA-008)
 - Offline Lychee internal-link check on MkDocs `site/` (DOCSITE-007)

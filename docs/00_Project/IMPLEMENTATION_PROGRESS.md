@@ -90,20 +90,20 @@ Use exactly one of the following status values.
 ## Current project phase
 
 ```text
-Phase 1 — ThermoCore.Core foundation (Milestone A2/A3)
+Phase 4 — Post-MVP polish (after M4 Web/API Done; M5 validation still open)
 ```
 
 ## Current highest-priority objective
 
 ```text
-All Ready code/infra items are Done (Postgres, persisted compare, docs link check). Next: OSS diagrams or OPT polish.
+Close doc/tracker drift, then product polish sessions (see NEXT_IMPLEMENTATION_SESSIONS.md).
 ```
 
 ## Recommended next tasks
 
-1. `OSS-003` architecture diagram assets
-2. Richer OPT objectives / random search
-3. DOC metadata automation (`DOC-007`/`DOC-011`)
+1. Session A — tracker/inventory truth (`docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`)
+2. Session B — `OSS-003` / `OSS-004` diagrams and good-first issues
+3. Session C/D — DEV gates or API contract hardening
 
 ---
 
@@ -111,16 +111,17 @@ All Ready code/infra items are Done (Postgres, persisted compare, docs link chec
 
 | Area | Total | Done | In progress | Ready | Blocked/Planned |
 |---|---:|---:|---:|---:|---:|
-| Documentation foundations | 12 | 8 | 0 | 4 | 0 |
+| Documentation foundations | 12 | 10 | 0 | 0 | 2 |
 | AI workspace | 10 | 10 | 0 | 0 | 0 |
 | Repository setup | 12 | 12 | 0 | 0 | 0 |
-| ThermoCore.Core | 20 | 0 | 0 | 2 | 18 |
-| Physical components | 38 | 0 | 0 | 0 | 38 |
+| ThermoCore.Core (CORE/GRAPH/GEN) | ~41 | ~41 | 0 | 0 | 0 |
+| Physical components | ~59 | ~59 | 0 | 0 | 0 |
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
-| API and Web | 22 | 22 | 0 | 0 | 0 |
-| Validation and optimization | 15 | 0 | 0 | 0 | 15 |
+| API and Web (incl. APP console) | ~28 | ~28 | 0 | 0 | 0 |
+| Validation and optimization (CAL/OPT) | 14 | 14 | 0 | 0 | 0 |
+| Data / Docs site / OSS | — | Most Done | 0 | 0 | OSS-003/004 Planned |
 
-The counts are indicative and shall be updated when tasks are added, split or completed.
+Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AIR network, full Web wizard) are tracked in `NEXT_IMPLEMENTATION_SESSIONS.md`.
 
 ---
 
@@ -597,21 +598,23 @@ Completion requirements:
 Status:
 
 ```text
-Blocked
+Done
 ```
 
 Completion requirements:
 
-- [ ] Solar panel
-- [ ] Solar collector
-- [ ] Peltier
-- [ ] Silica gel
-- [ ] Condenser
-- [ ] Fan and airflow
-- [ ] Battery
-- [ ] AWG controller
-- [ ] 24-hour simulation
+- [x] Solar panel
+- [x] Solar collector
+- [x] Peltier
+- [x] Silica gel
+- [x] Condenser
+- [x] Fan and airflow
+- [x] Battery
+- [x] AWG controller
+- [x] 24-hour simulation
 - [x] Water and energy balances
+
+Notes: MVP component/AWG coding complete. Soft gaps (full airflow network types, AWG NTU HR wiring) are Session H honesty work, not M3 blockers.
 
 ## Milestone M4 — ThermoCore.Web 0.7 MVP
 
@@ -641,10 +644,10 @@ Blocked
 Completion requirements:
 
 - [ ] Prototype measurement data
-- [ ] Calibration
+- [ ] Calibration validated against prototype (code MVP CAL-001…007 already Done)
 - [ ] Published model limitations
-- [ ] Stable configuration schema
-- [ ] Public documentation portal
+- [x] Stable configuration schema (MVP)
+- [x] Public documentation portal (MkDocs + Pages workflow)
 - [ ] Public GitHub release
 
 ---
@@ -662,10 +665,12 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. OSS-003 architecture diagram assets
-2. Richer OPT objectives / random search
-3. DOC-007 / DOC-011 metadata automation
+1. Session A — tracker/inventory truth (NEXT_IMPLEMENTATION_SESSIONS.md)
+2. Session B — OSS-003 / OSS-004
+3. Session C or D — DEV gates or API hardening
 ```
+
+Full session backlog: `docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`.
 
 ---
 

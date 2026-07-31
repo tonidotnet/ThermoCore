@@ -8,45 +8,55 @@ public static class SimulationEndpoints
 {
     public static IEndpointRouteBuilder MapSimulationEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/simulations", (CreateSimulationRequest request, ISimulationJobStore store) =>
+        app.MapPost("/api/v1/simulations", (
+                CreateSimulationRequest request,
+                ISimulationJobStore store,
+                HttpRequest http) =>
             {
                 try
                 {
-                    var created = store.Enqueue(request);
+                    string? idempotencyKey = null;
+                    if (http.Headers.TryGetValue("Idempotency-Key", out var keys)
+                        && !string.IsNullOrWhiteSpace(keys.FirstOrDefault()))
+                    {
+                        idempotencyKey = keys.ToString().Trim();
+                    }
+
+                    var created = store.Enqueue(request, idempotencyKey);
                     return Results.Accepted($"/api/v1/simulations/{created.SimulationId}", created);
                 }
                 catch (AwgConfigurationException ex)
                 {
-                    return Results.BadRequest(new
-                    {
-                        title = "Configuration error",
-                        status = 400,
-                        detail = ex.Message,
-                        errors = ex.Diagnostics.Select(d => new ValidationIssueDto
+                    return Results.Problem(
+                        detail: ex.Message,
+                        statusCode: StatusCodes.Status400BadRequest,
+                        title: "Configuration error",
+                        type: "https://thermocore.local/errors/configuration",
+                        extensions: new Dictionary<string, object?>
                         {
-                            Path = d.ComponentId ?? "configuration",
-                            Code = d.Code,
-                            Message = d.Message
-                        }).ToArray()
-                    });
+                            ["errors"] = ex.Diagnostics.Select(d => new ValidationIssueDto
+                            {
+                                Path = d.ComponentId ?? "configuration",
+                                Code = d.Code,
+                                Message = d.Message
+                            }).ToArray()
+                        });
                 }
                 catch (ArgumentException ex)
                 {
-                    return Results.BadRequest(new
-                    {
-                        title = "Validation error",
-                        status = 400,
-                        detail = ex.Message
-                    });
+                    return Results.Problem(
+                        detail: ex.Message,
+                        statusCode: StatusCodes.Status400BadRequest,
+                        title: "Validation error",
+                        type: "https://thermocore.local/errors/validation");
                 }
                 catch (InvalidOperationException ex)
                 {
-                    return Results.Conflict(new
-                    {
-                        title = "Resource limit",
-                        status = 409,
-                        detail = ex.Message
-                    });
+                    return Results.Problem(
+                        detail: ex.Message,
+                        statusCode: StatusCodes.Status409Conflict,
+                        title: "Resource limit",
+                        type: "https://thermocore.local/errors/conflict");
                 }
             })
             .WithName("CreateSimulation")
@@ -109,24 +119,7 @@ public static class SimulationEndpoints
                     });
                 }
 
-                var run = job.RunResult;
-                return Results.Ok(new SimulationSummaryResponse
-                {
-                    SimulationId = job.SimulationId,
-                    Status = job.Status.ToString(),
-                    Succeeded = run.Summary.Succeeded,
-                    TopologyId = run.Summary.TopologyId,
-                    CompletedSteps = run.Summary.CompletedSteps,
-                    AggregatedEnergyResidualJ = run.Summary.AggregatedEnergyResidualJ,
-                    AggregatedWaterResidualKg = run.Summary.AggregatedWaterResidualKg,
-                    AggregatedDryAirResidualKg = run.Summary.AggregatedDryAirResidualKg,
-                    WaterBalancePassed = run.BalanceReport.WaterBalancePassed,
-                    EnergyBalancePassed = run.BalanceReport.EnergyBalancePassed,
-                    WarningCount = run.Summary.WarningCount,
-                    ErrorCount = run.Summary.ErrorCount,
-                    FinalWaterTankContentKg = run.Summary.FinalWaterTankContentKg,
-                    FinalBusPowerW = run.Summary.FinalBusPowerW
-                });
+                return Results.Ok(SimulationSummaryMapper.FromJob(job));
             })
             .WithName("GetSimulationSummary")
             .WithTags("Simulations");
@@ -136,11 +129,21 @@ public static class SimulationEndpoints
                 SimulationResultQueryService results,
                 string? channels = null,
                 int page = 1,
-                int pageSize = 50) =>
+                int pageSize = 50,
+                DateTimeOffset? from = null,
+                DateTimeOffset? to = null,
+                double? intervalSeconds = null) =>
             {
                 var lookup = results.TryGetCompletedJob(simulationId);
                 return ToHttpResult(lookup)
-                    ?? Results.Ok(results.BuildSeries(lookup.Job!, channels, page, pageSize));
+                    ?? Results.Ok(results.BuildSeries(
+                        lookup.Job!,
+                        channels,
+                        page,
+                        pageSize,
+                        from,
+                        to,
+                        intervalSeconds));
             })
             .WithName("GetSimulationSeries")
             .WithTags("Simulations");

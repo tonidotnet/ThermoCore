@@ -29,4 +29,13 @@ public sealed record SimulationSummaryResponse
     public double? FinalWaterTankContentKg { get; init; }
 
     public double? FinalBusPowerW { get; init; }
+
+    /// <summary>Collected tank water (kg ≈ L for MVP).</summary>
+    public double? CollectedWaterKg { get; init; }
+
+    /// <summary>Extrapolated liters/day from collected water and run duration.</summary>
+    public double? LitersPerDay { get; init; }
+
+    /// <summary>Wh/liter proxy when electrical bus power is available.</summary>
+    public double? WattHoursPerLiter { get; init; }
 }

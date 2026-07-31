@@ -2,7 +2,7 @@
 ## 12_BatteryAndPowerManagement.md
 
 **Version:** 1.1  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Engineering and implementation specification  
 **Internal units:** SI  
 **Primary implementation language:** C#

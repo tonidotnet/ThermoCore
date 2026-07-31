@@ -67,8 +67,10 @@ nav:
       - Document inventory: 00_Project/DOCUMENT_INVENTORY.md
       - Implementation progress: 00_Project/IMPLEMENTATION_PROGRESS.md
       - Next implementation sessions: 00_Project/NEXT_IMPLEMENTATION_SESSIONS.md
+      - Good first issues: 00_Project/GOOD_FIRST_ISSUES.md
       - Architecture map: 00_Project/ARCHITECTURE_MAP.md
       - Dependency graph: 00_Project/DOCUMENT_DEPENDENCY_GRAPH.md
+      - Architecture diagram: Images/architecture-overview.md
   - Architecture:
       - Vision: 01_Architecture/01_ProjectVision.md
       - Architecture: 01_Architecture/02_Architecture.md
@@ -99,3 +101,4 @@ nav:
   - ADRs:
       - ADR-001 License: ADR/ADR-001-OpenSourceLicense.md
       - ADR-002 Docs site: ADR/ADR-002-DocumentationSite.md
+      - ADR-003 CPM deferral: ADR/ADR-003-CentralPackageManagement.md

@@ -8,6 +8,8 @@ namespace ThermoCore.Api.Services;
 public sealed class InMemorySimulationJobStore : ISimulationJobStore
 {
     private readonly ConcurrentDictionary<string, SimulationJob> _jobs = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, CreateSimulationResponse> _idempotency =
+        new(StringComparer.Ordinal);
     private readonly AwgSimulationRunner _runner = new();
     private readonly ApiResourceLimits _limits;
     private readonly SimulationRunPersistenceService _persistence;
@@ -21,10 +23,16 @@ public sealed class InMemorySimulationJobStore : ISimulationJobStore
         _persistence = persistence ?? SimulationRunPersistenceService.Disabled;
     }
 
-    public CreateSimulationResponse Enqueue(CreateSimulationRequest request)
+    public CreateSimulationResponse Enqueue(CreateSimulationRequest request, string? idempotencyKey = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Configuration);
+
+        if (!string.IsNullOrWhiteSpace(idempotencyKey)
+            && _idempotency.TryGetValue(idempotencyKey.Trim(), out var existing))
+        {
+            return existing;
+        }
 
         ValidateResourceLimits(request);
 
@@ -61,12 +69,19 @@ public sealed class InMemorySimulationJobStore : ISimulationJobStore
         Interlocked.Increment(ref _activeJobs);
         _ = Task.Run(() => Execute(job), CancellationToken.None);
 
-        return new CreateSimulationResponse
+        var response = new CreateSimulationResponse
         {
             SimulationId = job.SimulationId,
             Status = job.Status.ToString(),
             CreatedAtUtc = job.CreatedAtUtc
         };
+
+        if (!string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            _idempotency.TryAdd(idempotencyKey.Trim(), response);
+        }
+
+        return response;
     }
 
     public SimulationJob? Get(string simulationId)

@@ -96,14 +96,14 @@ Phase 4 — Post-MVP polish (after M4 Web/API Done; M5 validation still open)
 ## Current highest-priority objective
 
 ```text
-Close doc/tracker drift, then product polish sessions (see NEXT_IMPLEMENTATION_SESSIONS.md).
+Sessions A–H delivered (MVP polish). Next: M5 prototype validation, fuller OPT objectives, or APP2 when ready.
 ```
 
 ## Recommended next tasks
 
-1. Session A — tracker/inventory truth (`docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`)
-2. Session B — `OSS-003` / `OSS-004` diagrams and good-first issues
-3. Session C/D — DEV gates or API contract hardening
+1. M5 prototype measurement campaign / published limitations
+2. OPT solar-utilization / battery-cycling objectives
+3. Open `GOOD_FIRST_ISSUES.md` items as GitHub issues
 
 ---
 
@@ -119,7 +119,7 @@ Close doc/tracker drift, then product polish sessions (see NEXT_IMPLEMENTATION_S
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
 | API and Web (incl. APP console) | ~28 | ~28 | 0 | 0 | 0 |
 | Validation and optimization (CAL/OPT) | 14 | 14 | 0 | 0 | 0 |
-| Data / Docs site / OSS | — | Most Done | 0 | 0 | OSS-003/004 Planned |
+| Data / Docs site / OSS | — | Done | 0 | 0 | 0 |
 
 Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AIR network, full Web wizard) are tracked in `NEXT_IMPLEMENTATION_SESSIONS.md`.
 
@@ -222,11 +222,11 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | DEV-001 | Create solution and base projects | P0 | Done | DOC-025, DOC-026, DOC-027, REP-001 | All | DOC-017A, DOC-018A | Passing |
 | DEV-002 | Configure nullable and warning policies | P0 | Done | DEV-001 | All | DOC-018A | Passing |
 | DEV-003 | Configure analyzers and formatting | P1 | Review | DEV-001, REP-009 | All | DOC-018A | Partial |
-| DEV-004 | Add package version strategy | P2 | Blocked | DEV-001 | All | DOC-018A | NotStarted |
+| DEV-004 | Add package version strategy | P2 | Done | DEV-001 | All | DOC-018A | NotApplicable | Deferred via ADR-003 (per-project refs kept) |
 | DEV-005 | Create Core namespace structure | P1 | Done | DEV-001 | `ThermoCore.Core` | DOC-002, DOC-018A | Passing |
 | DEV-006 | Create AWG namespace structure | P1 | Done | DEV-001 | `ThermoCore.AWG` | DOC-002 | Passing |
 | DEV-007 | Create test project structure | P0 | Done | DEV-001, DOC-022 | Tests | DOC-022 | Passing |
-| DEV-008 | Add architecture boundary tests | P1 | Blocked | DEV-001, DEV-005, DEV-006 | Tests | DOC-002, DOC-018A | NotStarted |
+| DEV-008 | Add architecture boundary tests | P1 | Done | DEV-001, DEV-005, DEV-006 | Tests | DOC-002, DOC-018A | Passing | `ThermoCore.Architecture.Tests` |
 
 ---
 
@@ -363,7 +363,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 |---|---|---|---|---|---|---|
 | HR-001 | Expand heat-recovery specification | P1 | Done | DOC-005A, DOC-010A | `11_HeatRecovery.md` | Passing |
 | HR-002 | Sensible effectiveness model | P1 | Done | HR-001, CORE-010 | `11_HeatRecovery.md` | Passing |
-| HR-003 | Counter-flow effectiveness–NTU model | P2 | Done | HR-002, DOC-025 | `11_HeatRecovery.md` | Passing |
+| HR-003 | Counter-flow effectiveness–NTU model | P2 | Done | HR-002, DOC-025 | `11_HeatRecovery.md` | Passing | Core NTU factory exists; AWG wires prescribed ε (MVP) |
 | HR-004 | Hot/cold pressure-drop models | P2 | Done | GEN-010 | `11_HeatRecovery.md` | Passing |
 | HR-005 | Bypass control | P2 | Done | HR-002 | `11_HeatRecovery.md` | Passing |
 | HR-006 | Heat-recovery integration tests | P1 | Done | HR-002 to HR-005 | `22_TestStrategy.md` | Passing |
@@ -376,7 +376,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | AIR-002 | Prescribed-flow fan model | P1 | Done | AIR-001, CORE-012 | `13_FanAndAirflow.md` | Passing |
 | AIR-003 | Fan power calculation | P1 | Done | AIR-002 | `13_FanAndAirflow.md` | Passing |
 | AIR-004 | Fan performance curve | P2 | Done | AIR-002 | `13_FanAndAirflow.md` | Passing |
-| AIR-005 | Airflow network resistance | P2 | Done | AIR-004, GEN-010 | `13_FanAndAirflow.md` | Passing |
+| AIR-005 | Airflow network resistance | P2 | Done | AIR-004, GEN-010 | `13_FanAndAirflow.md` | Passing | Duct Δp + operating-point MVP; full AirflowNode/Branch Deferred |
 | AIR-006 | Fan/system operating point | P2 | Done | AIR-004, AIR-005, DOC-025 | `13_FanAndAirflow.md` | Passing |
 | AIR-007 | Multi-fan support | P3 | Done | AIR-006 | `13_FanAndAirflow.md` | Passing |
 | AIR-008 | Airflow integration tests | P1 | Done | AIR-002 to AIR-006 | `22_TestStrategy.md` | Passing |
@@ -489,8 +489,8 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 |---|---|---|---|---|---|
 | OSS-001 | Finalize open-source license | P1 | Done | REP-003 | ADR and LICENSE |
 | OSS-002 | Create public project README | P1 | Done | REP-002, DOC-002 | GitHub landing page |
-| OSS-003 | Add architecture diagram assets | P2 | Planned | OSS-002 | `docs/Images/` |
-| OSS-004 | Create first-good-issue backlog | P3 | Planned | REP-010 | GitHub issues |
+| OSS-003 | Add architecture diagram assets | P2 | Done | OSS-002 | `docs/Images/architecture-overview.md` |
+| OSS-004 | Create first-good-issue backlog | P3 | Done | REP-010 | `docs/00_Project/GOOD_FIRST_ISSUES.md` |
 | OSS-005 | Add release process | P2 | Done | REP-012 | GitHub workflow |
 | DOCSITE-001 | Select MkDocs Material | P2 | Done | DOC-006 | ADR-002 |
 | DOCSITE-002 | Create `mkdocs.yml` | P2 | Done | DOCSITE-001, DOC-012 | Documentation site |
@@ -665,12 +665,12 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. Session A — tracker/inventory truth (NEXT_IMPLEMENTATION_SESSIONS.md)
-2. Session B — OSS-003 / OSS-004
-3. Session C or D — DEV gates or API hardening
+1. M5 prototype validation (physical measurements)
+2. Richer OPT objectives (solar / battery)
+3. Publish GOOD_FIRST_ISSUES.md to GitHub
 ```
 
-Full session backlog: `docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`.
+Completed session backlog: `docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md` (A–H implemented 2026-07-31).
 
 ---
 

@@ -43,23 +43,28 @@ else if (status is not null)
     @if (summary is not null)
     {
         <h2>Summary</h2>
+        <div class="row g-3 mb-3">
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Liters/day</div><div class="fs-5">@(summary.LitersPerDay?.ToString("G4") ?? "—")</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Wh/liter</div><div class="fs-5">@(summary.WattHoursPerLiter?.ToString("G4") ?? "—")</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Tank kg</div><div class="fs-5">@(summary.FinalWaterTankContentKg?.ToString("F4") ?? "—")</div></div></div>
+            <div class="col-md-3"><div class="border rounded p-2"><div class="text-muted small">Balances</div><div class="fs-5">W:@(summary.WaterBalancePassed ? "PASS" : "FAIL") · E:@(summary.EnergyBalancePassed ? "PASS" : "FAIL")</div></div></div>
+        </div>
+        <h3 class="h5">Balance residuals</h3>
         <dl class="row">
             <dt class="col-sm-4">Succeeded</dt>
             <dd class="col-sm-8">@(summary.Succeeded ? "yes" : "no")</dd>
             <dt class="col-sm-4">Topology</dt>
             <dd class="col-sm-8">@summary.TopologyId</dd>
-            <dt class="col-sm-4">Water balance</dt>
-            <dd class="col-sm-8">@(summary.WaterBalancePassed ? "PASS" : "FAIL")</dd>
-            <dt class="col-sm-4">Energy balance</dt>
-            <dd class="col-sm-8">@(summary.EnergyBalancePassed ? "PASS" : "FAIL")</dd>
             <dt class="col-sm-4">Water residual</dt>
             <dd class="col-sm-8">@summary.AggregatedWaterResidualKg.ToString("E3") kg</dd>
             <dt class="col-sm-4">Energy residual</dt>
             <dd class="col-sm-8">@summary.AggregatedEnergyResidualJ.ToString("E3") J</dd>
+            <dt class="col-sm-4">Dry-air residual</dt>
+            <dd class="col-sm-8">@summary.AggregatedDryAirResidualKg.ToString("E3") kg</dd>
             <dt class="col-sm-4">Warnings / errors</dt>
             <dd class="col-sm-8">@summary.WarningCount / @summary.ErrorCount</dd>
-            <dt class="col-sm-4">Tank content</dt>
-            <dd class="col-sm-8">@(summary.FinalWaterTankContentKg?.ToString("F4") ?? "—") kg</dd>
+            <dt class="col-sm-4">Bus power</dt>
+            <dd class="col-sm-8">@(summary.FinalBusPowerW?.ToString("F2") ?? "—") W</dd>
         </dl>
 
         <h2>Export</h2>

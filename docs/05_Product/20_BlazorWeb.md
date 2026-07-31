@@ -5,7 +5,7 @@
 **Status:** Implemented  
 **Document Type:** Blazor Web application specification  
 **Applies To:** ThermoCore.Web  
-**Notes:** MVP pages live (home, psychrometrics, simulation start/progress/summary/diagnostics/export). Full configuration wizard and charts remain follow-ups.
+**Notes:** Pages include home, psychrometrics, stepped config wizard with JSON import, simulations list, compare, models, documentation, KPI cards, and basic charts. 13-step marketing wizard and full §12 chart set remain optional polish.
 
 ---
 

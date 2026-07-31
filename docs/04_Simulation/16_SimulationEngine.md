@@ -2,7 +2,7 @@
 ## 16_SimulationEngine.md
 
 **Version:** 1.0  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** Simulation engine specification  
 **Applies To:** ThermoCore.Core  
 **Internal units:** SI

@@ -70,6 +70,18 @@ pip install -r requirements-docs.txt
 mkdocs serve
 ```
 
+Architecture diagram: [`docs/Images/architecture-overview.md`](docs/Images/architecture-overview.md).  
+Session backlog: [`docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`](docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md).  
+Good first issues: [`docs/00_Project/GOOD_FIRST_ISSUES.md`](docs/00_Project/GOOD_FIRST_ISSUES.md).
+
+### Optimization (console)
+
+```bash
+dotnet run --project src/ThermoCore.Console -- sweep --params condenser.bypassFactor=0.1,0.2 --duration 10 --dt 1
+dotnet run --project src/ThermoCore.Console -- sensitivity --duration 10 --dt 1
+dotnet run --project src/ThermoCore.Console -- random-search --samples 20 --seed 42 --duration 10 --dt 1
+```
+
 GitHub Pages deploys from `.github/workflows/docs.yml` after enabling Pages (GitHub Actions source).
 
 ## License

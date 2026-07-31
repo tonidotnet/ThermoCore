@@ -2,7 +2,7 @@
 ## 14_ControlSystem.md
 
 **Version:** 1.1  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** AWG control architecture and state-machine specification  
 **Applies To:** ThermoCore.AWG  
 **Internal units:** SI  

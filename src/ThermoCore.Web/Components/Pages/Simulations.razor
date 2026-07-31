@@ -1,0 +1,111 @@
+@page "/simulations"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+
+<PageTitle>Simulations — ThermoCore</PageTitle>
+
+<h1>Simulations</h1>
+<p>In-memory jobs for this process, plus persisted summaries that survive restart.</p>
+
+<div class="mb-3">
+    <a class="btn btn-primary btn-sm" href="simulations/new">Quick run</a>
+    <a class="btn btn-outline-secondary btn-sm" href="configurations">Configure</a>
+    <button class="btn btn-outline-primary btn-sm" @onclick="LoadAsync">Refresh</button>
+</div>
+
+@if (error is not null)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<h2>In-memory</h2>
+@if (jobs.Count == 0)
+{
+    <p class="text-muted">No jobs yet.</p>
+}
+else
+{
+    <div class="table-responsive mb-4">
+        <table class="table table-sm">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var job in jobs)
+            {
+                <tr>
+                    <td><code>@Short(job.SimulationId)</code></td>
+                    <td>@job.Status</td>
+                    <td>@((job.ProgressFraction * 100).ToString("F0"))%</td>
+                    <td><a href="@($"simulations/{job.SimulationId}")">Open</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h2>Persisted</h2>
+@if (persisted.Count == 0)
+{
+    <p class="text-muted">No persisted summaries yet. Completed runs are saved to the local store automatically.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+            <tr>
+                <th>Summary id</th>
+                <th>Status</th>
+                <th>Topology</th>
+                <th>Tank kg</th>
+                <th>Created (UTC)</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in persisted)
+            {
+                <tr>
+                    <td><code>@Short(item.SummaryId)</code></td>
+                    <td>@item.Status</td>
+                    <td>@item.TopologyId</td>
+                    <td>@(item.FinalWaterTankContentKg?.ToString("F4") ?? "—")</td>
+                    <td>@item.CreatedAtUtc.ToString("u")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<SimulationStatusResponse> jobs = Array.Empty<SimulationStatusResponse>();
+    private IReadOnlyList<PersistedSimulationListItem> persisted = Array.Empty<PersistedSimulationListItem>();
+    private string? error;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        error = null;
+        try
+        {
+            jobs = await Api.ListSimulationsAsync();
+            persisted = await Api.ListPersistedSimulationsAsync();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private static string Short(string id) => id.Length <= 10 ? id : id[..10] + "…";
+}

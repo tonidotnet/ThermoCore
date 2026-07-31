@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using ThermoCore.Api.Services;
 using ThermoCore.Core.Psychrometrics;
+using ThermoCore.Persistence;
 using ThermoCore.Web.Components;
 using ThermoCore.Web.Services;
 
@@ -31,6 +32,20 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
+app.MapGet("/health/live", () => Results.Ok(new { status = "Live" }));
+app.MapGet("/health/ready", (IThermoCoreStore store) =>
+{
+    try
+    {
+        store.EnsureCreated();
+        _ = store.ListSimulationSummaries(1);
+        return Results.Ok(new { status = "Ready", persistence = "ok" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { status = "NotReady", detail = ex.Message }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+});
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

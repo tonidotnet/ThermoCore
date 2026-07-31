@@ -78,7 +78,7 @@ Broader design variables (later):
 | Grid search (Cartesian sweep, ≤3 axes) | Implemented (`AwgParameterSweepRunner`) |
 | One-at-a-time local sensitivity | Implemented (`AwgSensitivityAnalysisRunner`) |
 | Bounded coordinate descent (calibration) | Implemented (CAL-006) |
-| Random search | Later |
+| Random search | Implemented (`AwgRandomSearchRunner`) |
 | Nelder–Mead | Later |
 | Differential Evolution | Future |
 | Bayesian optimization | Future |

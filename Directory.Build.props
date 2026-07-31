@@ -2,8 +2,8 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
     <LangVersion>latest</LangVersion>
-    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 </Project>

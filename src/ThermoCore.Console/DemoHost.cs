@@ -75,6 +75,11 @@ internal static class DemoHost
             return RunSensitivityAnalysis(args);
         }
 
+        if (args.Length >= 1 && args[0] is "random-search" or "--random-search")
+        {
+            return RunRandomSearch(args);
+        }
+
         if (args is ["write-default-config", _])
         {
             return WriteDefaultConfiguration(args[1]);
@@ -103,6 +108,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- sweep --params id=v1,v2 [--params id2=...]
               dotnet run --project src/ThermoCore.Console -- sensitivity [--params id1,id2] [--perturbation 0.1]
+              dotnet run --project src/ThermoCore.Console -- random-search [--samples 20] [--seed 42]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
@@ -115,6 +121,7 @@ internal static class DemoHost
               calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
               sweep                     Grid-search calibratable parameters (OPT-002)
               sensitivity               One-at-a-time local sensitivity ranking (OPT-003)
+              random-search             Uniform random search over calibratable bounds
               write-default-config <p>  Write the MVP default AWG configuration JSON
               --help                    Show this help
 
@@ -153,7 +160,126 @@ internal static class DemoHost
               --config <path>           Baseline AWG configuration JSON
               --duration / -d <sec>     Simulation duration (default 10)
               --dt / --timestep <sec>   Timestep in seconds (default 1)
+
+            Random-search options:
+              --samples <n>             Number of random points (default 20)
+              --seed <int>              RNG seed for reproducibility
+              --params <id,id,...>      Parameter ids (default calibratable catalog)
+              --config <path>           Baseline AWG configuration JSON
+              --duration / -d <sec>     Simulation duration (default 10)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
             """);
+    }
+
+    private static int RunRandomSearch(string[] args)
+    {
+        try
+        {
+            string? configurationPath = null;
+            var durationSeconds = 10.0;
+            var timeStepSeconds = 1.0;
+            var samples = 20;
+            int? seed = null;
+            string[]? parameterIds = null;
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--samples")
+                {
+                    if (i + 1 >= args.Length || !int.TryParse(args[++i], out samples) || samples <= 0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --samples value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--seed")
+                {
+                    if (i + 1 >= args.Length || !int.TryParse(args[++i], out var seedValue))
+                    {
+                        System.Console.Error.WriteLine("Invalid --seed value.");
+                        return ExitUsageError;
+                    }
+
+                    seed = seedValue;
+                }
+                else if (args[i] is "--params")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --params value.");
+                        return ExitUsageError;
+                    }
+
+                    parameterIds = args[i]
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown random-search option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var document = string.IsNullOrWhiteSpace(configurationPath)
+                ? AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false)
+                : AwgConfigurationLoader.LoadFromFile(configurationPath);
+            var options = AwgSimulationOptions.CreateDefault(
+                TimeSpan.FromSeconds(durationSeconds),
+                TimeSpan.FromSeconds(timeStepSeconds));
+
+            var result = new AwgRandomSearchRunner().Run(
+                document.System,
+                document.InitialState,
+                options,
+                samples,
+                seed,
+                parameterIds);
+
+            System.Console.WriteLine($"=== Random search ({result.Points.Count} samples) ===");
+            if (result.BestLitersPerDay is { } best)
+            {
+                System.Console.WriteLine(
+                    $"Best L/day={best.LitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"at {FormatValues(best.ParameterValues)}");
+            }
+
+            return result.Points.Any(p => p.Succeeded) ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or FileNotFoundException)
+        {
+            System.Console.Error.WriteLine($"Random-search error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
     }
 
     private static int RunSensitivityAnalysis(string[] args)

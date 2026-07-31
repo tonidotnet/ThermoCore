@@ -10,12 +10,30 @@
 
 <h1>AWG configuration</h1>
 <p>
-    Sectioned MVP editor for scenario, ambient, airflow, topology, and key component parameters.
+    Guided wizard (steps 1–8) for scenario, ambient, airflow, topology, and key component parameters.
     Values map explicitly to the AWG configuration document; physics stays in Core/AWG.
 </p>
 
+<div class="col-lg-9 mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span class="text-muted">Step @wizardStep of 8</span>
+        <button class="btn btn-sm btn-outline-secondary" disabled="@(wizardStep <= 1)" @onclick="() => wizardStep--">Back</button>
+        <button class="btn btn-sm btn-outline-secondary" disabled="@(wizardStep >= 8)" @onclick="() => wizardStep++">Next</button>
+        <button class="btn btn-sm btn-outline-primary" @onclick="() => showAllSections = !showAllSections">@(showAllSections ? "Wizard view" : "Show all sections")</button>
+    </div>
+    <details class="mb-2">
+        <summary>Import / export JSON</summary>
+        <textarea class="form-control font-monospace mt-2" rows="6" @bind="importJson" placeholder="Paste AWG configuration JSON…"></textarea>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <button class="btn btn-sm btn-secondary" disabled="@busy" @onclick="ImportJsonAsync">Import JSON</button>
+            <button class="btn btn-sm btn-outline-secondary" disabled="@busy" @onclick="ExportJsonAsync">Fill from current</button>
+            <button class="btn btn-sm btn-outline-secondary" disabled="@busy" @onclick="LoadExampleAsync">Load MVP example</button>
+        </div>
+    </details>
+</div>
+
 <div class="row g-3 col-lg-9">
-    <details class="col-12 config-section" open>
+    <details class="col-12 config-section" open="@SectionOpen(1)">
         <summary>1. Scenario and time range</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -29,7 +47,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section" open>
+    <details class="col-12 config-section" open="@SectionOpen(2)">
         <summary>2. Weather / ambient</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -51,7 +69,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(3)">
         <summary>3. Topology switches</summary>
         <div class="mt-2">
             <div class="form-check">
@@ -73,7 +91,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(4)">
         <summary>4. Airflow and tank</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -87,7 +105,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(5)">
         <summary>5. Solar collector</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -101,7 +119,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(6)">
         <summary>6. Silica gel</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -115,7 +133,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(7)">
         <summary>7. Condenser</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -129,7 +147,7 @@
         </div>
     </details>
 
-    <details class="col-12 config-section">
+    <details class="col-12 config-section" open="@SectionOpen(8)">
         <summary>8. Heat recovery</summary>
         <div class="row g-3 mt-1">
             <div class="col-md-6">
@@ -217,6 +235,11 @@
     private bool busy;
     private string? error;
     private ConfigurationValidateResponse? validation;
+    private int wizardStep = 1;
+    private bool showAllSections;
+    private string importJson = string.Empty;
+
+    private bool SectionOpen(int step) => showAllSections || wizardStep == step;
 
     protected override void OnInitialized()
     {
@@ -231,9 +254,48 @@
         enablePvRearAir = false;
         durationSeconds = 30;
         timeStepSeconds = 1;
+        wizardStep = 1;
         LoadDefaultsFromDocument(AwgConfigurationLoader.CreateDefaultDocument(enableElectrical));
         validation = null;
         error = null;
+    }
+
+    private async Task ImportJsonAsync()
+    {
+        error = null;
+        try
+        {
+            var document = AwgConfigurationLoader.LoadFromJson(importJson);
+            LoadDefaultsFromDocument(document);
+            validation = await Api.ValidateConfigurationAsync(document);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private void ExportJsonAsync()
+    {
+        error = null;
+        try
+        {
+            importJson = AwgConfigurationLoader.SaveToJson(BuildDocument());
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private void LoadExampleAsync()
+    {
+        enableElectrical = false;
+        LoadDefaultsFromDocument(AwgConfigurationLoader.CreateDefaultDocument(enableElectricalSubsystem: false));
+        importJson = AwgConfigurationLoader.SaveToJson(BuildDocument());
+        wizardStep = 1;
+        error = null;
+        validation = null;
     }
 
     private void LoadDefaultsFromDocument(AwgConfigurationDocument document)

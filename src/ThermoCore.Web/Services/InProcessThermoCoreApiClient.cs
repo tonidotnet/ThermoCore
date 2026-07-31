@@ -44,6 +44,25 @@ public sealed class InProcessThermoCoreApiClient : IThermoCoreApiClient
             TimestampUtc = DateTimeOffset.UtcNow
         });
 
+    public Task<ModelCatalogResponse> GetModelsAsync(CancellationToken cancellationToken = default)
+    {
+        var modelIds = typeof(AwgV3TopologyIds.ModelIds)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
+            .Select(f => (string)f.GetRawConstantValue()!)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
+
+        return Task.FromResult(new ModelCatalogResponse
+        {
+            TopologyId = AwgV3TopologyIds.TopologyId,
+            TopologyVersion = AwgV3TopologyIds.TopologyVersion,
+            ComponentModelIds = modelIds,
+            ResultFormatVersion = ThermoCore.Core.Results.SimulationResultCollector.ResultFormatVersion,
+            ApiVersion = "v1"
+        });
+    }
+
     public Task<PsychrometricCalculateResponse> CalculatePsychrometricsAsync(
         PsychrometricCalculateRequest request,
         CancellationToken cancellationToken = default)
@@ -110,24 +129,7 @@ public sealed class InProcessThermoCoreApiClient : IThermoCoreApiClient
             return Task.FromResult<SimulationSummaryResponse?>(null);
         }
 
-        var run = job.RunResult;
-        return Task.FromResult<SimulationSummaryResponse?>(new SimulationSummaryResponse
-        {
-            SimulationId = job.SimulationId,
-            Status = job.Status.ToString(),
-            Succeeded = run.Summary.Succeeded,
-            TopologyId = run.Summary.TopologyId,
-            CompletedSteps = run.Summary.CompletedSteps,
-            AggregatedEnergyResidualJ = run.Summary.AggregatedEnergyResidualJ,
-            AggregatedWaterResidualKg = run.Summary.AggregatedWaterResidualKg,
-            AggregatedDryAirResidualKg = run.Summary.AggregatedDryAirResidualKg,
-            WaterBalancePassed = run.BalanceReport.WaterBalancePassed,
-            EnergyBalancePassed = run.BalanceReport.EnergyBalancePassed,
-            WarningCount = run.Summary.WarningCount,
-            ErrorCount = run.Summary.ErrorCount,
-            FinalWaterTankContentKg = run.Summary.FinalWaterTankContentKg,
-            FinalBusPowerW = run.Summary.FinalBusPowerW
-        });
+        return Task.FromResult<SimulationSummaryResponse?>(SimulationSummaryMapper.FromJob(job));
     }
 
     public Task<SimulationSeriesResponse?> GetSeriesAsync(

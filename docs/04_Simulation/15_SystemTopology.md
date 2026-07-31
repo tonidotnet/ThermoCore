@@ -2,7 +2,7 @@
 ## 15_SystemTopology.md
 
 **Version:** 1.1  
-**Status:** ReadyForImplementation  
+**Status:** Implemented  
 **Document Type:** AWG V3 system topology specification  
 **Applies To:** ThermoCore.AWG  
 **Internal units:** SI  

@@ -8,6 +8,8 @@ public interface IThermoCoreApiClient
 {
     Task<HealthResponse> GetHealthAsync(CancellationToken cancellationToken = default);
 
+    Task<ModelCatalogResponse> GetModelsAsync(CancellationToken cancellationToken = default);
+
     Task<PsychrometricCalculateResponse> CalculatePsychrometricsAsync(
         PsychrometricCalculateRequest request,
         CancellationToken cancellationToken = default);

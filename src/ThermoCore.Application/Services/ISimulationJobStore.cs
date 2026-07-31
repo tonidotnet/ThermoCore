@@ -4,7 +4,7 @@ namespace ThermoCore.Api.Services;
 
 public interface ISimulationJobStore
 {
-    CreateSimulationResponse Enqueue(CreateSimulationRequest request);
+    CreateSimulationResponse Enqueue(CreateSimulationRequest request, string? idempotencyKey = null);
 
     SimulationJob? Get(string simulationId);
 

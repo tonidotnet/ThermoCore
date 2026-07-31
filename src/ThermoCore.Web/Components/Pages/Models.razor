@@ -1,0 +1,57 @@
+@page "/models"
+@rendermode InteractiveServer
+@using ThermoCore.Api.Contracts
+@using ThermoCore.Web.Services
+@inject IThermoCoreApiClient Api
+
+<PageTitle>Models — ThermoCore</PageTitle>
+
+<h1>Model catalog</h1>
+<p class="text-muted">Topology and component model identifiers exposed by the API.</p>
+
+@if (error is not null)
+{
+    <div class="alert alert-danger">@error</div>
+}
+else if (catalog is null)
+{
+    <p>Loading…</p>
+}
+else
+{
+    <dl class="row col-lg-8">
+        <dt class="col-sm-4">Topology</dt>
+        <dd class="col-sm-8"><code>@catalog.TopologyId</code> v@catalog.TopologyVersion</dd>
+        <dt class="col-sm-4">Result format</dt>
+        <dd class="col-sm-8">@catalog.ResultFormatVersion</dd>
+        <dt class="col-sm-4">API</dt>
+        <dd class="col-sm-8">@catalog.ApiVersion</dd>
+        <dt class="col-sm-4">Fidelity notes</dt>
+        <dd class="col-sm-8">@catalog.FidelityNotes</dd>
+    </dl>
+
+    <h2>Component model ids</h2>
+    <ul>
+        @foreach (var id in catalog.ComponentModelIds)
+        {
+            <li><code>@id</code></li>
+        }
+    </ul>
+}
+
+@code {
+    private ModelCatalogResponse? catalog;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            catalog = await Api.GetModelsAsync();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

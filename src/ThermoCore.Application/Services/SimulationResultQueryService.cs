@@ -38,7 +38,10 @@ public sealed class SimulationResultQueryService
         SimulationJob job,
         string? channels,
         int page,
-        int pageSize)
+        int pageSize,
+        DateTimeOffset? from = null,
+        DateTimeOffset? to = null,
+        double? intervalSeconds = null)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, _limits.MaximumResultChannels);
@@ -53,6 +56,8 @@ public sealed class SimulationResultQueryService
             query = query.Where(c => wanted.Contains(c.Definition.Id));
         }
 
+        var nativeInterval = job.Options.TimeStep.TotalSeconds;
+        var start = job.Options.StartTimeUtc;
         var ordered = query.OrderBy(c => c.Definition.Id, StringComparer.Ordinal).ToArray();
         var total = ordered.Length;
         var pageItems = ordered
@@ -64,20 +69,75 @@ public sealed class SimulationResultQueryService
                 DisplayName = c.Definition.DisplayName,
                 Unit = c.Definition.Unit,
                 ComponentId = c.Definition.ComponentId,
-                Values = c.Values
+                Values = SliceAndDownsample(c.Values, start, nativeInterval, from, to, intervalSeconds)
             })
             .ToArray();
+
+        var effectiveInterval = intervalSeconds is > 0
+            ? Math.Max(intervalSeconds.Value, nativeInterval)
+            : nativeInterval;
 
         return new SimulationSeriesResponse
         {
             SimulationId = job.SimulationId,
-            StartTimeUtc = job.Options.StartTimeUtc,
-            IntervalSeconds = job.Options.TimeStep.TotalSeconds,
+            StartTimeUtc = from ?? start,
+            IntervalSeconds = effectiveInterval,
             Page = page,
             PageSize = pageSize,
             TotalChannels = total,
             Channels = pageItems
         };
+    }
+
+    public static IReadOnlyList<double> SliceAndDownsample(
+        IReadOnlyList<double> values,
+        DateTimeOffset seriesStart,
+        double nativeIntervalSeconds,
+        DateTimeOffset? from,
+        DateTimeOffset? to,
+        double? intervalSeconds)
+    {
+        if (values.Count == 0 || nativeIntervalSeconds <= 0)
+        {
+            return values;
+        }
+
+        var startIndex = 0;
+        var endIndex = values.Count - 1;
+        if (from is { } fromUtc)
+        {
+            startIndex = Math.Clamp(
+                (int)Math.Floor((fromUtc - seriesStart).TotalSeconds / nativeIntervalSeconds),
+                0,
+                values.Count - 1);
+        }
+
+        if (to is { } toUtc)
+        {
+            endIndex = Math.Clamp(
+                (int)Math.Ceiling((toUtc - seriesStart).TotalSeconds / nativeIntervalSeconds),
+                startIndex,
+                values.Count - 1);
+        }
+
+        var stride = 1;
+        if (intervalSeconds is > 0)
+        {
+            stride = Math.Max(1, (int)Math.Round(intervalSeconds.Value / nativeIntervalSeconds));
+        }
+
+        var result = new List<double>();
+        for (var i = startIndex; i <= endIndex; i += stride)
+        {
+            result.Add(values[i]);
+        }
+
+        if (result.Count == 0 || result[^1] != values[endIndex])
+        {
+            result.Add(values[endIndex]);
+        }
+
+        return result;
     }
 
     public SimulationDiagnosticsResponse BuildDiagnostics(

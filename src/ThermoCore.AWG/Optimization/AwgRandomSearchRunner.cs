@@ -43,34 +43,11 @@ public sealed class AwgRandomSearchRunner
             {
                 var configuration = AwgCalibratableParameterCatalog.Apply(baseline, values);
                 var run = _runner.Run(configuration, initialState, options);
-                var waterKg = run.Summary.FinalWaterTankContentKg ?? 0.0;
-                points.Add(new AwgParameterSweepPointResult
-                {
-                    ParameterValues = values,
-                    Succeeded = run.EngineResult.Succeeded,
-                    CollectedWaterKg = waterKg,
-                    LitersPerDay = AwgOptimizationObjectives.LitersPerDay(waterKg, options.Duration),
-                    WattHoursPerLiter = AwgOptimizationObjectives.WattHoursPerLiter(run.Summary),
-                    AggregatedEnergyResidualJ = run.Summary.AggregatedEnergyResidualJ,
-                    AggregatedWaterResidualKg = run.Summary.AggregatedWaterResidualKg,
-                    FailureMessage = run.EngineResult.Succeeded
-                        ? null
-                        : string.Join("; ", run.EngineResult.Diagnostics.Select(d => d.Code))
-                });
+                points.Add(AwgParameterSweepRunner.CreatePoint(values, run, options));
             }
             catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException)
             {
-                points.Add(new AwgParameterSweepPointResult
-                {
-                    ParameterValues = values,
-                    Succeeded = false,
-                    CollectedWaterKg = 0,
-                    LitersPerDay = 0,
-                    WattHoursPerLiter = null,
-                    AggregatedEnergyResidualJ = double.NaN,
-                    AggregatedWaterResidualKg = double.NaN,
-                    FailureMessage = ex.Message
-                });
+                points.Add(AwgParameterSweepRunner.CreateFailedPoint(values, ex.Message));
             }
         }
 

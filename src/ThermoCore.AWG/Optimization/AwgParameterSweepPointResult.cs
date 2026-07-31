@@ -13,6 +13,12 @@ public sealed record AwgParameterSweepPointResult
 
     public double? WattHoursPerLiter { get; init; }
 
+    public double? SolarUtilizationFraction { get; init; }
+
+    public double? BatteryThroughputFraction { get; init; }
+
+    public double? BatterySocSwingFraction { get; init; }
+
     public required double AggregatedEnergyResidualJ { get; init; }
 
     public required double AggregatedWaterResidualKg { get; init; }

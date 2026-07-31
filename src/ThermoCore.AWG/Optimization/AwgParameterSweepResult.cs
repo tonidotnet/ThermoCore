@@ -14,6 +14,18 @@ public sealed record AwgParameterSweepResult
             .OrderBy(p => p.WattHoursPerLiter!.Value)
             .FirstOrDefault();
 
+    public AwgParameterSweepPointResult? BestSolarUtilization
+        => Points
+            .Where(p => p.Succeeded && p.SolarUtilizationFraction is > 0)
+            .OrderByDescending(p => p.SolarUtilizationFraction!.Value)
+            .FirstOrDefault();
+
+    public AwgParameterSweepPointResult? BestBatteryThroughput
+        => Points
+            .Where(p => p.Succeeded && p.BatteryThroughputFraction is >= 0)
+            .OrderBy(p => p.BatteryThroughputFraction!.Value)
+            .FirstOrDefault();
+
     /// <summary>Bi-objective Pareto front (max L/day, min Wh/L) when electrical proxy exists.</summary>
     public IReadOnlyList<AwgParameterSweepPointResult> ParetoFrontLitersPerDayVsWattHoursPerLiter
         => AwgParetoFront.LitersPerDayVsWattHoursPerLiter(Points);

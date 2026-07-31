@@ -9,8 +9,12 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- M5 holdout validation (`holdout` console), model limitations doc, prototype campaign protocol
+- OPT solar utilization + battery throughput/SOC-swing objectives on AWG summaries and sweeps
+- `ThermoCore.App2.SolarAirHeater` second-application MVP (Core-only forced-air collector)
+- Central Package Management via root `Directory.Packages.props` (ADR-003 migrated)
 - Post-MVP sessions A–H: architecture tests, API KPIs/series downsample/Problem Details/`Idempotency-Key`, `/health/live|ready`, Blazor models/docs/simulations list + wizard/import, random search CLI
-- Architecture overview + good-first-issue drafts (`docs/Images/`, `GOOD_FIRST_ISSUES.md`, ADR-003 CPM deferral)
+- Architecture overview + good-first-issue drafts (`docs/Images/`, `GOOD_FIRST_ISSUES.md`)
 - Gap audit and session backlog (`docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md`)
 - PostgreSQL `IThermoCoreStore` provider with `BYTEA` series payloads (DATA-005)
 - Persisted simulation list/compare API and Blazor compare source toggle (DATA-008)

@@ -5,7 +5,7 @@
 **Status:** Implemented  
 **Document Type:** Optimization specification  
 **Applies To:** ThermoCore.AWG.Optimization  
-**Related tasks:** OPT-001 to OPT-005
+**Related tasks:** OPT-001 to OPT-009
 
 ---
 
@@ -122,6 +122,8 @@ When baseline liters/day is ~0, elasticity falls back to `(y_high - y_low) / ((x
 - Full point table (console)
 - Sensitivity ranking by |liters/day elasticity| (OPT-003)
 - Bi-objective Pareto front max L/day vs min Wh/L (`AwgParetoFront`, OPT-006)
+- Solar utilization fraction = useful collector enthalpy rise / Σ G·A·Δt (OPT-008)
+- Battery throughput fraction = (Σ E_charge + Σ E_discharge) / capacity; SOC swing (OPT-009)
 
 ---
 
@@ -131,6 +133,7 @@ When baseline liters/day is ~0, elasticity falls back to `(y_high - y_low) / ((x
 2. Invalid parameter combinations fail the point without aborting the sweep.
 3. Liters/day and optional Wh/liter are reported for successful points.
 4. When Wh/liter is available, the non-dominated Pareto set for max L/day and min Wh/L is reported.
+5. Sweep / random-search points report optional solar utilization and battery cycling metrics when the topology exposes them.
 
 ---
 

@@ -19,3 +19,12 @@ dotnet run --project src/ThermoCore.Console -- validate samples/calibration/awg-
 ```
 
 Expect near-zero RMSE on ambient and solar channels when using the default configuration without electrical subsystem.
+
+## Holdout
+
+```bash
+dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-mvp-ambient-smoke.csv \
+  --duration 3 --dt 1 --train-fraction 0.67
+```
+
+Physical prototype campaign checklist: `PROTOTYPE_CAMPAIGN.md`.

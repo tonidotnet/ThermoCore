@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ThermoCore.Core\ThermoCore.Core.csproj" />
-    <ProjectReference Include="..\..\src\ThermoCore.AWG\ThermoCore.AWG.csproj" />
+    <ProjectReference Include="..\..\src\ThermoCore.App2.SolarAirHeater\ThermoCore.App2.SolarAirHeater.csproj" />
   </ItemGroup>
 
 </Project>

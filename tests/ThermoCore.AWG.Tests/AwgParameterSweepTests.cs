@@ -15,6 +15,27 @@ public class AwgParameterSweepTests
     }
 
     [Fact]
+    public void Summary_ReportsSolarUtilization_AndBatteryMetricsWhenElectricalEnabled()
+    {
+        var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableElectricalSubsystem: true);
+        var initial = AwgSystemDefaults.CreateMvpInitialState(configuration);
+        var options = AwgSimulationOptions.CreateDefault(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1));
+        var run = new AwgSimulationRunner().Run(configuration, initial, options);
+
+        Assert.True(run.EngineResult.Succeeded);
+        Assert.NotNull(run.Summary.SolarUtilizationFraction);
+        Assert.True(run.Summary.SolarUtilizationFraction is >= 0 and <= 1.5);
+        Assert.NotNull(run.Summary.BatteryThroughputFraction);
+        Assert.NotNull(run.Summary.BatteryStateOfChargeSwingFraction);
+        Assert.Equal(
+            run.Summary.SolarUtilizationFraction,
+            AwgOptimizationObjectives.SolarUtilizationFraction(run.Summary));
+        Assert.Equal(
+            run.Summary.BatteryThroughputFraction,
+            AwgOptimizationObjectives.BatteryThroughputFraction(run.Summary));
+    }
+
+    [Fact]
     public void Sweep_RunsGridAndRanksLitersPerDay()
     {
         var configuration = AwgSystemDefaults.CreateMvpConfiguration(enableElectricalSubsystem: false);

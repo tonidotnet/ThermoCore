@@ -29,8 +29,10 @@
 | 18_CodingRules.md | Preserved | Detailed | Use as mandatory AI rule set |
 | 19–21, 29–30 Product docs | Preserved | ReadyForImplementation | After engine contract |
 | 22_TestStrategy.md | Preserved | ReadyForImplementation | Enforce for all coding |
-| 23_Calibration.md | Implemented | MVP import/align/fit/provenance | Keep |
-| 24_Optimization.md | Implemented | Sweep/sensitivity/Pareto MVP | Keep |
+| 23_Calibration.md | Implemented | MVP import/align/fit/provenance + holdout | Keep |
+| 24_Optimization.md | Implemented | Sweep/sensitivity/Pareto + solar/battery objectives | Keep |
+| 25_SolarAirHeater.md | Implemented | APP2 MVP scaffold | Keep |
+| 26_ModelLimitations.md | Implemented | M5 published limitations | Keep |
 | 25_NumericalMethods.md | Repaired | ReadyForImplementation | In use by Core.Numerics |
 | 26_Constants.md | New | ReadyForImplementation | In use by Core.Physics |
 | 27_Units.md | New | ReadyForImplementation | In use by Core.Units |

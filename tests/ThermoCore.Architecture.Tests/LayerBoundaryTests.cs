@@ -1,4 +1,5 @@
 using System.Reflection;
+using ThermoCore.App2.SolarAirHeater;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Psychrometrics;
 using ThermoCore.Persistence;
@@ -14,6 +15,7 @@ public class LayerBoundaryTests
         var forbidden = new[]
         {
             "ThermoCore.AWG",
+            "ThermoCore.App2.SolarAirHeater",
             "ThermoCore.Application",
             "ThermoCore.Persistence",
             "ThermoCore.Api",
@@ -31,10 +33,27 @@ public class LayerBoundaryTests
         {
             "ThermoCore.Application",
             "ThermoCore.Api",
-            "ThermoCore.Web"
+            "ThermoCore.Web",
+            "ThermoCore.App2.SolarAirHeater"
         };
 
         AssertNoReferences(typeof(AwgV3TopologyIds).Assembly, forbidden);
+    }
+
+    [Fact]
+    public void App2_ReferencesOnlyCore()
+    {
+        var forbidden = new[]
+        {
+            "ThermoCore.AWG",
+            "ThermoCore.Application",
+            "ThermoCore.Persistence",
+            "ThermoCore.Api",
+            "ThermoCore.Web",
+            "ThermoCore.Console"
+        };
+
+        AssertNoReferences(typeof(SolarAirHeaterTopologyIds).Assembly, forbidden);
     }
 
     [Fact]

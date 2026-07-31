@@ -2,7 +2,7 @@
 ## NEXT_IMPLEMENTATION_SESSIONS.md
 
 **Version:** 1.0  
-**Status:** Sessions A–H completed (2026-07-31)  
+**Status:** Sessions A–H completed; M5/OPT/CPM/APP2 wave landed (2026-07-28)  
 **Document Type:** Gap audit and session backlog  
 **Date:** 2026-07-31  
 **Related:** `IMPLEMENTATION_PROGRESS.md`, product specs 19–24, 30
@@ -150,7 +150,7 @@ A (truth) → B (OSS) → C (DEV gates)
                  ↘ D (API) → E (Web UX) → F (wizard)
                  ↘ G (durable jobs/ops) when hosting matters
                  ↘ H (OPT/CAL/AIR) when product physics/tools matter
-APP2 remains Deferred until AWG reuse is explicitly proven for a second domain.
+APP2-001…005 Done (`ThermoCore.App2.SolarAirHeater`). APP2-006 sizing deferred.
 ```
 
 ---

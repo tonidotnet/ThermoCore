@@ -95,10 +95,13 @@ nav:
       - Test strategy: 06_Testing/22_TestStrategy.md
       - Calibration: 06_Testing/23_Calibration.md
       - Optimization: 06_Testing/24_Optimization.md
+      - Model limitations: 06_Testing/26_ModelLimitations.md
+  - Applications:
+      - Solar air heater (APP2): 07_Applications/25_SolarAirHeater.md
   - Project management:
       - Roadmap: 07_ProjectManagement/17_Roadmap.md
       - Coding rules: 07_ProjectManagement/18_CodingRules.md
   - ADRs:
       - ADR-001 License: ADR/ADR-001-OpenSourceLicense.md
       - ADR-002 Docs site: ADR/ADR-002-DocumentationSite.md
-      - ADR-003 CPM deferral: ADR/ADR-003-CentralPackageManagement.md
+      - ADR-003 Central Package Management: ADR/ADR-003-CentralPackageManagement.md

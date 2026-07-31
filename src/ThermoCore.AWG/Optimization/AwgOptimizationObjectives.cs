@@ -2,7 +2,7 @@ using ThermoCore.AWG.Simulation;
 
 namespace ThermoCore.AWG.Optimization;
 
-/// <summary>Scalar objective helpers for AWG optimization (OPT-004/005 MVP).</summary>
+/// <summary>Scalar objective helpers for AWG optimization (OPT-004/005/008/009).</summary>
 public static class AwgOptimizationObjectives
 {
     /// <summary>Approximate liters/day from collected water mass, extrapolating the run duration to 24 h.</summary>
@@ -34,5 +34,34 @@ public static class AwgOptimizationObjectives
         var liters = waterKg;
         var wattHours = powerW * summary.Duration.TotalHours;
         return wattHours / liters;
+    }
+
+    /// <summary>
+    /// Solar utilization = useful collector energy / incident aperture solar energy.
+    /// Prefer higher values. Null when solar ports were not observed.
+    /// </summary>
+    public static double? SolarUtilizationFraction(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.SolarUtilizationFraction;
+    }
+
+    /// <summary>
+    /// Battery cycling intensity as (charge + discharge throughput) / nominal capacity.
+    /// Prefer lower values. Null when the electrical subsystem was not present.
+    /// </summary>
+    public static double? BatteryThroughputFraction(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.BatteryThroughputFraction;
+    }
+
+    /// <summary>
+    /// Observed SOC swing (max − min) during the run. Prefer lower values when minimizing cycling.
+    /// </summary>
+    public static double? BatterySocSwingFraction(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.BatteryStateOfChargeSwingFraction;
     }
 }

@@ -137,7 +137,7 @@ dotnet run --project src/ThermoCore.Console -- calibrate samples/calibration/awg
 - Error metrics (RMSE, MAE, Bias) — implemented
 - Calibration report — MVP console / `MeasurementComparisonReport`
 - Provenance in SQLite via `ThermoCore.Persistence` (CAL-007 MVP)
-- Validation report — later holdout workflow
+- Holdout validation report — implemented (`AwgHoldoutValidationRunner`, console `holdout`)
 
 ---
 
@@ -166,10 +166,18 @@ MVP measurement comparison and fitting are accepted when:
 5. bounded fitting can reduce RMSE versus a wrong initial parameter on synthetic condenser data;
 6. calibration provenance can be stored in SQLite.
 
+Holdout (M5 workflow):
+
+```bash
+dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-mvp-ambient-smoke.csv \
+  --duration 3 --dt 1 --train-fraction 0.67
+```
+
+Chronological split uses distinct timestamps (`MeasurementDatasetSplitter`). Prototype field campaign steps: `samples/calibration/PROTOTYPE_CAMPAIGN.md`. Model limits: `26_ModelLimitations.md`.
+
 Later:
 
-- Holdout validation report;
-- Broader multi-parameter campaigns with physical-limit audits.
+- Broader multi-parameter campaigns with physical-limit audits against real prototype CSV.
 
 ---
 

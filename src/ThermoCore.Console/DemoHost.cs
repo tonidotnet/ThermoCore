@@ -65,6 +65,11 @@ internal static class DemoHost
             return RunParameterCalibration(args);
         }
 
+        if (args.Length >= 2 && args[0] is "holdout" or "--holdout")
+        {
+            return RunHoldoutValidation(args);
+        }
+
         if (args.Length >= 1 && args[0] is "sweep" or "--sweep")
         {
             return RunParameterSweep(args);
@@ -106,6 +111,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
+              dotnet run --project src/ThermoCore.Console -- holdout <measurements.csv> [--train-fraction 0.7] [--params id1,id2]
               dotnet run --project src/ThermoCore.Console -- sweep --params id=v1,v2 [--params id2=...]
               dotnet run --project src/ThermoCore.Console -- sensitivity [--params id1,id2] [--perturbation 0.1]
               dotnet run --project src/ThermoCore.Console -- random-search [--samples 20] [--seed 42]
@@ -119,6 +125,7 @@ internal static class DemoHost
               regress                   Run DOC-022 / APP-006 regression scenarios
               validate <csv>            Compare simulation channels to measurement CSV (CAL)
               calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
+              holdout <csv>             Fit on train window, score holdout (M5 / CAL holdout)
               sweep                     Grid-search calibratable parameters (OPT-002)
               sensitivity               One-at-a-time local sensitivity ranking (OPT-003)
               random-search             Uniform random search over calibratable bounds
@@ -147,6 +154,13 @@ internal static class DemoHost
               --params <id,id,...>      Calibratable parameter ids (default catalog)
               --db <path|postgres:...>  Store specifier (sqlite path or postgres:conn)
               --write-fitted <path>     Write fitted configuration JSON
+
+            Holdout options:
+              --config <path>           Baseline AWG configuration JSON
+              --duration / -d <sec>     Simulation duration (default 10)
+              --dt / --timestep <sec>   Timestep in seconds (default 1)
+              --train-fraction <0-1>    Earlier timestamp fraction for fitting (default 0.7)
+              --params <id,id,...>      Calibratable parameter ids (default catalog)
 
             Sweep options:
               --params <id=v1,v2,...>   Sweep axis (repeatable, max 3)
@@ -488,9 +502,12 @@ internal static class DemoHost
                     point.ParameterValues.OrderBy(p => p.Key, StringComparer.Ordinal)
                         .Select(p => $"{p.Key}={p.Value.ToString("G4", CultureInfo.InvariantCulture)}"));
                 var wh = point.WattHoursPerLiter?.ToString("G4", CultureInfo.InvariantCulture) ?? "n/a";
+                var solar = point.SolarUtilizationFraction?.ToString("G4", CultureInfo.InvariantCulture) ?? "n/a";
+                var batt = point.BatteryThroughputFraction?.ToString("G4", CultureInfo.InvariantCulture) ?? "n/a";
                 System.Console.WriteLine(
                     $"  [{(point.Succeeded ? "ok" : "fail")}] {values} | " +
                     $"L/day={point.LitersPerDay.ToString("G4", CultureInfo.InvariantCulture)} Wh/L={wh} " +
+                    $"solarUtil={solar} battThru={batt} " +
                     $"waterKg={point.CollectedWaterKg.ToString("G4", CultureInfo.InvariantCulture)}");
                 if (!string.IsNullOrWhiteSpace(point.FailureMessage))
                 {
@@ -510,6 +527,20 @@ internal static class DemoHost
                 System.Console.WriteLine(
                     $"Best Wh/liter: {bestEnergy.WattHoursPerLiter!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
                     $"at {FormatValues(bestEnergy.ParameterValues)}");
+            }
+
+            if (result.BestSolarUtilization is { } bestSolar)
+            {
+                System.Console.WriteLine(
+                    $"Best solar utilization: {bestSolar.SolarUtilizationFraction!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"at {FormatValues(bestSolar.ParameterValues)}");
+            }
+
+            if (result.BestBatteryThroughput is { } bestBattery)
+            {
+                System.Console.WriteLine(
+                    $"Best battery throughput: {bestBattery.BatteryThroughputFraction!.Value.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"at {FormatValues(bestBattery.ParameterValues)}");
             }
 
             var pareto = result.ParetoFrontLitersPerDayVsWattHoursPerLiter;
@@ -729,6 +760,116 @@ internal static class DemoHost
             ex is FileNotFoundException or FormatException or ArgumentException or AwgConfigurationException)
         {
             System.Console.Error.WriteLine($"Calibration error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunHoldoutValidation(string[] args)
+    {
+        try
+        {
+            var measurementPath = args[1];
+            string? configurationPath = null;
+            string? parameterList = null;
+            var durationSeconds = 10.0;
+            var timeStepSeconds = 1.0;
+            var trainFraction = 0.7;
+
+            for (var i = 2; i < args.Length; i++)
+            {
+                if (args[i] is "--config")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --config path.");
+                        return ExitUsageError;
+                    }
+
+                    configurationPath = args[i];
+                }
+                else if (args[i] is "--duration" or "-d")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out durationSeconds)
+                        || durationSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --duration value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--dt" or "--timestep")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out timeStepSeconds)
+                        || timeStepSeconds <= 0.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --dt value.");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--train-fraction")
+                {
+                    if (i + 1 >= args.Length
+                        || !double.TryParse(args[++i], NumberStyles.Float, CultureInfo.InvariantCulture, out trainFraction)
+                        || trainFraction is <= 0.0 or >= 1.0)
+                    {
+                        System.Console.Error.WriteLine("Invalid --train-fraction value (expected (0,1)).");
+                        return ExitUsageError;
+                    }
+                }
+                else if (args[i] is "--params")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --params value.");
+                        return ExitUsageError;
+                    }
+
+                    parameterList = args[i];
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown holdout option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            IEnumerable<string>? parameterIds = parameterList?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            var result = new AwgHoldoutValidationRunner().ValidateFromFiles(
+                measurementPath,
+                configurationPath,
+                durationSeconds,
+                timeStepSeconds,
+                trainFraction,
+                parameterIds);
+
+            System.Console.WriteLine("=== Holdout validation ===");
+            System.Console.WriteLine(
+                $"Split after {result.Split.SplitAfterUtc:O} " +
+                $"(train timestamps={result.Split.TrainTimestampCount}, " +
+                $"holdout={result.Split.HoldoutTimestampCount}, fraction={result.Split.TrainFraction:F2})");
+            System.Console.WriteLine(
+                $"Train RMSE: baseline={result.Training.BaselineReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"fitted={result.Training.FittedReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)}");
+            System.Console.WriteLine(
+                $"Holdout RMSE: baseline={result.HoldoutBaselineReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"fitted={result.HoldoutFittedReport.OverallRmse.ToString("G6", CultureInfo.InvariantCulture)} " +
+                $"improved={result.HoldoutImproved}");
+
+            foreach (var pair in result.Training.Fitting.FittedValues.OrderBy(p => p.Key, StringComparer.Ordinal))
+            {
+                System.Console.WriteLine(
+                    $"  {pair.Key}={pair.Value.ToString("G6", CultureInfo.InvariantCulture)}");
+            }
+
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (
+            ex is FileNotFoundException or FormatException or ArgumentException or AwgConfigurationException)
+        {
+            System.Console.Error.WriteLine($"Holdout error: {ex.Message}");
             return ExitConfigurationFailed;
         }
     }

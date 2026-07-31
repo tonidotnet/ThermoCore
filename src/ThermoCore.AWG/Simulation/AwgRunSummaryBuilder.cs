@@ -1,8 +1,10 @@
 using ThermoCore.AWG.Measurement;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Components;
+using ThermoCore.Core.Components.Power;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
+using ThermoCore.Core.Psychrometrics;
 using ThermoCore.Core.Simulation;
 using ThermoCore.Core.Units;
 
@@ -60,6 +62,9 @@ public static class AwgRunSummaryBuilder
             tankLevel = tank.LevelFraction;
         }
 
+        var solar = ComputeSolarMetrics(built, options, engineResult);
+        var battery = ComputeBatteryMetrics(built);
+
         return new AwgRunSummary
         {
             Succeeded = engineResult.Succeeded,
@@ -81,7 +86,99 @@ public static class AwgRunSummaryBuilder
             FinalBusPowerW = busPower,
             FinalCurtailedPowerW = curtailedPower,
             FinalWaterTankContentKg = tankContent,
-            FinalWaterTankLevelFraction = tankLevel
+            FinalWaterTankLevelFraction = tankLevel,
+            MeanIncidentSolarIrradianceWPerM2 = solar.MeanIrradianceWPerM2,
+            IncidentSolarEnergyJ = solar.IncidentEnergyJ,
+            UsefulCollectorEnergyJ = solar.UsefulEnergyJ,
+            SolarUtilizationFraction = solar.UtilizationFraction,
+            FinalBatteryStateOfChargeFraction = battery.FinalSocFraction,
+            BatteryStateOfChargeSwingFraction = battery.SocSwingFraction,
+            BatteryThroughputFraction = battery.ThroughputFraction
         };
+    }
+
+    private static (
+        double? MeanIrradianceWPerM2,
+        double? IncidentEnergyJ,
+        double? UsefulEnergyJ,
+        double? UtilizationFraction) ComputeSolarMetrics(
+        AwgBuiltSystem built,
+        AwgSimulationOptions options,
+        SimulationRunResult engineResult)
+    {
+        if (engineResult.Steps.Count == 0)
+        {
+            return (null, null, null, null);
+        }
+
+        var apertureM2 = built.Configuration.SolarCollector.ApertureAreaM2;
+        var dt = options.TimeStep.TotalSeconds;
+        if (dt <= 0.0 || apertureM2 <= 0.0)
+        {
+            return (null, null, null, null);
+        }
+
+        var solarKey = $"{AwgV3TopologyIds.SolarRadiation}.outlet";
+        var inletKey = $"{AwgV3TopologyIds.SolarCollector}.inlet";
+        var outletKey = $"{AwgV3TopologyIds.SolarCollector}.outlet";
+
+        var irradianceSum = 0.0;
+        var irradianceCount = 0;
+        var incidentJ = 0.0;
+        var usefulJ = 0.0;
+
+        foreach (var step in engineResult.Steps)
+        {
+            if (step.PortStates.TryGetValue(solarKey, out var solarRaw)
+                && solarRaw is SolarIrradianceState solar)
+            {
+                irradianceSum += solar.IrradianceWPerM2;
+                irradianceCount++;
+                incidentJ += solar.IrradianceWPerM2 * apertureM2 * dt;
+            }
+
+            if (step.PortStates.TryGetValue(inletKey, out var inletRaw)
+                && inletRaw is MoistAirState inlet
+                && step.PortStates.TryGetValue(outletKey, out var outletRaw)
+                && outletRaw is MoistAirState outlet
+                && inlet.DryAirMassFlowKgPerSecond > 0.0)
+            {
+                var heatW = inlet.DryAirMassFlowKgPerSecond
+                    * (outlet.SpecificEnthalpyJPerKgDryAir - inlet.SpecificEnthalpyJPerKgDryAir);
+                usefulJ += Math.Max(0.0, heatW) * dt;
+            }
+        }
+
+        if (irradianceCount == 0)
+        {
+            return (null, null, null, null);
+        }
+
+        var meanG = irradianceSum / irradianceCount;
+        double? utilization = incidentJ > 1e-12 ? usefulJ / incidentJ : null;
+        return (meanG, incidentJ, usefulJ, utilization);
+    }
+
+    private static (
+        double? FinalSocFraction,
+        double? SocSwingFraction,
+        double? ThroughputFraction) ComputeBatteryMetrics(AwgBuiltSystem built)
+    {
+        if (built.Graph.Components.FirstOrDefault(c => c.Id == AwgV3TopologyIds.PowerManager)
+            is not PowerManagementComponent power)
+        {
+            return (null, null, null);
+        }
+
+        var capacityJ = built.Configuration.Battery.NominalCapacityJ;
+        var swing = power.MaximumStateOfChargeFractionObserved - power.MinimumStateOfChargeFractionObserved;
+        double? throughput = capacityJ > 0.0
+            ? (power.AccumulatedChargeEnergyJ + power.AccumulatedDischargeEnergyJ) / capacityJ
+            : null;
+
+        return (
+            power.BatteryState.StateOfChargeFraction,
+            Math.Max(0.0, swing),
+            throughput);
     }
 }

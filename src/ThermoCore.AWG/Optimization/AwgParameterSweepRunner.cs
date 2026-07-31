@@ -42,39 +42,58 @@ public sealed class AwgParameterSweepRunner
             {
                 var configuration = AwgCalibratableParameterCatalog.Apply(baseline, combination);
                 var run = _runner.Run(configuration, initialState, options);
-                var waterKg = run.Summary.FinalWaterTankContentKg ?? 0.0;
-                points.Add(new AwgParameterSweepPointResult
-                {
-                    ParameterValues = combination,
-                    Succeeded = run.EngineResult.Succeeded,
-                    CollectedWaterKg = waterKg,
-                    LitersPerDay = AwgOptimizationObjectives.LitersPerDay(waterKg, options.Duration),
-                    WattHoursPerLiter = AwgOptimizationObjectives.WattHoursPerLiter(run.Summary),
-                    AggregatedEnergyResidualJ = run.Summary.AggregatedEnergyResidualJ,
-                    AggregatedWaterResidualKg = run.Summary.AggregatedWaterResidualKg,
-                    FailureMessage = run.EngineResult.Succeeded
-                        ? null
-                        : string.Join("; ", run.EngineResult.Diagnostics.Select(d => d.Code))
-                });
+                points.Add(CreatePoint(combination, run, options));
             }
             catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException)
             {
-                points.Add(new AwgParameterSweepPointResult
-                {
-                    ParameterValues = combination,
-                    Succeeded = false,
-                    CollectedWaterKg = 0,
-                    LitersPerDay = 0,
-                    WattHoursPerLiter = null,
-                    AggregatedEnergyResidualJ = double.NaN,
-                    AggregatedWaterResidualKg = double.NaN,
-                    FailureMessage = ex.Message
-                });
+                points.Add(CreateFailedPoint(combination, ex.Message));
             }
         }
 
         return new AwgParameterSweepResult { Points = points };
     }
+
+    internal static AwgParameterSweepPointResult CreatePoint(
+        IReadOnlyDictionary<string, double> values,
+        AwgSimulationRunResult run,
+        AwgSimulationOptions options)
+    {
+        var waterKg = run.Summary.FinalWaterTankContentKg ?? 0.0;
+        return new AwgParameterSweepPointResult
+        {
+            ParameterValues = values,
+            Succeeded = run.EngineResult.Succeeded,
+            CollectedWaterKg = waterKg,
+            LitersPerDay = AwgOptimizationObjectives.LitersPerDay(waterKg, options.Duration),
+            WattHoursPerLiter = AwgOptimizationObjectives.WattHoursPerLiter(run.Summary),
+            SolarUtilizationFraction = AwgOptimizationObjectives.SolarUtilizationFraction(run.Summary),
+            BatteryThroughputFraction = AwgOptimizationObjectives.BatteryThroughputFraction(run.Summary),
+            BatterySocSwingFraction = AwgOptimizationObjectives.BatterySocSwingFraction(run.Summary),
+            AggregatedEnergyResidualJ = run.Summary.AggregatedEnergyResidualJ,
+            AggregatedWaterResidualKg = run.Summary.AggregatedWaterResidualKg,
+            FailureMessage = run.EngineResult.Succeeded
+                ? null
+                : string.Join("; ", run.EngineResult.Diagnostics.Select(d => d.Code))
+        };
+    }
+
+    internal static AwgParameterSweepPointResult CreateFailedPoint(
+        IReadOnlyDictionary<string, double> values,
+        string failureMessage)
+        => new()
+        {
+            ParameterValues = values,
+            Succeeded = false,
+            CollectedWaterKg = 0,
+            LitersPerDay = 0,
+            WattHoursPerLiter = null,
+            SolarUtilizationFraction = null,
+            BatteryThroughputFraction = null,
+            BatterySocSwingFraction = null,
+            AggregatedEnergyResidualJ = double.NaN,
+            AggregatedWaterResidualKg = double.NaN,
+            FailureMessage = failureMessage
+        };
 
     private static List<Dictionary<string, double>> BuildCombinations(IReadOnlyList<AwgParameterSweepAxis> axes)
     {

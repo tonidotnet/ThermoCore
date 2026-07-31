@@ -96,14 +96,14 @@ Phase 4 — Post-MVP polish (after M4 Web/API Done; M5 validation still open)
 ## Current highest-priority objective
 
 ```text
-Sessions A–H delivered (MVP polish). Next: M5 prototype validation, fuller OPT objectives, or APP2 when ready.
+M5 software workflow + OPT solar/battery + CPM + APP2 solar-air-heater scaffold landed. Physical prototype CSV still open for M5 closure.
 ```
 
 ## Recommended next tasks
 
-1. M5 prototype measurement campaign / published limitations
-2. OPT solar-utilization / battery-cycling objectives
-3. Open `GOOD_FIRST_ISSUES.md` items as GitHub issues
+1. Collect physical prototype CSV per `samples/calibration/PROTOTYPE_CAMPAIGN.md`
+2. Open `GOOD_FIRST_ISSUES.md` items as GitHub issues
+3. APP2-006 sizing sweeps when product demand exists
 
 ---
 
@@ -118,7 +118,8 @@ Sessions A–H delivered (MVP polish). Next: M5 prototype validation, fuller OPT
 | Physical components | ~59 | ~59 | 0 | 0 | 0 |
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
 | API and Web (incl. APP console) | ~28 | ~28 | 0 | 0 | 0 |
-| Validation and optimization (CAL/OPT) | 14 | 14 | 0 | 0 | 0 |
+| Validation and optimization (CAL/OPT) | 17 | 17 | 0 | 0 | 0 |
+| APP2 SolarAirHeater | 6 | 5 | 0 | 0 | 1 |
 | Data / Docs site / OSS | — | Done | 0 | 0 | 0 |
 
 Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AIR network, full Web wizard) are tracked in `NEXT_IMPLEMENTATION_SESSIONS.md`.
@@ -222,7 +223,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | DEV-001 | Create solution and base projects | P0 | Done | DOC-025, DOC-026, DOC-027, REP-001 | All | DOC-017A, DOC-018A | Passing |
 | DEV-002 | Configure nullable and warning policies | P0 | Done | DEV-001 | All | DOC-018A | Passing |
 | DEV-003 | Configure analyzers and formatting | P1 | Review | DEV-001, REP-009 | All | DOC-018A | Partial |
-| DEV-004 | Add package version strategy | P2 | Done | DEV-001 | All | DOC-018A | NotApplicable | Deferred via ADR-003 (per-project refs kept) |
+| DEV-004 | Add package version strategy | P2 | Done | DEV-001 | All | DOC-018A | NotApplicable | `Directory.Packages.props` CPM (ADR-003 migrated) |
 | DEV-005 | Create Core namespace structure | P1 | Done | DEV-001 | `ThermoCore.Core` | DOC-002, DOC-018A | Passing |
 | DEV-006 | Create AWG namespace structure | P1 | Done | DEV-001 | `ThermoCore.AWG` | DOC-002 | Passing |
 | DEV-007 | Create test project structure | P0 | Done | DEV-001, DOC-022 | Tests | DOC-022 | Passing |
@@ -513,6 +514,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | CAL-005 | Implement RMSE and bias | P3 | Done | CAL-004 | `23_Calibration.md` | Passing |
 | CAL-006 | Implement parameter fitting | P3 | Done | CAL-005, DOC-025 | `23_Calibration.md` | Passing |
 | CAL-007 | Store calibrated parameter provenance | P3 | Done | CAL-006, DATA-003 | `23_Calibration.md` | Passing |
+| CAL-008 | Holdout validation workflow | P3 | Done | CAL-006 | `23_Calibration.md` | Passing | Chronological train/holdout; console `holdout` |
 | OPT-001 | Create optimization specification | P3 | Done | CAL-001 | `24_Optimization.md` | Passing |
 | OPT-002 | Implement parameter sweeps | P3 | Done | OPT-001, AWG-016 | `24_Optimization.md` | Passing |
 | OPT-003 | Implement sensitivity analysis | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
@@ -520,6 +522,8 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | OPT-005 | Implement Wh/liter objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing |
 | OPT-006 | Implement multi-objective comparison | P4 | Done | OPT-003 to OPT-005 | `24_Optimization.md` | Passing |
 | OPT-007 | Add web scenario comparison | P4 | Done | WEB-009 | `20_BlazorWeb.md` | Passing | MVP summary compare; full OPT later |
+| OPT-008 | Solar utilization objective | P3 | Done | OPT-002 | `24_Optimization.md` | Passing | Useful enthalpy / Σ G·A·Δt |
+| OPT-009 | Battery cycling objectives | P3 | Done | OPT-002 | `24_Optimization.md` | Passing | Throughput + SOC swing |
 
 ---
 
@@ -527,12 +531,12 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 
 | ID | Task | Priority | Status | Dependencies | Notes |
 |---|---|---|---|---|---|
-| APP2-001 | Document second thermo concept | P4 | Deferred | AWG-016 | Do not begin before Core/AWG proves reusable |
-| APP2-002 | Define system boundary | P4 | Blocked | APP2-001 | Identify energy and mass domains |
-| APP2-003 | Map reusable components | P4 | Blocked | APP2-002 | Reuse ThermoCore components |
-| APP2-004 | Specify missing components | P4 | Blocked | APP2-003 | Add generic components where possible |
-| APP2-005 | Build simulation topology | P4 | Blocked | APP2-004 | Validate framework reusability |
-| APP2-006 | Run sizing and feasibility study | P4 | Blocked | APP2-005 | Compare design scenarios |
+| APP2-001 | Document second thermo concept | P4 | Done | AWG-016 | `25_SolarAirHeater.md` — forced-air solar air heater |
+| APP2-002 | Define system boundary | P4 | Done | APP2-001 | Moist air + solar only |
+| APP2-003 | Map reusable components | P4 | Done | APP2-002 | Fan, collector, boundaries from Core |
+| APP2-004 | Specify missing components | P4 | Done | APP2-003 | None required for MVP |
+| APP2-005 | Build simulation topology | P4 | Done | APP2-004 | `ThermoCore.App2.SolarAirHeater` graph + runner |
+| APP2-006 | Run sizing and feasibility study | P4 | Deferred | APP2-005 | Later aperture/flow sweeps |
 
 ---
 
@@ -638,14 +642,15 @@ Completion requirements:
 Status:
 
 ```text
-Blocked
+InProgress
 ```
 
 Completion requirements:
 
-- [ ] Prototype measurement data
-- [ ] Calibration validated against prototype (code MVP CAL-001…007 already Done)
-- [ ] Published model limitations
+- [ ] Prototype measurement data (protocol: `samples/calibration/PROTOTYPE_CAMPAIGN.md`)
+- [x] Holdout validation workflow (CAL-008; synthetic proven; field CSV open)
+- [ ] Calibration validated against physical prototype
+- [x] Published model limitations (`26_ModelLimitations.md`)
 - [x] Stable configuration schema (MVP)
 - [x] Public documentation portal (MkDocs + Pages workflow)
 - [ ] Public GitHub release
@@ -665,12 +670,12 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. M5 prototype validation (physical measurements)
-2. Richer OPT objectives (solar / battery)
-3. Publish GOOD_FIRST_ISSUES.md to GitHub
+1. Physical prototype CSV + holdout acceptance (M5 remainder)
+2. Publish GOOD_FIRST_ISSUES.md to GitHub
+3. APP2-006 sizing study (optional)
 ```
 
-Completed session backlog: `docs/00_Project/NEXT_IMPLEMENTATION_SESSIONS.md` (A–H implemented 2026-07-31).
+Completed: sessions A–H; M5 software workflow; OPT-008/009; CPM; APP2-001…005 (`NEXT_IMPLEMENTATION_SESSIONS.md`).
 
 ---
 

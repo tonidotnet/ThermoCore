@@ -65,6 +65,16 @@ public sealed class PowerManagementComponent : ISimulationComponent
 
     public double LastUnservedPowerW { get; private set; }
 
+    /// <summary>Integrated battery charge energy over the run (terminal energy into storage).</summary>
+    public double AccumulatedChargeEnergyJ { get; private set; }
+
+    /// <summary>Integrated battery discharge energy over the run (terminal energy from storage).</summary>
+    public double AccumulatedDischargeEnergyJ { get; private set; }
+
+    public double MinimumStateOfChargeFractionObserved { get; private set; }
+
+    public double MaximumStateOfChargeFractionObserved { get; private set; }
+
     public IReadOnlyDictionary<string, double> LastDeliveredLoadPowerW { get; private set; }
         = new Dictionary<string, double>(StringComparer.Ordinal);
 
@@ -84,6 +94,10 @@ public sealed class PowerManagementComponent : ISimulationComponent
         LastBatteryDischargePowerW = 0.0;
         LastCurtailedPowerW = 0.0;
         LastUnservedPowerW = 0.0;
+        AccumulatedChargeEnergyJ = 0.0;
+        AccumulatedDischargeEnergyJ = 0.0;
+        MinimumStateOfChargeFractionObserved = _battery.State.StateOfChargeFraction;
+        MaximumStateOfChargeFractionObserved = _battery.State.StateOfChargeFraction;
         LastDeliveredLoadPowerW = new Dictionary<string, double>(StringComparer.Ordinal);
     }
 
@@ -183,6 +197,8 @@ public sealed class PowerManagementComponent : ISimulationComponent
             0.0,
             generationNetW - (servedLoadW - LastBatteryDischargePowerW) - LastBatteryChargePowerW);
         LastDeliveredLoadPowerW = delivered;
+        AccumulatedChargeEnergyJ += LastBatteryChargePowerW * dt;
+        AccumulatedDischargeEnergyJ += LastBatteryDischargePowerW * dt;
 
         if (LastCurtailedPowerW > 1e-9)
         {
@@ -269,6 +285,9 @@ public sealed class PowerManagementComponent : ISimulationComponent
             Diagnostics = result.Diagnostics,
             Balance = result.Balance
         });
+        var soc = _battery.State.StateOfChargeFraction;
+        MinimumStateOfChargeFractionObserved = Math.Min(MinimumStateOfChargeFractionObserved, soc);
+        MaximumStateOfChargeFractionObserved = Math.Max(MaximumStateOfChargeFractionObserved, soc);
         _diagnostics.Clear();
         _diagnostics.AddRange(result.Diagnostics);
     }

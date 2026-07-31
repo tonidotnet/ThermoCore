@@ -42,4 +42,23 @@ public sealed record AwgRunSummary
     public double? FinalWaterTankContentKg { get; init; }
 
     public double? FinalWaterTankLevelFraction { get; init; }
+
+    /// <summary>Mean POA irradiance observed on the solar-radiation outlet (W/m²).</summary>
+    public double? MeanIncidentSolarIrradianceWPerM2 { get; init; }
+
+    /// <summary>Σ G·A·Δt over the run using configured collector aperture (J).</summary>
+    public double? IncidentSolarEnergyJ { get; init; }
+
+    /// <summary>Σ ṁ·(h_out−h_in)·Δt across the collector moist-air ports (J, floored at 0 per step).</summary>
+    public double? UsefulCollectorEnergyJ { get; init; }
+
+    /// <summary>UsefulCollectorEnergyJ / IncidentSolarEnergyJ when incident energy &gt; 0.</summary>
+    public double? SolarUtilizationFraction { get; init; }
+
+    public double? FinalBatteryStateOfChargeFraction { get; init; }
+
+    public double? BatteryStateOfChargeSwingFraction { get; init; }
+
+    /// <summary>(Σ E_charge + Σ E_discharge) / NominalCapacity when electrical subsystem is present.</summary>
+    public double? BatteryThroughputFraction { get; init; }
 }

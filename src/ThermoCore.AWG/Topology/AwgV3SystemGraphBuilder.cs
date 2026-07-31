@@ -263,6 +263,12 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             configuration.Condenser.MaximumRetainedFilmKg,
             configuration.Condenser.FilmCarryoverFraction,
             calculator: _calculator));
+        // Supervisory cooling actuator (Peltier cold-side proxy). Defaults to condenser fallback
+        // so uncontrolled runs keep prior behavior; the controller overrides when enabled.
+        components.Add(new ControllableHeatSourceComponent(
+            AwgV3TopologyIds.CondenserCooling,
+            heatFlowW: configuration.Condenser.FallbackAvailableCoolingPowerW,
+            temperatureK: configuration.Condenser.FallbackSurfaceTemperatureK));
         components.Add(new ExhaustAirSinkComponent(AwgV3TopologyIds.ExhaustSink));
         components.Add(new WaterTankComponent(
             AwgV3TopologyIds.WaterTank,
@@ -410,8 +416,8 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         {
             Id = "awg-heat-recovery",
             TearConnectionId = AwgV3TopologyIds.HeatRecoveryTearConnectionId,
-            RelaxationFactor = 0.7,
-            MaximumIterations = 50
+            RelaxationFactor = 0.5,
+            MaximumIterations = 120
         });
     }
 
@@ -446,6 +452,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
         Connect(connections, AwgV3TopologyIds.SolarRadiation, "outlet", AwgV3TopologyIds.SolarCollector, "solar");
         Connect(connections, AwgV3TopologyIds.SolarCollector, "outlet", AwgV3TopologyIds.SilicaGelBed, "inlet");
         Connect(connections, AwgV3TopologyIds.SilicaGelBed, "outlet", AwgV3TopologyIds.Condenser, "inlet");
+        Connect(connections, AwgV3TopologyIds.CondenserCooling, "outlet", AwgV3TopologyIds.Condenser, "cooling");
     }
 
     private static DynamicElectrothermalSolarPanelComponent CreateDynamicPvPanel(

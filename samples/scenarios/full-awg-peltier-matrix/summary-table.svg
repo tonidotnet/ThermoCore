@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="310" viewBox="0 0 520 310">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="24" y="32" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Full AWG Peltier power matrix @ 35 °C / 50% RH</text>
+<text x="24" y="52" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#64748b">Fixed **35 °C**, **RH 50%**, G=950 W/m², silica 2 kg, controlled adsorb/regen, 2 h, Peltier ∈ {40…200} W.</text>
+<text x="32" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Peltier power (W)</text>
+<text x="220" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">L/nap</text>
+<text x="320" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Water (kg)</text>
+<rect x="24" y="74" width="472" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="40" y="94" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">40</text>
+<rect x="220" y="82" width="27.324" height="14" rx="3" fill="#45989D"/>
+<text x="220" y="94" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">0.1583</text>
+<text x="320" y="94" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334155">0.013191</text>
+<rect x="24" y="108" width="472" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="40" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">80</text>
+<rect x="220" y="116" width="55.034" height="14" rx="3" fill="#6D9085"/>
+<text x="220" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">0.3188</text>
+<text x="320" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334155">0.026569</text>
+<rect x="24" y="142" width="472" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="40" y="162" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">120</text>
+<rect x="220" y="150" width="83.078" height="14" rx="3" fill="#95886D"/>
+<text x="220" y="162" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">0.4813</text>
+<text x="320" y="162" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334155">0.040108</text>
+<rect x="24" y="176" width="472" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="40" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">160</text>
+<rect x="220" y="184" width="111.413" height="14" rx="3" fill="#BD8055"/>
+<text x="220" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">0.6455</text>
+<text x="320" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334155">0.053788</text>
+<rect x="24" y="210" width="472" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="40" y="230" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">200</text>
+<rect x="220" y="218" width="140" height="14" rx="3" fill="#E6783C"/>
+<text x="220" y="230" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#0f172a">0.8111</text>
+<text x="320" y="230" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334155">0.067589</text>
+</svg>

@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Control;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Simulation;
 
@@ -29,6 +30,15 @@ public sealed class AwgSimulationRunner
         options.Validate();
 
         var built = _graphBuilder.Build(configuration, initialState, options.WeatherProvider);
+        AwgControlCoordinator? coordinator = null;
+        if (options.EnableController)
+        {
+            coordinator = new AwgControlCoordinator(
+                built,
+                parameters: options.ControlParameters,
+                initialMode: options.InitialControllerMode);
+        }
+
         var engineResult = _engine.Run(
             new SimulationRequest
             {
@@ -37,7 +47,8 @@ public sealed class AwgSimulationRunner
                 Duration = options.Duration,
                 TimeStep = options.TimeStep,
                 ExternalInputs = built.ExternalInputs,
-                Loops = built.Loops
+                Loops = built.Loops,
+                StepHook = coordinator
             },
             cancellationToken);
 
@@ -49,7 +60,9 @@ public sealed class AwgSimulationRunner
             Options = options,
             EngineResult = engineResult,
             Summary = summary,
-            BalanceReport = balanceReport
+            BalanceReport = balanceReport,
+            FinalControllerState = coordinator?.CurrentState,
+            ControllerDecisionTrace = coordinator?.DecisionTrace ?? Array.Empty<AwgDecisionTraceEntry>()
         };
     }
 }

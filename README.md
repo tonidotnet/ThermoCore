@@ -39,6 +39,17 @@ dotnet run --project src/ThermoCore.Console -- regress
 # Dry sunny matrix (T=10…35 °C × silica 1…5 kg, 30% RH, strong sun, high battery)
 dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
 
+# Full AWG flow (HR + electrical) + station T/RH/W diagram
+dotnet run --project src/ThermoCore.Console -- full-flow
+dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/full-awg-flow
+
+# Full AWG ambient matrix (T=20…35 °C × RH=30…60%) + summary table
+dotnet run --project src/ThermoCore.Console -- full-flow-ambient-matrix
+
+# Full AWG silica / Peltier sweeps @ 35 °C / 50% RH
+dotnet run --project src/ThermoCore.Console -- full-flow-silica-matrix
+dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix
+
 # HTTP API
 dotnet run --project src/ThermoCore.Api
 # GET  /api/v1/health

@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Control;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Simulation;
@@ -16,4 +17,9 @@ public sealed record AwgSimulationRunResult
     public required AwgRunSummary Summary { get; init; }
 
     public required AwgSystemBalanceReport BalanceReport { get; init; }
+
+    public AwgControllerState? FinalControllerState { get; init; }
+
+    public IReadOnlyList<AwgDecisionTraceEntry> ControllerDecisionTrace { get; init; }
+        = Array.Empty<AwgDecisionTraceEntry>();
 }

@@ -16,5 +16,14 @@ AWG regression pack: **dry air + strong sunshine**, ample battery, temperature �
 dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
 ```
 
-Schema field: `silicaGelDryAdsorbentMassKg` (see `AwgRegressionScenario`).
+## Results diagram
+
+Simulated matrix charts and table:
+
+- [`RESULTS.md`](RESULTS.md) — heatmaps + Mermaid L/day curves + full table  
+- [`results-heatmap.svg`](results-heatmap.svg) — L/day heatmap (temperature × silica)  
+- [`results-heatmap-water-kg.svg`](results-heatmap-water-kg.svg) — 30 s collected water (kg)  
+- [`results.csv`](results.csv) — raw metrics  
+
+Schema field: `silicaGelDryAdsorbentMassKg` (see `AwgRegressionScenario`).  
 Catalog factory: `AwgRegressionScenarioCatalog.CreateDrySunnyMatrixScenarios()`.

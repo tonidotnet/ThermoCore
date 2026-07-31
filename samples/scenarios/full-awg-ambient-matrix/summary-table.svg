@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="688" height="382" viewBox="0 0 688 382">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="24" y="32" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Full AWG — összefoglaló táblázat (L/nap)</text>
+<text x="24" y="54" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#475569">Bemenet: T × RH · HR+electrical · ṁ=0.02 kg/s · G=950 · silica 2 kg · 30 s</text>
+<text x="24" y="74" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#64748b">Sorok = bemeneti hőmérséklet (°C) · Oszlopok = relatív páratartalom (%)</text>
+<text x="146" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 30%</text>
+<text x="238" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 35%</text>
+<text x="330" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 40%</text>
+<text x="422" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 45%</text>
+<text x="514" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 50%</text>
+<text x="606" y="76" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">RH 60%</text>
+<text x="88" y="118" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">20 °C</text>
+<rect x="103" y="93" width="86" height="42" rx="8" fill="#286EC8" stroke="#ffffff" stroke-width="1.5"/>
+<text x="146" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.072</text>
+<text x="146" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="195" y="93" width="86" height="42" rx="8" fill="#3975BB" stroke="#ffffff" stroke-width="1.5"/>
+<text x="238" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.091</text>
+<text x="238" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="287" y="93" width="86" height="42" rx="8" fill="#4C7EAC" stroke="#ffffff" stroke-width="1.5"/>
+<text x="330" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.113</text>
+<text x="330" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="379" y="93" width="86" height="42" rx="8" fill="#5F879E" stroke="#ffffff" stroke-width="1.5"/>
+<text x="422" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.135</text>
+<text x="422" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="471" y="93" width="86" height="42" rx="8" fill="#74908E" stroke="#ffffff" stroke-width="1.5"/>
+<text x="514" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.158</text>
+<text x="514" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="563" y="93" width="86" height="42" rx="8" fill="#9EA36E" stroke="#ffffff" stroke-width="1.5"/>
+<text x="606" y="115" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.206</text>
+<text x="606" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<text x="88" y="166" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">25 °C</text>
+<rect x="103" y="141" width="86" height="42" rx="8" fill="#4D7EAC" stroke="#ffffff" stroke-width="1.5"/>
+<text x="146" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.114</text>
+<text x="146" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="195" y="141" width="86" height="42" rx="8" fill="#63889B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="238" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.139</text>
+<text x="238" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="287" y="141" width="86" height="42" rx="8" fill="#7C9488" stroke="#ffffff" stroke-width="1.5"/>
+<text x="330" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.167</text>
+<text x="330" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="379" y="141" width="86" height="42" rx="8" fill="#969F75" stroke="#ffffff" stroke-width="1.5"/>
+<text x="422" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.196</text>
+<text x="422" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="471" y="141" width="86" height="42" rx="8" fill="#BEB157" stroke="#ffffff" stroke-width="1.5"/>
+<text x="514" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.241</text>
+<text x="514" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="563" y="141" width="86" height="42" rx="8" fill="#EEBD2F" stroke="#ffffff" stroke-width="1.5"/>
+<text x="606" y="163" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.312</text>
+<text x="606" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<text x="88" y="214" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">30 °C</text>
+<rect x="103" y="189" width="86" height="42" rx="8" fill="#77918C" stroke="#ffffff" stroke-width="1.5"/>
+<text x="146" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.161</text>
+<text x="146" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="195" y="189" width="86" height="42" rx="8" fill="#AEAA62" stroke="#ffffff" stroke-width="1.5"/>
+<text x="238" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.223</text>
+<text x="238" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="287" y="189" width="86" height="42" rx="8" fill="#E0C13D" stroke="#ffffff" stroke-width="1.5"/>
+<text x="330" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.279</text>
+<text x="330" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="379" y="189" width="86" height="42" rx="8" fill="#EDB22D" stroke="#ffffff" stroke-width="1.5"/>
+<text x="422" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.329</text>
+<text x="422" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="471" y="189" width="86" height="42" rx="8" fill="#E99628" stroke="#ffffff" stroke-width="1.5"/>
+<text x="514" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.371</text>
+<text x="514" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="563" y="189" width="86" height="42" rx="8" fill="#E36B1F" stroke="#ffffff" stroke-width="1.5"/>
+<text x="606" y="211" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.434</text>
+<text x="606" y="226" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<text x="88" y="262" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">35 °C</text>
+<rect x="103" y="237" width="86" height="42" rx="8" fill="#E0C03D" stroke="#ffffff" stroke-width="1.5"/>
+<text x="146" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">0.279</text>
+<text x="146" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0f172a">L/nap</text>
+<rect x="195" y="237" width="86" height="42" rx="8" fill="#EBA82B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="238" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.344</text>
+<text x="238" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="287" y="237" width="86" height="42" rx="8" fill="#E68324" stroke="#ffffff" stroke-width="1.5"/>
+<text x="330" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.399</text>
+<text x="330" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="379" y="237" width="86" height="42" rx="8" fill="#E2651E" stroke="#ffffff" stroke-width="1.5"/>
+<text x="422" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.445</text>
+<text x="422" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="471" y="237" width="86" height="42" rx="8" fill="#DF4C19" stroke="#ffffff" stroke-width="1.5"/>
+<text x="514" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.481</text>
+<text x="514" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<rect x="563" y="237" width="86" height="42" rx="8" fill="#DC3214" stroke="#ffffff" stroke-width="1.5"/>
+<text x="606" y="259" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#fff7ed">0.521</text>
+<text x="606" y="274" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#fff7ed">L/nap</text>
+<text x="24" y="354" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#0f172a">Maximum: 0.5211 L/nap @ 35 °C, RH 60%</text>
+</svg>

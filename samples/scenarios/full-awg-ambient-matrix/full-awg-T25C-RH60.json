@@ -1,0 +1,20 @@
+{
+  "id": "full-awg-T25C-RH60",
+  "description": "Full AWG ambient matrix (controlled): 25 \u00B0C, RH 60%, G=950 W/m\u00B2, silica 2 kg, regenerated start, battery SOC 90%, m\u0307=0.02 kg/s, electrical (no HR).",
+  "durationSeconds": 7200,
+  "timeStepSeconds": 5,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.6,
+  "solarIrradianceWPerSquareMeter": 950,
+  "initialBatterySocFraction": 0.9,
+  "initialWaterTankContentKg": 0,
+  "silicaGelDryAdsorbentMassKg": 2,
+  "initialSilicaGelLoadingKgPerKg": 0.02,
+  "enableController": true,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

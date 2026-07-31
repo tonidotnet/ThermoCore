@@ -1,0 +1,18 @@
+{
+  "id": "full-awg-T35C-silica5kg",
+  "description": "Full AWG flow (HR\u002Belectrical): 35 \u00B0C, 30% RH, G=950 W/m\u00B2, battery SOC 90%, silica 5 kg, m\u0307=0.02 kg/s.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": true,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 35,
+  "relativeHumidityFraction": 0.3,
+  "solarIrradianceWPerSquareMeter": 950,
+  "initialBatterySocFraction": 0.9,
+  "initialWaterTankContentKg": 0,
+  "silicaGelDryAdsorbentMassKg": 5,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

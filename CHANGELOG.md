@@ -9,7 +9,12 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Dry-sunny AWG scenario matrix (30 cases: 10–35 °C × 1–5 kg silica, 30% RH, G=950, SOC 90%) under `samples/scenarios/dry-sunny-matrix/`
+- Controlled Full AWG silica-mass and Peltier-power sweeps at 35 °C / 50% RH (`full-flow-silica-matrix`, `full-flow-peltier-matrix`)
+- Wire `RuleBasedAwgController` into `AwgSimulationRunner` (collector air-coupling gate + condenser cooling actuator)
+- Full AWG ambient T×RH matrix with controller (`full-flow-ambient-matrix`: 20–35 °C × 30–60% RH); water yield now increases with RH
+- Simulation SVG visuals: full-flow station train + bars, L/day heatmaps for full-awg-flow and dry-sunny-matrix
+- Full AWG V3 flow pack + `full-flow` console command (HR+electrical, station T/RH/W report in `samples/scenarios/full-awg-flow/`)
+- Dry-sunny AWG scenario matrix (30 cases: 10–35 °C × 1–5 kg silica, 30% RH, G=950, SOC 90%) under `samples/scenarios/dry-sunny-matrix/` with result heatmaps (`RESULTS.md`, `results-heatmap.svg`)
 - `silicaGelDryAdsorbentMassKg` on `AwgRegressionScenario`
 - APP2-006 sizing grid (`app2 --size`), console APP2 smoke run, synthetic multi-regime campaign CSV (`write-campaign`)
 - Good-first backlog refresh + published GitHub issues #2–#4; MkDocs Components nav; `dry-cool-day` scenario

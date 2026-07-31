@@ -1,0 +1,21 @@
+{
+  "id": "full-awg-T35C-RH50-silica1kg",
+  "description": "Controlled Full AWG silica sweep: 35 \u00B0C, RH 50%, G=950 W/m\u00B2, silica 1 kg, Peltier 120 W, regenerated start, 2 h.",
+  "durationSeconds": 7200,
+  "timeStepSeconds": 5,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 35,
+  "relativeHumidityFraction": 0.5,
+  "solarIrradianceWPerSquareMeter": 950,
+  "initialBatterySocFraction": 0.9,
+  "initialWaterTankContentKg": 0,
+  "silicaGelDryAdsorbentMassKg": 1,
+  "initialSilicaGelLoadingKgPerKg": 0.02,
+  "enableController": true,
+  "nominalPeltierPowerRequestW": 120,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

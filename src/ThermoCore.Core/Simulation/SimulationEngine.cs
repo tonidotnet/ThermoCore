@@ -176,6 +176,8 @@ public sealed class SimulationEngine : ISimulationEngine
                 ElapsedTime = elapsed
             };
 
+            request.StepHook?.BeforeStep(stepContext, committedPortStates);
+
             var stepResult = tears.Count == 0
                 ? ExecuteAcyclicStep(request, order, stepContext, committedPortStates, cancellationToken)
                 : ExecuteTornLoopsStep(

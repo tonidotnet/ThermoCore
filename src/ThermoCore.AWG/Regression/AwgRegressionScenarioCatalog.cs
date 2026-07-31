@@ -160,6 +160,177 @@ public static class AwgRegressionScenarioCatalog
         return scenarios;
     }
 
+    /// <summary>
+    /// Full AWG V3 process train (heat recovery + electrical), same dry-sunny air/solar boundaries
+    /// and 0.02 kg/s process flow as the dry-sunny matrix.
+    /// </summary>
+    public static IReadOnlyList<AwgRegressionScenario> CreateFullAwgFlowDrySunnyScenarios()
+    {
+        double[] temperaturesC = [10, 15, 20, 25, 30, 35];
+        double[] silicaKg = [1, 2, 3, 4, 5];
+        var scenarios = new List<AwgRegressionScenario>(temperaturesC.Length * silicaKg.Length);
+        foreach (var temperatureC in temperaturesC)
+        {
+            foreach (var massKg in silicaKg)
+            {
+                var tempLabel = temperatureC.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                var massLabel = massKg.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                scenarios.Add(new AwgRegressionScenario
+                {
+                    Id = $"full-awg-T{tempLabel}C-silica{massLabel}kg",
+                    Description =
+                        $"Full AWG flow (HR+electrical): {tempLabel} °C, 30% RH, G=950 W/m², " +
+                        $"battery SOC 90%, silica {massLabel} kg, ṁ=0.02 kg/s.",
+                    DurationSeconds = 30,
+                    TimeStepSeconds = 1,
+                    EnableElectricalSubsystem = true,
+                    EnableHeatRecovery = true,
+                    AmbientTemperatureC = temperatureC,
+                    RelativeHumidityFraction = 0.30,
+                    SolarIrradianceWPerSquareMeter = 950.0,
+                    InitialBatterySocFraction = 0.90,
+                    SilicaGelDryAdsorbentMassKg = massKg,
+                    RequireSuccess = true,
+                    RequireBalancePass = true
+                });
+            }
+        }
+
+        return scenarios;
+    }
+
+    /// <summary>Canonical single full-flow demo case used for station diagrams.</summary>
+    public static AwgRegressionScenario CreateFullAwgFlowDemoScenario()
+        => new()
+        {
+            Id = "full-awg-flow-demo",
+            Description =
+                "Full AWG V3 path with HR: dry sunny 25 °C / 30% RH / G=950, " +
+                "silica 2 kg, battery 90%, process air 0.02 kg/s.",
+            DurationSeconds = 120,
+            TimeStepSeconds = 1,
+            EnableElectricalSubsystem = true,
+            EnableHeatRecovery = true,
+            AmbientTemperatureC = 25.0,
+            RelativeHumidityFraction = 0.30,
+            SolarIrradianceWPerSquareMeter = 950.0,
+            InitialBatterySocFraction = 0.90,
+            SilicaGelDryAdsorbentMassKg = 2.0,
+            RequireSuccess = true,
+            RequireBalancePass = true
+        };
+
+    /// <summary>
+    /// Full AWG ambient matrix: inlet T ∈ {20,25,30,35} °C × RH ∈ {30,35,40,45,50,60}% 
+    /// with fixed silica 2 kg and process air 0.02 kg/s.
+    /// </summary>
+    public static IReadOnlyList<AwgRegressionScenario> CreateFullAwgFlowAmbientMatrixScenarios()
+    {
+        double[] temperaturesC = [20, 25, 30, 35];
+        double[] relativeHumidityPercents = [30, 35, 40, 45, 50, 60];
+        var scenarios = new List<AwgRegressionScenario>(temperaturesC.Length * relativeHumidityPercents.Length);
+        foreach (var temperatureC in temperaturesC)
+        {
+            foreach (var rhPercent in relativeHumidityPercents)
+            {
+                var tempLabel = temperatureC.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                var rhLabel = rhPercent.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                scenarios.Add(new AwgRegressionScenario
+                {
+                    Id = $"full-awg-T{tempLabel}C-RH{rhLabel}",
+                    Description =
+                        $"Full AWG ambient matrix (controlled): {tempLabel} °C, RH {rhLabel}%, G=950 W/m², " +
+                        "silica 2 kg, regenerated start, battery SOC 90%, ṁ=0.02 kg/s, electrical (no HR).",
+                    // Long enough for ≥1 adsorb→regen cycle with 2 min dwell.
+                    DurationSeconds = 7200,
+                    TimeStepSeconds = 5,
+                    EnableElectricalSubsystem = true,
+                    EnableHeatRecovery = false,
+                    EnableController = true,
+                    AmbientTemperatureC = temperatureC,
+                    RelativeHumidityFraction = rhPercent / 100.0,
+                    SolarIrradianceWPerSquareMeter = 950.0,
+                    InitialBatterySocFraction = 0.90,
+                    SilicaGelDryAdsorbentMassKg = 2.0,
+                    InitialSilicaGelLoadingKgPerKg = 0.02,
+                    RequireSuccess = true,
+                    RequireBalancePass = true
+                });
+            }
+        }
+
+        return scenarios;
+    }
+
+    /// <summary>
+    /// Controlled Full AWG at fixed 35 °C / 50% RH, sweeping silica-gel dry mass.
+    /// </summary>
+    public static IReadOnlyList<AwgRegressionScenario> CreateFullAwgFlowSilicaMassMatrixScenarios()
+    {
+        double[] silicaKg = [1, 2, 3, 4, 5];
+        var scenarios = new List<AwgRegressionScenario>(silicaKg.Length);
+        foreach (var massKg in silicaKg)
+        {
+            var massLabel = massKg.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+            scenarios.Add(CreateControlledBaseline35C50RhScenario(
+                id: $"full-awg-T35C-RH50-silica{massLabel}kg",
+                description:
+                    $"Controlled Full AWG silica sweep: 35 °C, RH 50%, G=950 W/m², " +
+                    $"silica {massLabel} kg, Peltier 120 W, regenerated start, 2 h.",
+                silicaKg: massKg,
+                peltierW: 120.0));
+        }
+
+        return scenarios;
+    }
+
+    /// <summary>
+    /// Controlled Full AWG at fixed 35 °C / 50% RH, sweeping nominal Peltier power.
+    /// </summary>
+    public static IReadOnlyList<AwgRegressionScenario> CreateFullAwgFlowPeltierPowerMatrixScenarios()
+    {
+        double[] peltierW = [40, 80, 120, 160, 200];
+        var scenarios = new List<AwgRegressionScenario>(peltierW.Length);
+        foreach (var powerW in peltierW)
+        {
+            var powerLabel = powerW.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+            scenarios.Add(CreateControlledBaseline35C50RhScenario(
+                id: $"full-awg-T35C-RH50-peltier{powerLabel}W",
+                description:
+                    $"Controlled Full AWG Peltier sweep: 35 °C, RH 50%, G=950 W/m², " +
+                    $"silica 2 kg, Peltier {powerLabel} W, regenerated start, 2 h.",
+                silicaKg: 2.0,
+                peltierW: powerW));
+        }
+
+        return scenarios;
+    }
+
+    private static AwgRegressionScenario CreateControlledBaseline35C50RhScenario(
+        string id,
+        string description,
+        double silicaKg,
+        double peltierW)
+        => new()
+        {
+            Id = id,
+            Description = description,
+            DurationSeconds = 7200,
+            TimeStepSeconds = 5,
+            EnableElectricalSubsystem = true,
+            EnableHeatRecovery = false,
+            EnableController = true,
+            AmbientTemperatureC = 35.0,
+            RelativeHumidityFraction = 0.50,
+            SolarIrradianceWPerSquareMeter = 950.0,
+            InitialBatterySocFraction = 0.90,
+            SilicaGelDryAdsorbentMassKg = silicaKg,
+            InitialSilicaGelLoadingKgPerKg = 0.02,
+            NominalPeltierPowerRequestW = peltierW,
+            RequireSuccess = true,
+            RequireBalancePass = true
+        };
+
     public static void WriteDefaultScenarios(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);

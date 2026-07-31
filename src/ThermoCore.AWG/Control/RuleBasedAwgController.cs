@@ -316,6 +316,17 @@ public sealed class RuleBasedAwgController : IAwgController
 
         if (!CanEnterAdsorption(observation, parameters))
         {
+            // Adsorption heat can collapse X_eq before the absolute loading target is reached.
+            // If the bed already holds harvestable water and solar heat is available, regenerate.
+            if (observation.SilicaGelLoadingKgPerKg > parameters.RegenerationExitLoadingKgPerKg
+                && CanContinueRegeneration(observation, parameters))
+            {
+                return new ModeDecision(
+                    AwgOperatingMode.Regeneration,
+                    "ADSORPTION_TO_REGENERATION_STALLED",
+                    "adsorption-stalled-with-inventory");
+            }
+
             return new ModeDecision(AwgOperatingMode.Standby, "ADSORPTION_EXIT_DRIVING_FORCE", "adsorption-driving-force");
         }
 
@@ -397,7 +408,10 @@ public sealed class RuleBasedAwgController : IAwgController
             return new ModeDecision(AwgOperatingMode.Standby, "STANDBY_HOLD_RESERVE", "battery-reserve");
         }
 
-        if (CanEnterRegeneration(observation, parameters))
+        if (CanEnterRegeneration(observation, parameters)
+            || (observation.SilicaGelLoadingKgPerKg > parameters.RegenerationExitLoadingKgPerKg
+                && CanContinueRegeneration(observation, parameters)
+                && !CanEnterAdsorption(observation, parameters)))
         {
             return new ModeDecision(AwgOperatingMode.Regeneration, "STANDBY_TO_REGENERATION", "regeneration-entry");
         }
@@ -505,10 +519,18 @@ public sealed class RuleBasedAwgController : IAwgController
             fan = Math.Min(fan, 0.3);
         }
 
+        // Regeneration always requests condenser cooling when power is available so desorbed
+        // vapor can be harvested as soon as the dew point rises. Condensation mode still
+        // requires an explicit dew-point margin before enabling the cold surface.
         var condenserEnabled =
             !waterTankFull
-            && mode is AwgOperatingMode.Condensation or AwgOperatingMode.Regeneration
-            && CanCondense(observation, parameters);
+            && observation.AvailableElectricalPowerW > 0.0
+            && mode switch
+            {
+                AwgOperatingMode.Regeneration => true,
+                AwgOperatingMode.Condensation => CanCondense(observation, parameters),
+                _ => false
+            };
 
         var peltier = 0.0;
         if (condenserEnabled)

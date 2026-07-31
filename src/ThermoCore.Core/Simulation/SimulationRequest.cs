@@ -28,4 +28,7 @@ public sealed record SimulationRequest
 
     public IReadOnlyList<SimulationLoopDefinition> Loops { get; init; }
         = Array.Empty<SimulationLoopDefinition>();
+
+    /// <summary>Optional hook invoked immediately before each timestep evaluation.</summary>
+    public ISimulationStepHook? StepHook { get; init; }
 }

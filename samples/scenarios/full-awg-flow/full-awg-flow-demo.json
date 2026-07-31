@@ -1,0 +1,18 @@
+{
+  "id": "full-awg-flow-demo",
+  "description": "Full AWG V3 path with HR: dry sunny 25 \u00B0C / 30% RH / G=950, silica 2 kg, battery 90%, process air 0.02 kg/s.",
+  "durationSeconds": 120,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": true,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 25,
+  "relativeHumidityFraction": 0.3,
+  "solarIrradianceWPerSquareMeter": 950,
+  "initialBatterySocFraction": 0.9,
+  "initialWaterTankContentKg": 0,
+  "silicaGelDryAdsorbentMassKg": 2,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

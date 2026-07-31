@@ -114,6 +114,19 @@ public sealed class DynamicLumpedSolarCollectorComponent : ISimulationComponent
 
     public double AbsorberTemperatureK => _absorberTemperatureK;
 
+    /// <summary>
+    /// When false, process air bypasses absorber coupling (outlet = inlet, no useful heat).
+    /// Models a regeneration-heat damper for supervisory control.
+    /// </summary>
+    public bool AirCouplingEnabled
+    {
+        get => AirCouplingFraction > 0.5;
+        set => AirCouplingFraction = value ? 1.0 : 0.0;
+    }
+
+    /// <summary>0 = full air bypass, 1 = full absorber coupling. Soft-ramps reduce HR tear shocks.</summary>
+    public double AirCouplingFraction { get; set; } = 1.0;
+
     public double LastAbsorbedSolarPowerW { get; private set; }
 
     public double LastUsefulHeatW { get; private set; }
@@ -172,7 +185,7 @@ public sealed class DynamicLumpedSolarCollectorComponent : ISimulationComponent
             irradiance = solar.IrradianceWPerM2;
         }
 
-        LastAbsorbedSolarPowerW = irradiance
+        var opticalAbsorbedW = irradiance
             * _apertureAreaM2
             * _opticalEfficiencyFraction
             * _incidenceAngleModifierFraction;
@@ -186,17 +199,25 @@ public sealed class DynamicLumpedSolarCollectorComponent : ISimulationComponent
 
         double effectiveness;
         MoistAirState outlet;
-        if (zeroFlow)
+        var coupling = Math.Clamp(AirCouplingFraction, 0.0, 1.0);
+        // Supervisory bypass shades the absorber so stagnating collectors do not trip overtemperature
+        // while regeneration heat is intentionally isolated from the process air.
+        LastAbsorbedSolarPowerW = zeroFlow ? opticalAbsorbedW : opticalAbsorbedW * coupling;
+        if (zeroFlow || coupling <= 0.0)
         {
-            // SC-005 stagnation: no useful air heating; absorber stores absorbed − loss.
-            diagnostics.Add(new SimulationDiagnostic
+            // SC-005 stagnation, or supervisory bypass of regeneration heat into the air stream.
+            if (zeroFlow)
             {
-                Code = "COLLECTOR.STAGNATION",
-                Severity = DiagnosticSeverity.Information,
-                Message = "Zero airflow; absorber is in stagnation mode (no useful heat to air).",
-                ComponentId = Id,
-                StepIndex = context.Simulation.StepIndex
-            });
+                diagnostics.Add(new SimulationDiagnostic
+                {
+                    Code = "COLLECTOR.STAGNATION",
+                    Severity = DiagnosticSeverity.Information,
+                    Message = "Zero airflow; absorber is in stagnation mode (no useful heat to air).",
+                    ComponentId = Id,
+                    StepIndex = context.Simulation.StepIndex
+                });
+            }
+
             LastUsefulHeatW = 0.0;
             effectiveness = 0.0;
             outlet = inlet;
@@ -212,10 +233,11 @@ public sealed class DynamicLumpedSolarCollectorComponent : ISimulationComponent
                 ? 0.0
                 : 1.0 - Math.Exp(-_absorberToAirUaWPerK / capacityRate);
 
-            LastUsefulHeatW = effectiveness * capacityRate * (_absorberTemperatureK - inlet.TemperatureK);
+            LastUsefulHeatW = coupling * effectiveness * capacityRate
+                * (_absorberTemperatureK - inlet.TemperatureK);
 
             var outletTemperatureK = inlet.TemperatureK
-                + effectiveness * (_absorberTemperatureK - inlet.TemperatureK);
+                + coupling * effectiveness * (_absorberTemperatureK - inlet.TemperatureK);
             outletTemperatureK = Math.Clamp(outletTemperatureK, 230.0, 450.0);
 
             // SC-006 quadratic pressure drop on air path.

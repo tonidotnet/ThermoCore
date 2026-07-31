@@ -34,6 +34,15 @@ public sealed record AwgRegressionScenario
     /// <summary>When set, overrides MVP silica-gel dry adsorbent mass (kg).</summary>
     public double? SilicaGelDryAdsorbentMassKg { get; init; }
 
+    /// <summary>When set, overrides initial silica-gel water loading (kg/kg).</summary>
+    public double? InitialSilicaGelLoadingKgPerKg { get; init; }
+
+    /// <summary>Enable supervisory Adsorption/Regeneration/Condensation controller.</summary>
+    public bool EnableController { get; init; }
+
+    /// <summary>When set, overrides controller nominal Peltier power request (W).</summary>
+    public double? NominalPeltierPowerRequestW { get; init; }
+
     public bool RequireSuccess { get; init; } = true;
 
     public bool RequireBalancePass { get; init; } = true;

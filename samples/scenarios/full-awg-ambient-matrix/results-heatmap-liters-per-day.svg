@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="658" height="342" viewBox="0 0 658 342">
+<rect width="100%" height="100%" fill="#f7f5f1"/>
+<text x="20" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">Full AWG ambient matrix — L/nap heatmap</text>
+<text x="20" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#52606d">T (°C) × RH (%) · 30 s extrapolált L/nap</text>
+<text x="134" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">30%</text>
+<text x="222" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">35%</text>
+<text x="310" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">40%</text>
+<text x="398" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">45%</text>
+<text x="486" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">50%</text>
+<text x="574" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">60%</text>
+<text x="78" y="98" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">20 °C</text>
+<rect x="94" y="74" width="80" height="40" rx="6" fill="#286EC8" stroke="#fff" stroke-width="1"/>
+<text x="134" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.072</text>
+<rect x="182" y="74" width="80" height="40" rx="6" fill="#3975BB" stroke="#fff" stroke-width="1"/>
+<text x="222" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.091</text>
+<rect x="270" y="74" width="80" height="40" rx="6" fill="#4C7EAC" stroke="#fff" stroke-width="1"/>
+<text x="310" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.113</text>
+<rect x="358" y="74" width="80" height="40" rx="6" fill="#5F879E" stroke="#fff" stroke-width="1"/>
+<text x="398" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.135</text>
+<rect x="446" y="74" width="80" height="40" rx="6" fill="#74908E" stroke="#fff" stroke-width="1"/>
+<text x="486" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.158</text>
+<rect x="534" y="74" width="80" height="40" rx="6" fill="#9EA36E" stroke="#fff" stroke-width="1"/>
+<text x="574" y="98" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.206</text>
+<text x="78" y="146" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">25 °C</text>
+<rect x="94" y="122" width="80" height="40" rx="6" fill="#4D7EAC" stroke="#fff" stroke-width="1"/>
+<text x="134" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.114</text>
+<rect x="182" y="122" width="80" height="40" rx="6" fill="#63889B" stroke="#fff" stroke-width="1"/>
+<text x="222" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.139</text>
+<rect x="270" y="122" width="80" height="40" rx="6" fill="#7C9488" stroke="#fff" stroke-width="1"/>
+<text x="310" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.167</text>
+<rect x="358" y="122" width="80" height="40" rx="6" fill="#969F75" stroke="#fff" stroke-width="1"/>
+<text x="398" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.196</text>
+<rect x="446" y="122" width="80" height="40" rx="6" fill="#BEB157" stroke="#fff" stroke-width="1"/>
+<text x="486" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.241</text>
+<rect x="534" y="122" width="80" height="40" rx="6" fill="#EEBD2F" stroke="#fff" stroke-width="1"/>
+<text x="574" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.312</text>
+<text x="78" y="194" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">30 °C</text>
+<rect x="94" y="170" width="80" height="40" rx="6" fill="#77918C" stroke="#fff" stroke-width="1"/>
+<text x="134" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.161</text>
+<rect x="182" y="170" width="80" height="40" rx="6" fill="#AEAA62" stroke="#fff" stroke-width="1"/>
+<text x="222" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.223</text>
+<rect x="270" y="170" width="80" height="40" rx="6" fill="#E0C13D" stroke="#fff" stroke-width="1"/>
+<text x="310" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.279</text>
+<rect x="358" y="170" width="80" height="40" rx="6" fill="#EDB22D" stroke="#fff" stroke-width="1"/>
+<text x="398" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.329</text>
+<rect x="446" y="170" width="80" height="40" rx="6" fill="#E99628" stroke="#fff" stroke-width="1"/>
+<text x="486" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.371</text>
+<rect x="534" y="170" width="80" height="40" rx="6" fill="#E36B1F" stroke="#fff" stroke-width="1"/>
+<text x="574" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.434</text>
+<text x="78" y="242" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#334e68">35 °C</text>
+<rect x="94" y="218" width="80" height="40" rx="6" fill="#E0C03D" stroke="#fff" stroke-width="1"/>
+<text x="134" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.279</text>
+<rect x="182" y="218" width="80" height="40" rx="6" fill="#EBA82B" stroke="#fff" stroke-width="1"/>
+<text x="222" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.344</text>
+<rect x="270" y="218" width="80" height="40" rx="6" fill="#E68324" stroke="#fff" stroke-width="1"/>
+<text x="310" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.399</text>
+<rect x="358" y="218" width="80" height="40" rx="6" fill="#E2651E" stroke="#fff" stroke-width="1"/>
+<text x="398" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.445</text>
+<rect x="446" y="218" width="80" height="40" rx="6" fill="#DF4C19" stroke="#fff" stroke-width="1"/>
+<text x="486" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.481</text>
+<rect x="534" y="218" width="80" height="40" rx="6" fill="#DC3214" stroke="#fff" stroke-width="1"/>
+<text x="574" y="242" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#102a43">0.521</text>
+</svg>

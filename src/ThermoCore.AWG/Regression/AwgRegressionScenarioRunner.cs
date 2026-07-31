@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Control;
 using ThermoCore.AWG.Simulation;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Units;
@@ -22,7 +23,11 @@ public sealed class AwgRegressionScenarioRunner
         {
             StartTimeUtc = DateTimeOffset.Parse("2026-07-01T00:00:00Z"),
             Duration = TimeSpan.FromSeconds(scenario.DurationSeconds),
-            TimeStep = TimeSpan.FromSeconds(scenario.TimeStepSeconds)
+            TimeStep = TimeSpan.FromSeconds(scenario.TimeStepSeconds),
+            EnableController = scenario.EnableController,
+            ControlParameters = scenario.EnableController
+                ? CreateControlParameters(scenario, configuration)
+                : null
         }.Validate();
 
         var run = _simulationRunner.Run(configuration, initial, options);
@@ -107,7 +112,44 @@ public sealed class AwgRegressionScenarioRunner
             BatteryStoredEnergyJ = Math.Clamp(scenario.InitialBatterySocFraction, 0.0, 1.0)
                 * configuration.Battery.NominalCapacityJ
         };
+        if (scenario.InitialSilicaGelLoadingKgPerKg is double loading)
+        {
+            initial = initial with { SilicaGelLoadingKgPerKg = loading };
+        }
 
         return (configuration, initial.Validate(configuration));
+    }
+
+    /// <summary>
+    /// RH-aware loading thresholds so low-humidity cases can still complete an adsorb/regen cycle
+    /// (absolute 0.20 kg/kg entry is unreachable when X_eq = 0.35·RH).
+    /// </summary>
+    public static AwgControlParameters CreateControlParameters(
+        AwgRegressionScenario scenario,
+        AwgSystemConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(scenario);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        var xMax = configuration.SilicaGel.MaximumWaterLoadingKgPerKgDryAdsorbent;
+        var xFloor = configuration.SilicaGel.MinimumRegeneratedLoadingKgPerKgDryAdsorbent;
+        var xEqAmbient = xMax * Math.Clamp(scenario.RelativeHumidityFraction, 0.0, 1.0);
+        // Bed warms during adsorption (heat of adsorption), so reachable X_eq is well below ambient Henry loading.
+        var adsorbTarget = Math.Max(xFloor + 0.025, 0.40 * xEqAmbient);
+        var regenExit = Math.Max(xFloor, Math.Min(adsorbTarget - 0.015, 0.025));
+
+        var peltierW = scenario.NominalPeltierPowerRequestW
+            ?? RuleBasedAwgController.CreateDefaultParameters().NominalPeltierPowerRequestW;
+
+        return RuleBasedAwgController.CreateDefaultParameters() with
+        {
+            AdsorptionTargetLoadingKgPerKg = adsorbTarget,
+            RegenerationEntryLoadingKgPerKg = adsorbTarget,
+            RegenerationExitLoadingKgPerKg = regenExit,
+            MinimumAdsorptionDrivingForceKgPerKg = 0.004,
+            MinimumModeDwell = TimeSpan.FromMinutes(2),
+            CollectorAbsorberTemperatureLimitK = UnitConversions.CelsiusToKelvin(140.0),
+            NominalPeltierPowerRequestW = peltierW
+        };
     }
 }

@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Control;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Environment;
 using ThermoCore.Core.Validation;
@@ -15,6 +16,13 @@ public sealed record AwgSimulationOptions
 
     public IWeatherProvider? WeatherProvider { get; init; }
 
+    /// <summary>When true, runs <see cref="RuleBasedAwgController"/> each timestep.</summary>
+    public bool EnableController { get; init; }
+
+    public AwgControlParameters? ControlParameters { get; init; }
+
+    public AwgOperatingMode InitialControllerMode { get; init; } = AwgOperatingMode.Off;
+
     public AwgSimulationOptions Validate()
     {
         FiniteNumber.RequirePositive(Duration.TotalSeconds, nameof(Duration));
@@ -24,6 +32,7 @@ public sealed record AwgSimulationOptions
             throw new ArgumentException("Time step cannot exceed duration.", nameof(TimeStep));
         }
 
+        ControlParameters?.Validate();
         return this;
     }
 

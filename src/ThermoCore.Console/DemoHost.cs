@@ -3,6 +3,7 @@ using System.Text.Json;
 using ThermoCore.App2.SolarAirHeater;
 using ThermoCore.AWG.Calibration;
 using ThermoCore.AWG.Configuration;
+using ThermoCore.AWG.Measurement;
 using ThermoCore.AWG.Optimization;
 using ThermoCore.AWG.Regression;
 using ThermoCore.AWG.Simulation;
@@ -66,6 +67,26 @@ internal static class DemoHost
             return RunRegressionScenarios(args);
         }
 
+        if (args.Length >= 1 && args[0] is "full-flow" or "--full-flow")
+        {
+            return RunFullAwgFlow(args);
+        }
+
+        if (args.Length >= 1 && args[0] is "full-flow-ambient-matrix" or "--full-flow-ambient-matrix")
+        {
+            return RunFullAwgAmbientMatrix(args);
+        }
+
+        if (args.Length >= 1 && args[0] is "full-flow-silica-matrix" or "--full-flow-silica-matrix")
+        {
+            return RunFullAwgSilicaMatrix(args);
+        }
+
+        if (args.Length >= 1 && args[0] is "full-flow-peltier-matrix" or "--full-flow-peltier-matrix")
+        {
+            return RunFullAwgPeltierMatrix(args);
+        }
+
         if (args.Length >= 2 && args[0] is "validate" or "--validate")
         {
             return RunMeasurementValidation(args);
@@ -121,6 +142,11 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
+              dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/full-awg-flow
+              dotnet run --project src/ThermoCore.Console -- full-flow [--out samples/scenarios/full-awg-flow]
+              dotnet run --project src/ThermoCore.Console -- full-flow-ambient-matrix [--out samples/scenarios/full-awg-ambient-matrix]
+              dotnet run --project src/ThermoCore.Console -- full-flow-silica-matrix [--out samples/scenarios/full-awg-silica-matrix]
+              dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix [--out samples/scenarios/full-awg-peltier-matrix]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- holdout <measurements.csv> [--train-fraction 0.7] [--params id1,id2]
@@ -139,6 +165,10 @@ internal static class DemoHost
               config <path>             Load AWG JSON configuration and build the V3 graph
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
               regress                   Run DOC-022 / APP-006 regression scenarios
+              full-flow                 Full AWG V3 path (HR+electrical) + station T/RH/W report
+              full-flow-ambient-matrix  Full AWG T×RH matrix (20–35 °C × 30–60% RH) + summary table
+              full-flow-silica-matrix   Full AWG silica mass sweep @ 35 °C / 50% RH
+              full-flow-peltier-matrix  Full AWG Peltier power sweep @ 35 °C / 50% RH
               validate <csv>            Compare simulation channels to measurement CSV (CAL)
               calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
               holdout <csv>             Fit on train window, score holdout (M5 / CAL holdout)
@@ -1011,6 +1041,217 @@ internal static class DemoHost
             System.Console.Error.WriteLine($"Validation error: {ex.Message}");
             return ExitConfigurationFailed;
         }
+    }
+
+    private static int RunFullAwgFlow(string[] args)
+    {
+        try
+        {
+            var outDir = Path.Combine("samples", "scenarios", "full-awg-flow");
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--out")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --out path.");
+                        return ExitUsageError;
+                    }
+
+                    outDir = args[i];
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown full-flow option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var demo = AwgRegressionScenarioCatalog.CreateFullAwgFlowDemoScenario();
+            var matrix = AwgRegressionScenarioCatalog.CreateFullAwgFlowDrySunnyScenarios();
+            AwgRegressionScenarioCatalog.WriteScenarios(outDir, [demo, .. matrix]);
+
+            var runner = new AwgRegressionScenarioRunner();
+            var demoResult = runner.Run(demo);
+            if (!demoResult.Passed)
+            {
+                System.Console.Error.WriteLine(
+                    $"Full-flow demo failed: {string.Join("; ", demoResult.Failures)}");
+                return ExitSimulationFailed;
+            }
+
+            var report = AwgFullFlowStationReportBuilder.Build(demoResult.Run);
+            AwgFullFlowStationReportWriter.Write(report, outDir);
+
+            System.Console.WriteLine("=== Full AWG flow (HR + electrical) ===");
+            System.Console.WriteLine(
+                $"Airflow: {demoResult.Run.BuiltSystem.Configuration.Ambient.DryAirMassFlowKgPerSecond.ToString("G4", CultureInfo.InvariantCulture)} kg/s");
+            System.Console.WriteLine($"Wrote scenario pack + station report: {outDir}");
+            foreach (var station in report.Stations)
+            {
+                System.Console.WriteLine(
+                    $"  {station.StationId} {station.HungarianName}: " +
+                    $"T={station.TemperatureC.ToString("0.00", CultureInfo.InvariantCulture)} °C  " +
+                    $"RH={(station.RelativeHumidityFraction * 100.0).ToString("0.0", CultureInfo.InvariantCulture)}%  " +
+                    $"W={station.HumidityRatioKgPerKgDryAir.ToString("0.000000", CultureInfo.InvariantCulture)} kg/kg");
+            }
+
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException)
+        {
+            System.Console.Error.WriteLine($"Full-flow error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunFullAwgAmbientMatrix(string[] args)
+    {
+        try
+        {
+            if (!TryParseOutDirectory(
+                    args,
+                    Path.Combine("samples", "scenarios", "full-awg-ambient-matrix"),
+                    "full-flow-ambient-matrix",
+                    out var outDir,
+                    out var exitCode))
+            {
+                return exitCode;
+            }
+
+            var scenarios = AwgRegressionScenarioCatalog.CreateFullAwgFlowAmbientMatrixScenarios();
+            AwgRegressionScenarioCatalog.WriteScenarios(outDir, scenarios);
+            var report = new AwgAmbientMatrixRunner().Run(scenarios);
+            AwgAmbientMatrixReportWriter.Write(report, outDir);
+
+            System.Console.WriteLine("=== Full AWG ambient matrix (T × RH) ===");
+            System.Console.WriteLine($"Points: {report.Points.Count}  output: {outDir}");
+            if (report.BestLitersPerDay is { } best)
+            {
+                System.Console.WriteLine(
+                    $"Best L/day: {best.LitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"@ {best.AmbientTemperatureC.ToString("0", CultureInfo.InvariantCulture)} °C, " +
+                    $"RH {best.RelativeHumidityPercent.ToString("0", CultureInfo.InvariantCulture)}%");
+            }
+
+            var failed = report.Points.Count(p => !p.Passed);
+            return failed == 0 ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException)
+        {
+            System.Console.Error.WriteLine($"Ambient-matrix error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunFullAwgSilicaMatrix(string[] args)
+        => RunFullAwgParameterSweep(
+            args,
+            commandName: "full-flow-silica-matrix",
+            defaultOutDir: Path.Combine("samples", "scenarios", "full-awg-silica-matrix"),
+            title: "Full AWG silica mass matrix @ 35 °C / 50% RH",
+            parameterName: "Silica mass",
+            parameterUnit: "kg",
+            boundarySummary:
+                "Fixed **35 °C**, **RH 50%**, G=950 W/m², Peltier 120 W, controlled adsorb/regen, 2 h, silica ∈ {1…5} kg.",
+            consoleCommand: "dotnet run --project src/ThermoCore.Console -- full-flow-silica-matrix",
+            scenarios: AwgRegressionScenarioCatalog.CreateFullAwgFlowSilicaMassMatrixScenarios(),
+            parameterSelector: s => s.SilicaGelDryAdsorbentMassKg ?? 0.0);
+
+    private static int RunFullAwgPeltierMatrix(string[] args)
+        => RunFullAwgParameterSweep(
+            args,
+            commandName: "full-flow-peltier-matrix",
+            defaultOutDir: Path.Combine("samples", "scenarios", "full-awg-peltier-matrix"),
+            title: "Full AWG Peltier power matrix @ 35 °C / 50% RH",
+            parameterName: "Peltier power",
+            parameterUnit: "W",
+            boundarySummary:
+                "Fixed **35 °C**, **RH 50%**, G=950 W/m², silica 2 kg, controlled adsorb/regen, 2 h, Peltier ∈ {40…200} W.",
+            consoleCommand: "dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix",
+            scenarios: AwgRegressionScenarioCatalog.CreateFullAwgFlowPeltierPowerMatrixScenarios(),
+            parameterSelector: s => s.NominalPeltierPowerRequestW ?? 0.0);
+
+    private static int RunFullAwgParameterSweep(
+        string[] args,
+        string commandName,
+        string defaultOutDir,
+        string title,
+        string parameterName,
+        string parameterUnit,
+        string boundarySummary,
+        string consoleCommand,
+        IReadOnlyList<AwgRegressionScenario> scenarios,
+        Func<AwgRegressionScenario, double> parameterSelector)
+    {
+        try
+        {
+            if (!TryParseOutDirectory(args, defaultOutDir, commandName, out var outDir, out var exitCode))
+            {
+                return exitCode;
+            }
+
+            AwgRegressionScenarioCatalog.WriteScenarios(outDir, scenarios);
+            var report = new AwgSweepRunner().Run(
+                title,
+                parameterName,
+                parameterUnit,
+                boundarySummary,
+                consoleCommand,
+                scenarios,
+                parameterSelector);
+            AwgSweepReportWriter.Write(report, outDir);
+
+            System.Console.WriteLine($"=== {title} ===");
+            System.Console.WriteLine($"Points: {report.Points.Count}  output: {outDir}");
+            if (report.BestLitersPerDay is { } best)
+            {
+                System.Console.WriteLine(
+                    $"Best L/day: {best.LitersPerDay.ToString("G6", CultureInfo.InvariantCulture)} " +
+                    $"@ {best.ParameterValue.ToString("0.##", CultureInfo.InvariantCulture)} {report.ParameterUnit}");
+            }
+
+            var failed = report.Points.Count(p => !p.Passed);
+            return failed == 0 ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException)
+        {
+            System.Console.Error.WriteLine($"{commandName} error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static bool TryParseOutDirectory(
+        string[] args,
+        string defaultOutDir,
+        string commandName,
+        out string outDir,
+        out int exitCode)
+    {
+        outDir = defaultOutDir;
+        exitCode = ExitSuccess;
+        for (var i = 1; i < args.Length; i++)
+        {
+            if (args[i] is "--out")
+            {
+                if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                {
+                    System.Console.Error.WriteLine("Invalid --out path.");
+                    exitCode = ExitUsageError;
+                    return false;
+                }
+
+                outDir = args[i];
+            }
+            else
+            {
+                System.Console.Error.WriteLine($"Unknown {commandName} option: {args[i]}");
+                exitCode = ExitUsageError;
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static int RunRegressionScenarios(string[] args)

@@ -19,6 +19,8 @@ public static class AwgV3TopologyIds
 
     public const string Condenser = "condenser";
 
+    public const string CondenserCooling = "condenser-cooling";
+
     public const string ExhaustSink = "exhaust-sink";
 
     public const string WaterTank = "water-tank";

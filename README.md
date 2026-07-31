@@ -36,6 +36,9 @@ dotnet run --project src/ThermoCore.Console -- run samples/awg-v3-mvp.json --dur
 # Level-5 regression pack
 dotnet run --project src/ThermoCore.Console -- regress
 
+# Dry sunny matrix (T=10…35 °C × silica 1…5 kg, 30% RH, strong sun, high battery)
+dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
+
 # HTTP API
 dotnet run --project src/ThermoCore.Api
 # GET  /api/v1/health

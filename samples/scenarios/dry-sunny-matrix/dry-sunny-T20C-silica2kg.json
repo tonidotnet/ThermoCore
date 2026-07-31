@@ -1,0 +1,18 @@
+{
+  "id": "dry-sunny-T20C-silica2kg",
+  "description": "Dry sunny day: 20 \u00B0C, 30% RH, G=950 W/m\u00B2, battery SOC 90%, silica gel 2 kg dry adsorbent.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 20,
+  "relativeHumidityFraction": 0.3,
+  "solarIrradianceWPerSquareMeter": 950,
+  "initialBatterySocFraction": 0.9,
+  "initialWaterTankContentKg": 0,
+  "silicaGelDryAdsorbentMassKg": 2,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

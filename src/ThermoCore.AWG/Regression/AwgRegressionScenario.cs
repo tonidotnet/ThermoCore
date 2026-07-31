@@ -31,6 +31,9 @@ public sealed record AwgRegressionScenario
 
     public double? WaterTankCapacityKg { get; init; }
 
+    /// <summary>When set, overrides MVP silica-gel dry adsorbent mass (kg).</summary>
+    public double? SilicaGelDryAdsorbentMassKg { get; init; }
+
     public bool RequireSuccess { get; init; } = true;
 
     public bool RequireBalancePass { get; init; } = true;

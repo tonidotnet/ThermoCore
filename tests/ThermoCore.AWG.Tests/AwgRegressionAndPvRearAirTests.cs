@@ -15,6 +15,24 @@ public class AwgRegressionAndPvRearAirTests
     }
 
     [Fact]
+    public void DrySunnyMatrixScenarios_AllPass()
+    {
+        var scenarios = AwgRegressionScenarioCatalog.CreateDrySunnyMatrixScenarios();
+        Assert.Equal(30, scenarios.Count);
+        Assert.All(scenarios, s =>
+        {
+            Assert.Equal(0.30, s.RelativeHumidityFraction);
+            Assert.Equal(950.0, s.SolarIrradianceWPerSquareMeter);
+            Assert.Equal(0.90, s.InitialBatterySocFraction);
+            Assert.NotNull(s.SilicaGelDryAdsorbentMassKg);
+        });
+
+        var runner = new AwgRegressionScenarioRunner();
+        var results = runner.RunAll(scenarios);
+        Assert.All(results, r => Assert.True(r.Passed, $"{r.Scenario.Id}: {string.Join("; ", r.Failures)}"));
+    }
+
+    [Fact]
     public void ScenarioCatalog_RoundTripsThroughJsonDirectory()
     {
         var directory = Path.Combine(Path.GetTempPath(), "awg-scenarios-" + Guid.NewGuid().ToString("N"));

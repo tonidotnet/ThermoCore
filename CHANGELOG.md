@@ -9,6 +9,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Dry-sunny AWG scenario matrix (30 cases: 10–35 °C × 1–5 kg silica, 30% RH, G=950, SOC 90%) under `samples/scenarios/dry-sunny-matrix/`
+- `silicaGelDryAdsorbentMassKg` on `AwgRegressionScenario`
 - APP2-006 sizing grid (`app2 --size`), console APP2 smoke run, synthetic multi-regime campaign CSV (`write-campaign`)
 - Good-first backlog refresh + published GitHub issues #2–#4; MkDocs Components nav; `dry-cool-day` scenario
 - M5 holdout validation (`holdout` console), model limitations doc, prototype campaign protocol

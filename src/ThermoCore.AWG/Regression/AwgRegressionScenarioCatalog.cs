@@ -123,12 +123,62 @@ public static class AwgRegressionScenarioCatalog
             .ToArray();
     }
 
+    /// <summary>
+    /// Dry air (30% RH) with strong sunshine, ample battery, temperature × silica-gel mass matrix.
+    /// </summary>
+    public static IReadOnlyList<AwgRegressionScenario> CreateDrySunnyMatrixScenarios()
+    {
+        double[] temperaturesC = [10, 15, 20, 25, 30, 35];
+        double[] silicaKg = [1, 2, 3, 4, 5];
+        var scenarios = new List<AwgRegressionScenario>(temperaturesC.Length * silicaKg.Length);
+        foreach (var temperatureC in temperaturesC)
+        {
+            foreach (var massKg in silicaKg)
+            {
+                var tempLabel = temperatureC.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                var massLabel = massKg.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+                scenarios.Add(new AwgRegressionScenario
+                {
+                    Id = $"dry-sunny-T{tempLabel}C-silica{massLabel}kg",
+                    Description =
+                        $"Dry sunny day: {tempLabel} °C, 30% RH, G=950 W/m², " +
+                        $"battery SOC 90%, silica gel {massLabel} kg dry adsorbent.",
+                    DurationSeconds = 30,
+                    TimeStepSeconds = 1,
+                    EnableElectricalSubsystem = true,
+                    AmbientTemperatureC = temperatureC,
+                    RelativeHumidityFraction = 0.30,
+                    SolarIrradianceWPerSquareMeter = 950.0,
+                    InitialBatterySocFraction = 0.90,
+                    SilicaGelDryAdsorbentMassKg = massKg,
+                    RequireSuccess = true,
+                    RequireBalancePass = true
+                });
+            }
+        }
+
+        return scenarios;
+    }
+
     public static void WriteDefaultScenarios(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var options = CreateSerializerOptions();
         foreach (var scenario in CreateDefaultScenarios())
+        {
+            var path = Path.Combine(directory, scenario.Id + ".json");
+            File.WriteAllText(path, JsonSerializer.Serialize(scenario, options));
+        }
+    }
+
+    public static void WriteScenarios(string directory, IEnumerable<AwgRegressionScenario> scenarios)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        ArgumentNullException.ThrowIfNull(scenarios);
+        Directory.CreateDirectory(directory);
+        var options = CreateSerializerOptions();
+        foreach (var scenario in scenarios)
         {
             var path = Path.Combine(directory, scenario.Id + ".json");
             File.WriteAllText(path, JsonSerializer.Serialize(scenario, options));

@@ -88,7 +88,9 @@ public sealed class AwgRegressionScenarioRunner
             },
             SilicaGel = configuration.SilicaGel with
             {
-                AmbientTemperatureK = ambientTemperatureK
+                AmbientTemperatureK = ambientTemperatureK,
+                DryAdsorbentMassKg = scenario.SilicaGelDryAdsorbentMassKg
+                    ?? configuration.SilicaGel.DryAdsorbentMassKg
             },
             WaterTank = configuration.WaterTank with
             {

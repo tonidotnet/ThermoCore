@@ -120,6 +120,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- config <path.json>
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
+              dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- holdout <measurements.csv> [--train-fraction 0.7] [--params id1,id2]
@@ -155,6 +156,7 @@ internal static class DemoHost
 
             Regress options:
               --dir <path>              Load scenarios from JSON directory (default: built-in catalog)
+                                        e.g. samples/scenarios/dry-sunny-matrix (T×silica pack)
 
             Validate options:
               --config <path>           AWG configuration JSON (default: MVP without electrical)

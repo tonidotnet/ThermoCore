@@ -18,11 +18,26 @@
 
 @if (source == CompareSource.Memory && memoryJobs.Count == 0)
 {
-    <p class="text-muted">No simulations in memory yet. <a href="configurations">Configure and run</a> one first.</p>
+    <div class="alert alert-light border col-lg-8">
+        <p class="mb-2">No in-memory simulations yet.</p>
+        <p class="mb-0 text-muted">
+            <a href="configurations">Open the configuration wizard</a>
+            to start a run, or use
+            <a href="simulations">Simulations</a>
+            for the job list.
+        </p>
+    </div>
 }
 else if (source == CompareSource.Persisted && persistedJobs.Count == 0)
 {
-    <p class="text-muted">No persisted summaries yet. Run a simulation (they are saved to the local store on completion).</p>
+    <div class="alert alert-light border col-lg-8">
+        <p class="mb-2">No persisted summaries in the local store yet.</p>
+        <p class="mb-0 text-muted">
+            Complete a run from
+            <a href="configurations">Configurations</a>;
+            finished jobs are saved automatically for later compare.
+        </p>
+    </div>
 }
 else
 {

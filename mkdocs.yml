@@ -76,10 +76,20 @@ nav:
       - Architecture: 01_Architecture/02_Architecture.md
       - Physical architecture: 01_Architecture/03_PhysicalArchitecture.md
   - Mathematics:
+      - Mathematical model: 02_Mathematics/04_MathematicalModel.md
       - Psychrometrics: 02_Mathematics/05_Psychrometrics.md
       - Numerical methods: 02_Mathematics/25_NumericalMethods.md
       - Constants: 02_Mathematics/26_Constants.md
       - Units: 02_Mathematics/27_Units.md
+  - Components:
+      - Solar collector: 03_Components/06_SolarCollector.md
+      - Solar panel: 03_Components/07_SolarPanel.md
+      - Peltier: 03_Components/08_Peltier.md
+      - Silica gel: 03_Components/09_SilicaGel.md
+      - Condenser: 03_Components/10_Condenser.md
+      - Heat recovery: 03_Components/11_HeatRecovery.md
+      - Battery and power: 03_Components/12_BatteryAndPowerManagement.md
+      - Fan and airflow: 03_Components/13_FanAndAirflow.md
   - Simulation:
       - Control: 04_Simulation/14_ControlSystem.md
       - Topology: 04_Simulation/15_SystemTopology.md

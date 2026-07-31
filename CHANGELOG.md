@@ -9,6 +9,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- APP2-006 sizing grid (`app2 --size`), console APP2 smoke run, synthetic multi-regime campaign CSV (`write-campaign`)
+- Good-first backlog refresh + published GitHub issues #2–#4; MkDocs Components nav; `dry-cool-day` scenario
 - M5 holdout validation (`holdout` console), model limitations doc, prototype campaign protocol
 - OPT solar utilization + battery throughput/SOC-swing objectives on AWG summaries and sweeps
 - `ThermoCore.App2.SolarAirHeater` second-application MVP (Core-only forced-air collector)

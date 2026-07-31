@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using ThermoCore.App2.SolarAirHeater;
 using ThermoCore.AWG.Calibration;
 using ThermoCore.AWG.Configuration;
 using ThermoCore.AWG.Optimization;
@@ -38,6 +39,16 @@ internal static class DemoHost
         if (args.Length == 0 || args is ["demo"] or ["--demo"])
         {
             return RunHeaterChainDemo();
+        }
+
+        if (args.Length >= 1 && args[0] is "app2" or "--app2" or "solar-air-heater")
+        {
+            return RunSolarAirHeaterCommands(args);
+        }
+
+        if (args.Length >= 1 && args[0] is "write-campaign" or "--write-campaign")
+        {
+            return WriteSyntheticCampaign(args);
         }
 
         if (args is ["config", _] || args is ["--config", _])
@@ -115,11 +126,15 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- sweep --params id=v1,v2 [--params id2=...]
               dotnet run --project src/ThermoCore.Console -- sensitivity [--params id1,id2] [--perturbation 0.1]
               dotnet run --project src/ThermoCore.Console -- random-search [--samples 20] [--seed 42]
+              dotnet run --project src/ThermoCore.Console -- app2 [--size]
+              dotnet run --project src/ThermoCore.Console -- write-campaign [path.csv]
               dotnet run --project src/ThermoCore.Console -- write-default-config <path.json>
               dotnet run --project src/ThermoCore.Console -- --help
 
             Commands:
               demo                      Run a Core moist-air heater chain smoke simulation
+              app2                      Run solar air heater MVP (APP2); add --size for sizing grid
+              write-campaign [path]     Write synthetic multi-regime measurement CSV (M5 stand-in)
               config <path>             Load AWG JSON configuration and build the V3 graph
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
               regress                   Run DOC-022 / APP-006 regression scenarios
@@ -1216,6 +1231,86 @@ internal static class DemoHost
         catch (Exception ex)
         {
             System.Console.Error.WriteLine($"Failed to write configuration: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunSolarAirHeaterCommands(string[] args)
+    {
+        var size = args.Any(a => a is "--size" or "size");
+        if (size)
+        {
+            return RunSolarAirHeaterSizing();
+        }
+
+        var configuration = new SolarAirHeaterConfiguration();
+        var result = new SolarAirHeaterSimulationRunner().Run(configuration);
+        System.Console.WriteLine("=== Solar air heater (APP2) ===");
+        System.Console.WriteLine($"Fingerprint: {result.BuiltSystem.GraphFingerprint}");
+        System.Console.WriteLine($"Succeeded: {result.EngineResult.Succeeded}");
+        System.Console.WriteLine(
+            $"ΔT={result.TemperatureRiseK.ToString("G6", CultureInfo.InvariantCulture)} K  " +
+            $"UsefulHeat={result.UsefulHeatW.ToString("G6", CultureInfo.InvariantCulture)} W  " +
+            $"SolarUtil={result.SolarUtilizationFraction.ToString("G6", CultureInfo.InvariantCulture)}");
+        return result.EngineResult.Succeeded ? ExitSuccess : ExitSimulationFailed;
+    }
+
+    private static int RunSolarAirHeaterSizing()
+    {
+        var result = new SolarAirHeaterSizingRunner().Run(
+            new SolarAirHeaterConfiguration(),
+            apertureAreasM2: [1.0, 2.0, 4.0],
+            dryAirMassFlowsKgPerSecond: [0.03, 0.05, 0.08],
+            irradiancesWPerM2: [400.0, 800.0]);
+
+        System.Console.WriteLine("=== Solar air heater sizing (APP2-006) ===");
+        System.Console.WriteLine($"Points: {result.Points.Count}");
+        foreach (var point in result.Points.Where(p => p.Succeeded)
+                     .OrderByDescending(p => p.UsefulHeatW)
+                     .Take(8))
+        {
+            System.Console.WriteLine(
+                $"  A={point.ApertureAreaM2.ToString("G4", CultureInfo.InvariantCulture)} m² " +
+                $"mdot={point.DryAirMassFlowKgPerSecond.ToString("G4", CultureInfo.InvariantCulture)} kg/s " +
+                $"G={point.SolarIrradianceWPerM2.ToString("G4", CultureInfo.InvariantCulture)} W/m² | " +
+                $"ΔT={point.TemperatureRiseK.ToString("G4", CultureInfo.InvariantCulture)} K " +
+                $"Qu={point.UsefulHeatW.ToString("G4", CultureInfo.InvariantCulture)} W");
+        }
+
+        if (result.BestUsefulHeat is { } best)
+        {
+            System.Console.WriteLine(
+                $"Best useful heat: {best.UsefulHeatW.ToString("G6", CultureInfo.InvariantCulture)} W " +
+                $"at A={best.ApertureAreaM2}, mdot={best.DryAirMassFlowKgPerSecond}, G={best.SolarIrradianceWPerM2}");
+        }
+
+        return result.Points.Any(p => p.Succeeded) ? ExitSuccess : ExitSimulationFailed;
+    }
+
+    private static int WriteSyntheticCampaign(string[] args)
+    {
+        var path = args.Length >= 2 && !args[1].StartsWith('-')
+            ? args[1]
+            : Path.Combine("samples", "calibration", "awg-mvp-campaign-synthetic.csv");
+
+        try
+        {
+            var csv = AwgSyntheticCampaignGenerator.GenerateCsv(
+                AwgSyntheticCampaignGenerator.CreateDefaultThreeRegimeSegments());
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(path, csv);
+            System.Console.WriteLine($"Wrote synthetic campaign CSV: {path}");
+            System.Console.WriteLine("Note: synthetic stand-in only — not physical prototype data.");
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or IOException)
+        {
+            System.Console.Error.WriteLine($"write-campaign error: {ex.Message}");
             return ExitConfigurationFailed;
         }
     }

@@ -50,5 +50,12 @@ Acceptance for a campaign release:
 |---|---|
 | CSV schema + import | Done |
 | Synthetic ambient smoke | Done (`awg-mvp-ambient-smoke.csv`) |
+| Synthetic three-regime campaign stand-in | Done (`awg-mvp-campaign-synthetic.csv` / `write-campaign`) |
 | Holdout runner / console | Done |
-| Physical prototype CSV in repo | **Open** |
+| Physical prototype CSV in repo | **Open** (required for M5 closure) |
+
+Regenerate the synthetic stand-in:
+
+```bash
+dotnet run --project src/ThermoCore.Console -- write-campaign samples/calibration/awg-mvp-campaign-synthetic.csv
+```

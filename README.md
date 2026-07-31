@@ -6,17 +6,18 @@ Component-based thermodynamic simulation platform with an Atmospheric Water Gene
 
 ```text
 src/
-  ThermoCore.Core         # physics, math, simulation engine
-  ThermoCore.AWG          # atmospheric water generator reference app
-  ThermoCore.Application  # shared API/Web job and result services
-  ThermoCore.Persistence  # SQLite store for configs / summaries / calibration
-  ThermoCore.Console      # CLI host
-  ThermoCore.Api          # ASP.NET Core API (/api/v1)
-  ThermoCore.Web          # Blazor UI
-tests/                    # xUnit test projects
-docs/                     # engineering documentation
-samples/                  # configs, scenarios, result packages
-ai/                       # AI development workspace
+  ThermoCore.Core                 # physics, math, simulation engine
+  ThermoCore.AWG                  # atmospheric water generator reference app
+  ThermoCore.App2.SolarAirHeater  # second app (forced-air solar collector)
+  ThermoCore.Application          # shared API/Web job and result services
+  ThermoCore.Persistence          # SQLite store for configs / summaries / calibration
+  ThermoCore.Console              # CLI host
+  ThermoCore.Api                  # ASP.NET Core API (/api/v1)
+  ThermoCore.Web                  # Blazor UI
+tests/                            # xUnit test projects
+docs/                             # engineering documentation
+samples/                          # configs, scenarios, result packages
+ai/                               # AI development workspace
 ```
 
 ## Prerequisites
@@ -80,6 +81,21 @@ Good first issues: [`docs/00_Project/GOOD_FIRST_ISSUES.md`](docs/00_Project/GOOD
 dotnet run --project src/ThermoCore.Console -- sweep --params condenser.bypassFactor=0.1,0.2 --duration 10 --dt 1
 dotnet run --project src/ThermoCore.Console -- sensitivity --duration 10 --dt 1
 dotnet run --project src/ThermoCore.Console -- random-search --samples 20 --seed 42 --duration 10 --dt 1
+```
+
+### Holdout / campaign (M5 workflow)
+
+```bash
+dotnet run --project src/ThermoCore.Console -- write-campaign samples/calibration/awg-mvp-campaign-synthetic.csv
+dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-mvp-campaign-synthetic.csv \
+  --duration 8 --dt 1 --train-fraction 0.7 --params condenser.bypassFactor
+```
+
+### APP2 solar air heater
+
+```bash
+dotnet run --project src/ThermoCore.Console -- app2
+dotnet run --project src/ThermoCore.Console -- app2 --size
 ```
 
 GitHub Pages deploys from `.github/workflows/docs.yml` after enabling Pages (GitHub Actions source).

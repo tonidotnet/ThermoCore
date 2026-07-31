@@ -1,0 +1,17 @@
+{
+  "id": "dry-cool-day",
+  "description": "Cool dry moderate-solar case for scenario-pack coverage.",
+  "durationSeconds": 30,
+  "timeStepSeconds": 1,
+  "enableElectricalSubsystem": true,
+  "enableRecirculation": false,
+  "enableHeatRecovery": false,
+  "enablePvRearAirChannel": false,
+  "ambientTemperatureC": 12,
+  "relativeHumidityFraction": 0.25,
+  "solarIrradianceWPerSquareMeter": 550,
+  "initialBatterySocFraction": 0.5,
+  "initialWaterTankContentKg": 0,
+  "requireSuccess": true,
+  "requireBalancePass": true
+}

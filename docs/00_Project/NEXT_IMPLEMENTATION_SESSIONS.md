@@ -150,7 +150,7 @@ A (truth) → B (OSS) → C (DEV gates)
                  ↘ D (API) → E (Web UX) → F (wizard)
                  ↘ G (durable jobs/ops) when hosting matters
                  ↘ H (OPT/CAL/AIR) when product physics/tools matter
-APP2-001…005 Done (`ThermoCore.App2.SolarAirHeater`). APP2-006 sizing deferred.
+APP2-001…006 Done (`ThermoCore.App2.SolarAirHeater`, including sizing).
 ```
 
 ---

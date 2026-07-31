@@ -66,6 +66,14 @@ public static class AwgRegressionScenarioCatalog
             },
             new AwgRegressionScenario
             {
+                Id = "dry-cool-day",
+                Description = "Cool dry moderate-solar case for scenario-pack coverage.",
+                AmbientTemperatureC = 12.0,
+                RelativeHumidityFraction = 0.25,
+                SolarIrradianceWPerSquareMeter = 550.0
+            },
+            new AwgRegressionScenario
+            {
                 Id = "low-battery",
                 Description = "Low initial battery state of charge.",
                 InitialBatterySocFraction = 0.12,

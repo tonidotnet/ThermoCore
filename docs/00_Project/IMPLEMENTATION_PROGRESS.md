@@ -96,14 +96,13 @@ Phase 4 — Post-MVP polish (after M4 Web/API Done; M5 validation still open)
 ## Current highest-priority objective
 
 ```text
-M5 software workflow + OPT solar/battery + CPM + APP2 solar-air-heater scaffold landed. Physical prototype CSV still open for M5 closure.
+Good-first issues published on GitHub. Physical prototype CSV remains the open M5 blocker.
 ```
 
 ## Recommended next tasks
 
 1. Collect physical prototype CSV per `samples/calibration/PROTOTYPE_CAMPAIGN.md`
-2. Open `GOOD_FIRST_ISSUES.md` items as GitHub issues
-3. APP2-006 sizing sweeps when product demand exists
+2. Optional: public GitHub release for M5 when field validation lands
 
 ---
 
@@ -119,7 +118,7 @@ M5 software workflow + OPT solar/battery + CPM + APP2 solar-air-heater scaffold 
 | ThermoCore.AWG | 19 | 19 | 0 | 0 | 0 |
 | API and Web (incl. APP console) | ~28 | ~28 | 0 | 0 | 0 |
 | Validation and optimization (CAL/OPT) | 17 | 17 | 0 | 0 | 0 |
-| APP2 SolarAirHeater | 6 | 5 | 0 | 0 | 1 |
+| APP2 SolarAirHeater | 6 | 6 | 0 | 0 | 0 |
 | Data / Docs site / OSS | — | Done | 0 | 0 | 0 |
 
 Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AIR network, full Web wizard) are tracked in `NEXT_IMPLEMENTATION_SESSIONS.md`.
@@ -491,7 +490,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | OSS-001 | Finalize open-source license | P1 | Done | REP-003 | ADR and LICENSE |
 | OSS-002 | Create public project README | P1 | Done | REP-002, DOC-002 | GitHub landing page |
 | OSS-003 | Add architecture diagram assets | P2 | Done | OSS-002 | `docs/Images/architecture-overview.md` |
-| OSS-004 | Create first-good-issue backlog | P3 | Done | REP-010 | `docs/00_Project/GOOD_FIRST_ISSUES.md` |
+| OSS-004 | Create first-good-issue backlog | P3 | Done | REP-010 | Published: [#2](https://github.com/tonidotnet/ThermoCore/issues/2)–[#4](https://github.com/tonidotnet/ThermoCore/issues/4) (+ backlog doc/script) |
 | OSS-005 | Add release process | P2 | Done | REP-012 | GitHub workflow |
 | DOCSITE-001 | Select MkDocs Material | P2 | Done | DOC-006 | ADR-002 |
 | DOCSITE-002 | Create `mkdocs.yml` | P2 | Done | DOCSITE-001, DOC-012 | Documentation site |
@@ -536,7 +535,7 @@ Counts are approximate; detailed truth lives in task tables. Soft-Done notes (AI
 | APP2-003 | Map reusable components | P4 | Done | APP2-002 | Fan, collector, boundaries from Core |
 | APP2-004 | Specify missing components | P4 | Done | APP2-003 | None required for MVP |
 | APP2-005 | Build simulation topology | P4 | Done | APP2-004 | `ThermoCore.App2.SolarAirHeater` graph + runner |
-| APP2-006 | Run sizing and feasibility study | P4 | Deferred | APP2-005 | Later aperture/flow sweeps |
+| APP2-006 | Run sizing and feasibility study | P4 | Done | APP2-005 | `SolarAirHeaterSizingRunner` + `app2 --size` |
 
 ---
 
@@ -647,13 +646,14 @@ InProgress
 
 Completion requirements:
 
-- [ ] Prototype measurement data (protocol: `samples/calibration/PROTOTYPE_CAMPAIGN.md`)
+- [ ] Prototype measurement data (physical; synthetic stand-in `awg-mvp-campaign-synthetic.csv` exists)
 - [x] Holdout validation workflow (CAL-008; synthetic proven; field CSV open)
 - [ ] Calibration validated against physical prototype
 - [x] Published model limitations (`26_ModelLimitations.md`)
 - [x] Stable configuration schema (MVP)
 - [x] Public documentation portal (MkDocs + Pages workflow)
 - [ ] Public GitHub release
+- [x] Publish good-first issues (GitHub #2–#4)
 
 ---
 
@@ -670,12 +670,11 @@ The next development task shall be selected using this order:
 Current next-task queue:
 
 ```text
-1. Physical prototype CSV + holdout acceptance (M5 remainder)
-2. Publish GOOD_FIRST_ISSUES.md to GitHub
-3. APP2-006 sizing study (optional)
+1. Physical prototype CSV + holdout acceptance (M5 remainder — field data)
+2. Public GitHub release when M5 field validation is ready
 ```
 
-Completed: sessions A–H; M5 software workflow; OPT-008/009; CPM; APP2-001…005 (`NEXT_IMPLEMENTATION_SESSIONS.md`).
+Completed: sessions A–H; M5 software workflow; OPT-008/009; CPM; APP2-001…006; remainings (console APP2, synthetic campaign, in-repo good-first items).
 
 ---
 

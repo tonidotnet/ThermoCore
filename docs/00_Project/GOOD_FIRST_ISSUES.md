@@ -1,33 +1,38 @@
 # Good first issues (OSS-004)
 
-Draft backlog for new contributors. Open as GitHub issues when ready; labels: `good first issue`, `documentation` or `enhancement`.
+Contributor on-ramp. Labels: `good first issue`, plus `documentation` or `enhancement`.
 
-## 1. Expand MkDocs nav for a missing deep-link page
+**Published on GitHub** (2026-07-31): [#2](https://github.com/tonidotnet/ThermoCore/issues/2), [#3](https://github.com/tonidotnet/ThermoCore/issues/3), [#4](https://github.com/tonidotnet/ThermoCore/issues/4).  
+Extend with `pwsh scripts/publish-good-first-issues.ps1` if needed.
 
-**Why:** Some engineering docs are not yet in `mkdocs.yml` nav.  
-**Task:** Pick one Implemented doc under `docs/03_Components/` or `docs/02_Mathematics/` and add a nav entry; verify `mkdocs build`.  
-**Skills:** Markdown, YAML.
+## Completed in-repo (draft wave)
 
-## 2. Add a regression scenario JSON
+| # | Title | Status |
+|---|---|---|
+| 1 | Expand MkDocs nav for component/math pages | Done (`mkdocs.yml`) |
+| 2 | Add `dry-cool-day` regression scenario | Done |
+| 3 | Improve Blazor empty-state copy | Done |
+| 4 | Document console OPT examples in README | Done |
+| 5 | Series downsample edge-case tests | Done |
 
-**Why:** Scenario pack should grow toward `22_TestStrategy` §17.  
-**Task:** Add `samples/scenarios/dry-cool-day.json` (or similar) cloning an existing scenario with colder/drier ambient; register in regression catalog if required.  
-**Skills:** JSON, AWG config familiarity.
+## Open on GitHub
 
-## 3. Improve Blazor empty-state copy
+| Issue | Topic |
+|---|---|
+| [#2](https://github.com/tonidotnet/ThermoCore/issues/2) | APP2 sizing CLI axes (`--aperture` / `--flow` / `--irradiance`) |
+| [#3](https://github.com/tonidotnet/ThermoCore/issues/3) | Link model limitations from Blazor Documentation |
+| [#4](https://github.com/tonidotnet/ThermoCore/issues/4) | Weather provider howto note in docs |
 
-**Why:** Compare/persisted lists show brief empty messages.  
-**Task:** Polish empty states on `/simulations/compare` and `/models` with links to Configuration / Quick run.  
-**Skills:** Razor, CSS.
+## Additional backlog (not yet filed)
 
-## 4. Document console `sweep` / `sensitivity` examples in README
+### Persist APP2 run summary to SQLite
 
-**Why:** OPT commands exist but README quick start is thin.  
-**Task:** Add a short “Optimization” subsection with copy-pasteable commands.  
-**Skills:** Markdown.
+**Why:** AWG runs can use `--db`; APP2 cannot yet.  
+**Task:** Map `SolarAirHeaterRunResult` into a minimal stored summary or document why APP2 stays console-only.  
+**Skills:** Persistence, C#.
 
-## 5. Add unit test for series downsample helper
+### Add ambient + solar channels to synthetic campaign CSV
 
-**Why:** `from`/`to`/`intervalSeconds` on series need edge-case coverage.  
-**Task:** Extend Api or Application tests for empty slice, interval &gt; length, invalid range.  
-**Skills:** xUnit, C#.
+**Why:** Campaign fixture currently exports condenser outlet temperature only.  
+**Task:** Extend `AwgSyntheticCampaignGenerator` to include ambient T and irradiance channels.  
+**Skills:** C#, calibration CSV schema.

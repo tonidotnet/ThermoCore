@@ -7,4 +7,4 @@ dotnet run --project src/ThermoCore.Console -- regress
 dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios
 ```
 
-Each JSON file maps to `AwgRegressionScenario`. Built-in catalog defaults match these files.
+Each JSON file maps to `AwgRegressionScenario`. Built-in catalog defaults match these files (including `dry-cool-day.json`).

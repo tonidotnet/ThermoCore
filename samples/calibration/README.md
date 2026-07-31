@@ -28,3 +28,13 @@ dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-m
 ```
 
 Physical prototype campaign checklist: `PROTOTYPE_CAMPAIGN.md`.
+
+## Synthetic multi-regime campaign
+
+`awg-mvp-campaign-synthetic.csv` is a **software stand-in** (three ambient/solar regimes, condenser outlet temperature). Not field data.
+
+```bash
+dotnet run --project src/ThermoCore.Console -- write-campaign samples/calibration/awg-mvp-campaign-synthetic.csv
+dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-mvp-campaign-synthetic.csv \
+  --duration 8 --dt 1 --train-fraction 0.7 --params condenser.bypassFactor
+```

@@ -11,11 +11,32 @@
 
 @if (error is not null)
 {
-    <div class="alert alert-danger">@error</div>
+    <div class="alert alert-danger col-lg-8">
+        <p class="mb-2">Could not load the model catalog.</p>
+        <p class="mb-0 small">@error</p>
+        <p class="mb-0 mt-2 text-muted">
+            Try again, or start from
+            <a href="configurations">Configurations</a>
+            /
+            <a href="documentation">Documentation</a>.
+        </p>
+    </div>
 }
 else if (catalog is null)
 {
-    <p>Loading…</p>
+    <p class="text-muted">Loading model catalog…</p>
+}
+else if (catalog.ComponentModelIds.Count == 0)
+{
+    <div class="alert alert-light border col-lg-8">
+        <p class="mb-2">No component model identifiers were returned.</p>
+        <p class="mb-0 text-muted">
+            Check API health, then use
+            <a href="configurations">Configurations</a>
+            to build an AWG system, or read
+            <a href="documentation">Documentation</a>.
+        </p>
+    </div>
 }
 else
 {

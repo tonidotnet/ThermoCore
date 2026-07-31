@@ -76,9 +76,15 @@ collector.outlet      → exhaust.inlet
 
 ---
 
-# 7. Later (APP2-006)
+# 7. Sizing study (APP2-006)
 
-Sizing / feasibility sweeps over aperture, flow, and irradiance — deferred until product demand.
+`SolarAirHeaterSizingRunner` evaluates a Cartesian grid of aperture × mass flow × irradiance.
+
+```bash
+dotnet run --project src/ThermoCore.Console -- app2 --size
+```
+
+Acceptance: larger aperture at fixed η and G yields higher useful heat; higher flow lowers ΔT at the same Qu (Level-1 collector).
 
 ---
 

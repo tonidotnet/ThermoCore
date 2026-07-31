@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ThermoCore.Api\ThermoCore.Api.csproj" />
+    <ProjectReference Include="..\..\src\ThermoCore.Application\ThermoCore.Application.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ThermoCore.Core\ThermoCore.Core.csproj" />
     <ProjectReference Include="..\ThermoCore.AWG\ThermoCore.AWG.csproj" />
+    <ProjectReference Include="..\ThermoCore.App2.SolarAirHeater\ThermoCore.App2.SolarAirHeater.csproj" />
     <ProjectReference Include="..\ThermoCore.Persistence\ThermoCore.Persistence.csproj" />
   </ItemGroup>
 

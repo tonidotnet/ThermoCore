@@ -50,6 +50,9 @@ dotnet run --project src/ThermoCore.Console -- full-flow-ambient-matrix
 dotnet run --project src/ThermoCore.Console -- full-flow-silica-matrix
 dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix
 
+# Summer diurnal 24h + PV/battery sizing for 0.5–3 L/day
+dotnet run --project src/ThermoCore.Console -- summer-diurnal
+
 # HTTP API
 dotnet run --project src/ThermoCore.Api
 # GET  /api/v1/health

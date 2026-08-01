@@ -32,6 +32,7 @@
 | 23_Calibration.md | Implemented | MVP import/align/fit/provenance + holdout | Keep |
 | 24_Optimization.md | Implemented | Sweep/sensitivity/Pareto + solar/battery objectives | Keep |
 | 25_SolarAirHeater.md | Implemented | APP2 MVP scaffold | Keep |
+| 31_AwgSummerDiurnalOperation.md | Implemented | Summer day/night modes, fan/Peltier decisions, sizing | Keep |
 | 26_ModelLimitations.md | Implemented | M5 published limitations | Keep |
 | 25_NumericalMethods.md | Repaired | ReadyForImplementation | In use by Core.Numerics |
 | 26_Constants.md | New | ReadyForImplementation | In use by Core.Physics |

@@ -1,5 +1,6 @@
 using ThermoCore.AWG.Control;
 using ThermoCore.AWG.Topology;
+using ThermoCore.Core.Balances;
 using ThermoCore.Core.Environment;
 using ThermoCore.Core.Validation;
 
@@ -22,6 +23,9 @@ public sealed record AwgSimulationOptions
     public AwgControlParameters? ControlParameters { get; init; }
 
     public AwgOperatingMode InitialControllerMode { get; init; } = AwgOperatingMode.Off;
+
+    /// <summary>Optional per-run conservation tolerances (defaults to engine defaults).</summary>
+    public BalanceTolerance? BalanceTolerance { get; init; }
 
     public AwgSimulationOptions Validate()
     {

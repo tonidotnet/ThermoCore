@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="20" y="24" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#1f2933">Órás kondenzátum (kg) — nyári diurnal</text>
+<rect x="50" y="193.6" width="22.67" height="26.4" fill="#0284c7"/>
+<text x="63.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">0</text>
+<rect x="76.67" y="109.36" width="22.67" height="110.64" fill="#0284c7"/>
+<rect x="103.33" y="75.37" width="22.67" height="144.63" fill="#0284c7"/>
+<rect x="130" y="57.29" width="22.67" height="162.71" fill="#0284c7"/>
+<text x="143.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">3</text>
+<rect x="156.67" y="50.4" width="22.67" height="169.6" fill="#0284c7"/>
+<rect x="183.33" y="54.56" width="22.67" height="165.44" fill="#0284c7"/>
+<rect x="210" y="61.48" width="22.67" height="158.52" fill="#ea580c"/>
+<text x="223.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">6</text>
+<rect x="236.67" y="43.77" width="22.67" height="176.23" fill="#ea580c"/>
+<rect x="263.33" y="40" width="22.67" height="180" fill="#ea580c"/>
+<rect x="290" y="52.6" width="22.67" height="167.4" fill="#ea580c"/>
+<text x="303.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">9</text>
+<rect x="316.67" y="61.68" width="22.67" height="158.32" fill="#ea580c"/>
+<rect x="343.33" y="68.55" width="22.67" height="151.45" fill="#ea580c"/>
+<rect x="370" y="76.12" width="22.67" height="143.88" fill="#ea580c"/>
+<text x="383.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">12</text>
+<rect x="396.67" y="82.06" width="22.67" height="137.94" fill="#ea580c"/>
+<rect x="423.33" y="86.38" width="22.67" height="133.62" fill="#ea580c"/>
+<rect x="450" y="92.93" width="22.67" height="127.07" fill="#ea580c"/>
+<text x="463.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">15</text>
+<rect x="476.67" y="96.25" width="22.67" height="123.75" fill="#ea580c"/>
+<rect x="503.33" y="95.63" width="22.67" height="124.37" fill="#ea580c"/>
+<rect x="530" y="87.59" width="22.67" height="132.41" fill="#0284c7"/>
+<text x="543.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">18</text>
+<rect x="556.67" y="78.85" width="22.67" height="141.15" fill="#0284c7"/>
+<rect x="583.33" y="72.13" width="22.67" height="147.87" fill="#0284c7"/>
+<rect x="610" y="65.89" width="22.67" height="154.11" fill="#0284c7"/>
+<text x="623.33" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#64748b">21</text>
+<rect x="636.67" y="60.41" width="22.67" height="159.59" fill="#0284c7"/>
+<rect x="663.33" y="56.51" width="22.67" height="163.49" fill="#0284c7"/>
+<text x="48" y="260" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#0284c7">kék = éjszaka/alacsony GHI</text>
+<text x="220" y="260" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#ea580c">narancs = nappali napsütés</text>
+</svg>

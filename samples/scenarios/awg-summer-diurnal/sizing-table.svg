@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="234" viewBox="0 0 720 234">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="24" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">AWG méretezés — nyári diurnal (PV / akku / Wh)</text>
+<text x="24" y="48" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#64748b">Baseline 0.395 L/nap · 5522.4 Wh/L · PSH 7.19 h</text>
+<text x="32" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Cél L/nap</text>
+<text x="130" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Napi Wh</text>
+<text x="240" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">PV W</text>
+<text x="340" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">PV m²</text>
+<text x="440" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Akku Wh</text>
+<text x="560" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#334155">Éjjel Wh</text>
+<rect x="20" y="76" width="680" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="32" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">0.5</text>
+<text x="130" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">2761</text>
+<text x="240" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">476</text>
+<text x="340" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">2.64</text>
+<text x="440" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#b45309">2254</text>
+<text x="560" y="96" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">1427</text>
+<rect x="20" y="112" width="680" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="32" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">1</text>
+<text x="130" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">5522</text>
+<text x="240" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">952</text>
+<text x="340" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">5.29</text>
+<text x="440" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#b45309">4508</text>
+<text x="560" y="132" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">2855</text>
+<rect x="20" y="148" width="680" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="32" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">2</text>
+<text x="130" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">11045</text>
+<text x="240" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">1904</text>
+<text x="340" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">10.58</text>
+<text x="440" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#b45309">9015</text>
+<text x="560" y="168" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">5710</text>
+<rect x="20" y="184" width="680" height="30" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="32" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">3</text>
+<text x="130" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">16567</text>
+<text x="240" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0369a1">2855</text>
+<text x="340" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">15.86</text>
+<text x="440" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#b45309">13523</text>
+<text x="560" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#0f172a">8565</text>
+</svg>

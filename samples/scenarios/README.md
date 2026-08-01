@@ -48,3 +48,13 @@ dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix
 ```
 
 See `full-awg-silica-matrix/SUMMARY.md` and `full-awg-peltier-matrix/SUMMARY.md`.
+
+## Summer diurnal (24 h) + PV/battery sizing
+
+Average summer day/night (32 °C/30% RH ↔ 20 °C/60% RH) with sizing for 0.5–3 L/day:
+
+```bash
+dotnet run --project src/ThermoCore.Console -- summer-diurnal
+```
+
+See `awg-summer-diurnal/SUMMARY.md` and `docs/07_Applications/31_AwgSummerDiurnalOperation.md`.

@@ -48,7 +48,8 @@ public sealed class AwgSimulationRunner
                 TimeStep = options.TimeStep,
                 ExternalInputs = built.ExternalInputs,
                 Loops = built.Loops,
-                StepHook = coordinator
+                StepHook = coordinator,
+                BalanceTolerance = options.BalanceTolerance ?? Core.Balances.BalanceTolerance.Default
             },
             cancellationToken);
 

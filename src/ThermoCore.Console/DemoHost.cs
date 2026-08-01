@@ -87,6 +87,11 @@ internal static class DemoHost
             return RunFullAwgPeltierMatrix(args);
         }
 
+        if (args.Length >= 1 && args[0] is "summer-diurnal" or "--summer-diurnal")
+        {
+            return RunSummerDiurnalSizing(args);
+        }
+
         if (args.Length >= 2 && args[0] is "validate" or "--validate")
         {
             return RunMeasurementValidation(args);
@@ -147,6 +152,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- full-flow-ambient-matrix [--out samples/scenarios/full-awg-ambient-matrix]
               dotnet run --project src/ThermoCore.Console -- full-flow-silica-matrix [--out samples/scenarios/full-awg-silica-matrix]
               dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix [--out samples/scenarios/full-awg-peltier-matrix]
+              dotnet run --project src/ThermoCore.Console -- summer-diurnal [--out samples/scenarios/awg-summer-diurnal]
               dotnet run --project src/ThermoCore.Console -- validate <measurements.csv> [--config path.json] [--duration 3] [--dt 1]
               dotnet run --project src/ThermoCore.Console -- calibrate <measurements.csv> [--params id1,id2] [--db path.db]
               dotnet run --project src/ThermoCore.Console -- holdout <measurements.csv> [--train-fraction 0.7] [--params id1,id2]
@@ -169,6 +175,7 @@ internal static class DemoHost
               full-flow-ambient-matrix  Full AWG T×RH matrix (20–35 °C × 30–60% RH) + summary table
               full-flow-silica-matrix   Full AWG silica mass sweep @ 35 °C / 50% RH
               full-flow-peltier-matrix  Full AWG Peltier power sweep @ 35 °C / 50% RH
+              summer-diurnal            24h summer day/night AWG + PV/battery sizing (0.5–3 L/day)
               validate <csv>            Compare simulation channels to measurement CSV (CAL)
               calibrate <csv>           Fit bounded AWG parameters to measurements (CAL-006)
               holdout <csv>             Fit on train window, score holdout (M5 / CAL holdout)
@@ -1140,6 +1147,67 @@ internal static class DemoHost
         catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException)
         {
             System.Console.Error.WriteLine($"Ambient-matrix error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static int RunSummerDiurnalSizing(string[] args)
+    {
+        try
+        {
+            if (!TryParseOutDirectory(
+                    args,
+                    Path.Combine("samples", "scenarios", "awg-summer-diurnal"),
+                    "summer-diurnal",
+                    out var outDir,
+                    out var exitCode))
+            {
+                return exitCode;
+            }
+
+            var report = new ThermoCore.AWG.Sizing.AwgDiurnalSizingRunner().Run();
+            ThermoCore.AWG.Sizing.AwgDiurnalSizingReportWriter.Write(report, outDir);
+            File.WriteAllText(
+                Path.Combine(outDir, "README.md"),
+                """
+                # AWG summer diurnal (24 h) + sizing
+
+                Average summer day: day ~32 °C / 30% RH, night ~20 °C / 60% RH.
+
+                ```bash
+                dotnet run --project src/ThermoCore.Console -- summer-diurnal
+                ```
+
+                See `SUMMARY.md`, `sizing-table.svg`, `hourly-water-bars.svg`, and
+                `docs/07_Applications/31_AwgSummerDiurnalOperation.md`.
+                """);
+
+            System.Console.WriteLine("=== Summer diurnal AWG + sizing ===");
+            System.Console.WriteLine($"Output: {outDir}");
+            if (!report.SimulationSucceeded)
+            {
+                System.Console.Error.WriteLine(report.FailureMessage ?? "Simulation failed.");
+                return ExitSimulationFailed;
+            }
+
+            System.Console.WriteLine(
+                $"Baseline: {report.BaselineWaterLiters.ToString("0.####", CultureInfo.InvariantCulture)} L/day, " +
+                $"{report.BaselineDailyElectricalWh.ToString("0.#", CultureInfo.InvariantCulture)} Wh, " +
+                $"{report.SpecificEnergyWhPerLiter.ToString("0.#", CultureInfo.InvariantCulture)} Wh/L");
+            foreach (var t in report.Targets)
+            {
+                System.Console.WriteLine(
+                    $"  {t.TargetLitersPerDay.ToString("0.#", CultureInfo.InvariantCulture)} L/day → " +
+                    $"PV {t.RecommendedPvRatedPowerW.ToString("0", CultureInfo.InvariantCulture)} W, " +
+                    $"batt {t.RecommendedBatteryCapacityWh.ToString("0", CultureInfo.InvariantCulture)} Wh, " +
+                    $"{t.DailyElectricalEnergyWh.ToString("0", CultureInfo.InvariantCulture)} Wh/day");
+            }
+
+            return ExitSuccess;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException)
+        {
+            System.Console.Error.WriteLine($"summer-diurnal error: {ex.Message}");
             return ExitConfigurationFailed;
         }
     }

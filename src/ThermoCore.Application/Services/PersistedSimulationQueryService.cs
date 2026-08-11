@@ -57,6 +57,11 @@ public sealed class PersistedSimulationQueryService
             FinalBusPowerW = null,
             CollectedWaterKg = stored.FinalWaterTankContentKg,
             LitersPerDay = null,
-            WattHoursPerLiter = null
+            WattHoursPerLiter = null,
+            LitersPerKwhElectric = null,
+            LitersPerKwhSolarPrimary = null,
+            LitersPerDayPerSquareMeterAperture = null,
+            WaterRecoveryFraction = null,
+            DesorptionCaptureFraction = null
         };
 }

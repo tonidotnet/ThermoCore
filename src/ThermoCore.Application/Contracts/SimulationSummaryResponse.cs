@@ -36,6 +36,21 @@ public sealed record SimulationSummaryResponse
     /// <summary>Extrapolated liters/day from collected water and run duration.</summary>
     public double? LitersPerDay { get; init; }
 
-    /// <summary>Wh/liter proxy when electrical bus power is available.</summary>
+    /// <summary>Wh/liter proxy when electrical energy is available.</summary>
     public double? WattHoursPerLiter { get; init; }
+
+    /// <summary>L/kWh_electric (KPI-001).</summary>
+    public double? LitersPerKwhElectric { get; init; }
+
+    /// <summary>L/kWh_solar_primary (KPI-002); incident collector-aperture solar only.</summary>
+    public double? LitersPerKwhSolarPrimary { get; init; }
+
+    /// <summary>L/day/m² solar aperture (KPI-003).</summary>
+    public double? LitersPerDayPerSquareMeterAperture { get; init; }
+
+    /// <summary>Collected water / ambient moisture intake (KPI-004).</summary>
+    public double? WaterRecoveryFraction { get; init; }
+
+    /// <summary>Collected water / desorbed bed water when desorption occurred.</summary>
+    public double? DesorptionCaptureFraction { get; init; }
 }

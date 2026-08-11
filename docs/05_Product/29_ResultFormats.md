@@ -199,11 +199,17 @@ Canonical IDs:
 water.collected.totalKg
 water.collected.totalLitersApprox
 water.production.averageKgPerDay
+water.production.litersPerDay
 energy.solar.totalJ
 energy.electrical.totalJ
 energy.peltier.totalJ
 energy.fan.totalJ
 efficiency.whPerLiterApprox
+kpi.litersPerKwhElectric
+kpi.litersPerKwhSolarPrimary
+kpi.litersPerDayPerSquareMeterAperture
+kpi.waterRecoveryFraction
+kpi.desorptionCaptureFraction
 battery.minimumSoc
 battery.finalSoc
 temperature.peltierHot.maximumK
@@ -212,6 +218,9 @@ balance.water.maximumAbsoluteResidualKg
 balance.energy.maximumAbsoluteResidualJ
 ```
 
+`kpi.*` keys are omitted when the corresponding denominator is zero/undefined (never NaN).
+Solar primary energy (`energy.solar.totalJ` / `kpi.litersPerKwhSolarPrimary`) uses incident
+collector-aperture irradiance only; recovered internal heat is excluded.
 # 15. Diagnostics CSV
 
 Columns:

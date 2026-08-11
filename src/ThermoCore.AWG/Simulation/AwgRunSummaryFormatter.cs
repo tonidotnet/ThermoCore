@@ -47,6 +47,42 @@ public static class AwgRunSummaryFormatter
                     : string.Empty));
         }
 
+        if (summary.LitersPerDay is { } lpd)
+        {
+            lines.Add($"Water yield: {lpd:G4} L/day");
+        }
+
+        if (summary.LitersPerKwhElectric is { } lPerKwhE)
+        {
+            lines.Add(
+                $"L/kWh_electric: {lPerKwhE:G4}" +
+                (summary.WattHoursElectricPerLiter is { } whL
+                    ? $" ({whL:G4} Wh_e/L)"
+                    : string.Empty));
+        }
+
+        if (summary.LitersPerKwhSolarPrimary is { } lPerKwhS)
+        {
+            lines.Add(
+                $"L/kWh_solar_primary: {lPerKwhS:G4}" +
+                " (denominator = incident collector-aperture solar; recovered heat excluded)");
+        }
+
+        if (summary.LitersPerDayPerSquareMeterAperture is { } lPerM2)
+        {
+            lines.Add($"L/day/m² aperture: {lPerM2:G4}");
+        }
+
+        if (summary.WaterRecoveryFraction is { } recovery)
+        {
+            lines.Add($"WaterRecoveryFraction: {recovery:P2}");
+        }
+
+        if (summary.DesorptionCaptureFraction is { } capture)
+        {
+            lines.Add($"DesorptionCaptureFraction: {capture:P2}");
+        }
+
         if (summary.FinalMoistAirTemperaturesC.Count > 0)
         {
             lines.Add("Final moist-air temperatures (°C):");

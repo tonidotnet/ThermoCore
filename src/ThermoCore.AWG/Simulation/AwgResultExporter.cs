@@ -40,6 +40,56 @@ public static class AwgResultExporter
             scalars["water.production.averageKgPerDay"] = tankKg / days;
         }
 
+        if (run.Summary.LitersPerDay is { } litersPerDay)
+        {
+            scalars["water.production.litersPerDay"] = litersPerDay;
+        }
+
+        if (run.Summary.ElectricEnergyConsumedJ is { } electricJ)
+        {
+            scalars["energy.electrical.totalJ"] = electricJ;
+        }
+
+        if (run.Summary.PeltierElectricalProxyEnergyJ is { } peltierJ)
+        {
+            scalars["energy.peltier.totalJ"] = peltierJ;
+        }
+
+        if (run.Summary.IncidentSolarEnergyJ is { } solarJ)
+        {
+            scalars["energy.solar.totalJ"] = solarJ;
+        }
+
+        if (run.Summary.WattHoursElectricPerLiter is { } whPerL)
+        {
+            scalars["efficiency.whPerLiterApprox"] = whPerL;
+        }
+
+        if (run.Summary.LitersPerKwhElectric is { } lPerKwhE)
+        {
+            scalars["kpi.litersPerKwhElectric"] = lPerKwhE;
+        }
+
+        if (run.Summary.LitersPerKwhSolarPrimary is { } lPerKwhS)
+        {
+            scalars["kpi.litersPerKwhSolarPrimary"] = lPerKwhS;
+        }
+
+        if (run.Summary.LitersPerDayPerSquareMeterAperture is { } lPerM2)
+        {
+            scalars["kpi.litersPerDayPerSquareMeterAperture"] = lPerM2;
+        }
+
+        if (run.Summary.WaterRecoveryFraction is { } recovery)
+        {
+            scalars["kpi.waterRecoveryFraction"] = recovery;
+        }
+
+        if (run.Summary.DesorptionCaptureFraction is { } capture)
+        {
+            scalars["kpi.desorptionCaptureFraction"] = capture;
+        }
+
         return result with
         {
             Summary = result.Summary with { ScalarMetrics = scalars }

@@ -40,13 +40,14 @@ public static class AwgRunSummaryBuilder
                 humidity[sample.PointId] = sample.HumidityRatioKgPerKgDryAir;
             }
 
-            if (last.PortStates.TryGetValue($"{AwgV3TopologyIds.ElectricalBusSink}.inlet", out var bus)
+            // PortStates store component outputs; bus/curtail live on PowerManager ports.
+            if (last.PortStates.TryGetValue($"{AwgV3TopologyIds.PowerManager}.bus", out var bus)
                 && bus is ElectricalPowerState busState)
             {
                 busPower = busState.PowerW;
             }
 
-            if (last.PortStates.TryGetValue($"{AwgV3TopologyIds.CurtailmentSink}.inlet", out var curtail)
+            if (last.PortStates.TryGetValue($"{AwgV3TopologyIds.PowerManager}.curtailed", out var curtail)
                 && curtail is ElectricalPowerState curtailState)
             {
                 curtailedPower = curtailState.PowerW;
@@ -64,6 +65,7 @@ public static class AwgRunSummaryBuilder
 
         var solar = ComputeSolarMetrics(built, options, engineResult);
         var battery = ComputeBatteryMetrics(built);
+        var kpis = AwgPerformanceKpiCalculator.Compute(built, options, engineResult, tankContent);
 
         return new AwgRunSummary
         {
@@ -93,7 +95,20 @@ public static class AwgRunSummaryBuilder
             SolarUtilizationFraction = solar.UtilizationFraction,
             FinalBatteryStateOfChargeFraction = battery.FinalSocFraction,
             BatteryStateOfChargeSwingFraction = battery.SocSwingFraction,
-            BatteryThroughputFraction = battery.ThroughputFraction
+            BatteryThroughputFraction = battery.ThroughputFraction,
+            LitersPerDay = kpis.LitersPerDay,
+            ElectricEnergyConsumedJ = kpis.ElectricEnergyConsumedJ,
+            BusElectricalEnergyJ = kpis.BusElectricalEnergyJ,
+            PeltierElectricalProxyEnergyJ = kpis.PeltierElectricalProxyEnergyJ,
+            AmbientMoistureIntakeKg = kpis.AmbientMoistureIntakeKg,
+            DesorbedWaterMassKg = kpis.DesorbedWaterMassKg,
+            SolarCollectorApertureAreaM2 = kpis.SolarCollectorApertureAreaM2,
+            LitersPerKwhElectric = kpis.LitersPerKwhElectric,
+            LitersPerKwhSolarPrimary = kpis.LitersPerKwhSolarPrimary,
+            LitersPerDayPerSquareMeterAperture = kpis.LitersPerDayPerSquareMeterAperture,
+            WaterRecoveryFraction = kpis.WaterRecoveryFraction,
+            DesorptionCaptureFraction = kpis.DesorptionCaptureFraction,
+            WattHoursElectricPerLiter = kpis.WattHoursElectricPerLiter
         };
     }
 

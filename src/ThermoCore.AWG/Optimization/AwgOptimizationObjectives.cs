@@ -19,14 +19,25 @@ public static class AwgOptimizationObjectives
     }
 
     /// <summary>
-    /// Approximate Wh/liter using final bus power as a constant-power proxy over the run.
-    /// Returns null when electrical power or water production is unavailable.
+    /// Approximate Wh/liter. Prefers integrated electrical energy (bus + Peltier proxy);
+    /// falls back to final bus power × duration when energy was not integrated.
+    /// Returns null when electrical energy or water production is unavailable.
     /// </summary>
     public static double? WattHoursPerLiter(AwgRunSummary summary)
     {
         ArgumentNullException.ThrowIfNull(summary);
         var waterKg = summary.FinalWaterTankContentKg ?? 0.0;
-        if (waterKg <= 0.0 || summary.FinalBusPowerW is not { } powerW || powerW <= 0.0)
+        if (waterKg <= 0.0)
+        {
+            return null;
+        }
+
+        if (summary.WattHoursElectricPerLiter is { } integrated)
+        {
+            return integrated;
+        }
+
+        if (summary.FinalBusPowerW is not { } powerW || powerW <= 0.0)
         {
             return null;
         }
@@ -34,6 +45,41 @@ public static class AwgOptimizationObjectives
         var liters = waterKg;
         var wattHours = powerW * summary.Duration.TotalHours;
         return wattHours / liters;
+    }
+
+    /// <summary>L/kWh_electric (KPI-001). Null when electric energy ≤ 0.</summary>
+    public static double? LitersPerKwhElectric(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.LitersPerKwhElectric;
+    }
+
+    /// <summary>L/kWh_solar_primary (KPI-002). Null when incident solar ≤ 0.</summary>
+    public static double? LitersPerKwhSolarPrimary(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.LitersPerKwhSolarPrimary;
+    }
+
+    /// <summary>L/day/m² solar aperture (KPI-003).</summary>
+    public static double? LitersPerDayPerSquareMeterAperture(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.LitersPerDayPerSquareMeterAperture;
+    }
+
+    /// <summary>Collected / ambient moisture intake (KPI-004).</summary>
+    public static double? WaterRecoveryFraction(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.WaterRecoveryFraction;
+    }
+
+    /// <summary>Collected / desorbed bed water when desorption occurred.</summary>
+    public static double? DesorptionCaptureFraction(AwgRunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return summary.DesorptionCaptureFraction;
     }
 
     /// <summary>

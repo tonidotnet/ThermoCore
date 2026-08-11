@@ -61,4 +61,46 @@ public sealed record AwgRunSummary
 
     /// <summary>(Σ E_charge + Σ E_discharge) / NominalCapacity when electrical subsystem is present.</summary>
     public double? BatteryThroughputFraction { get; init; }
+
+    /// <summary>Extrapolated liters/day from collected tank water (ρ≈1 kg/L).</summary>
+    public double? LitersPerDay { get; init; }
+
+    /// <summary>Σ (bus load + Peltier cooling proxy) · Δt over the run (J).</summary>
+    public double? ElectricEnergyConsumedJ { get; init; }
+
+    /// <summary>Σ power-manager.bus · Δt (J).</summary>
+    public double? BusElectricalEnergyJ { get; init; }
+
+    /// <summary>Σ condenser-cooling heat request · Δt (J); COP≈1 electrical proxy.</summary>
+    public double? PeltierElectricalProxyEnergyJ { get; init; }
+
+    /// <summary>Ambient moisture mass supplied at ambient-source.outlet (kg).</summary>
+    public double? AmbientMoistureIntakeKg { get; init; }
+
+    /// <summary>Integrated desorbed water mass from bed moist-air balance (kg).</summary>
+    public double? DesorbedWaterMassKg { get; init; }
+
+    /// <summary>Configured thermal-collector aperture (m²).</summary>
+    public double? SolarCollectorApertureAreaM2 { get; init; }
+
+    /// <summary>L/kWh_electric (KPI-001). Null when electric energy ≤ 0.</summary>
+    public double? LitersPerKwhElectric { get; init; }
+
+    /// <summary>
+    /// L/kWh_solar_primary (KPI-002). Denominator is incident aperture solar only;
+    /// recovered internal heat is excluded.
+    /// </summary>
+    public double? LitersPerKwhSolarPrimary { get; init; }
+
+    /// <summary>L/day/m² solar aperture (KPI-003). Null when aperture ≤ 0.</summary>
+    public double? LitersPerDayPerSquareMeterAperture { get; init; }
+
+    /// <summary>Collected water / ambient moisture intake (KPI-004). Null when intake ≤ 0.</summary>
+    public double? WaterRecoveryFraction { get; init; }
+
+    /// <summary>Collected water / desorbed bed water. Null when no desorption.</summary>
+    public double? DesorptionCaptureFraction { get; init; }
+
+    /// <summary>Wh_electric/L from integrated electrical energy. Null when water or energy ≤ 0.</summary>
+    public double? WattHoursElectricPerLiter { get; init; }
 }

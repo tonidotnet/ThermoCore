@@ -44,8 +44,13 @@ public static class SimulationSummaryMapper
             FinalWaterTankContentKg = waterKg,
             FinalBusPowerW = run.Summary.FinalBusPowerW,
             CollectedWaterKg = waterKg,
-            LitersPerDay = litersPerDay,
-            WattHoursPerLiter = AwgOptimizationObjectives.WattHoursPerLiter(run.Summary)
+            LitersPerDay = litersPerDay ?? run.Summary.LitersPerDay,
+            WattHoursPerLiter = AwgOptimizationObjectives.WattHoursPerLiter(run.Summary),
+            LitersPerKwhElectric = run.Summary.LitersPerKwhElectric,
+            LitersPerKwhSolarPrimary = run.Summary.LitersPerKwhSolarPrimary,
+            LitersPerDayPerSquareMeterAperture = run.Summary.LitersPerDayPerSquareMeterAperture,
+            WaterRecoveryFraction = run.Summary.WaterRecoveryFraction,
+            DesorptionCaptureFraction = run.Summary.DesorptionCaptureFraction
         };
     }
 }

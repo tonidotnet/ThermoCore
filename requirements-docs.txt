@@ -1,3 +1,4 @@
 mkdocs==1.6.1
 mkdocs-material==9.6.14
-pymdown-extensions==10.16
+# 10.21.2+: coerce filename=None for Pygments 2.20 HtmlFormatter (code-fence crash)
+pymdown-extensions==10.21.2

@@ -83,6 +83,34 @@ public static class AwgRunSummaryFormatter
             lines.Add($"DesorptionCaptureFraction: {capture:P2}");
         }
 
+        if (summary.BareCoolingDeviceCOP is { } bareCop)
+        {
+            lines.Add($"BareCoolingDeviceCOP: {bareCop:G4}");
+        }
+
+        if (summary.CoolingPlantCOP is { } plantCop)
+        {
+            lines.Add($"CoolingPlantCOP: {plantCop:G4}");
+        }
+
+        if (summary.AverageTemperatureLiftK is { } lift)
+        {
+            lines.Add($"AverageTemperatureLift: {lift:G4} K");
+        }
+
+        if (summary.AverageDewPointMarginK is { } margin)
+        {
+            lines.Add($"AverageDewPointMargin: {margin:G4} K");
+        }
+
+        if (summary.CoolingPlantElectricalEnergyJ is { } coolElec
+            || summary.CoolingPlantThermalInputJ is { } coolTherm)
+        {
+            lines.Add(
+                $"Cooling plant energy: E_e={summary.CoolingPlantElectricalEnergyJ?.ToString("G4") ?? "n/a"} J  " +
+                $"Q_c={summary.CoolingPlantThermalInputJ?.ToString("G4") ?? "n/a"} J");
+        }
+
         if (summary.FinalMoistAirTemperaturesC.Count > 0)
         {
             lines.Add("Final moist-air temperatures (°C):");

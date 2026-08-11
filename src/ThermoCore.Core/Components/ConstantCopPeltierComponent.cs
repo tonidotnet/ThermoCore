@@ -51,6 +51,9 @@ public sealed class ConstantCopPeltierComponent : ISimulationComponent
 
     public IReadOnlyList<IPhysicalPort> Ports { get; }
 
+    /// <summary>Configured cooling COP (Qc/Pe).</summary>
+    public double CoolingCop => _coolingCop;
+
     public double LastColdSideHeatW { get; private set; }
 
     public double LastHotSideHeatW { get; private set; }

@@ -26,7 +26,7 @@
 | KPI-002 | Add L/kWh_solar_primary | P0 | Done (R1-001) |
 | KPI-003 | Add L/day/m² solar aperture | P0 | Done (R1-001) |
 | KPI-004 | Add WaterRecoveryFraction | P1 | Done (R1-001) |
-| KPI-005 | Add CoolingPlantCOP and dew-point margin | P0 |
+| KPI-005 | Add CoolingPlantCOP and dew-point margin | P0 | Done (R1-002) |
 | VAL-001 | Define A/B/C prototype measurement campaign | P0 |
 | VAL-002 | Store hardware identity/provenance with calibration data | P0 |
 | VAL-003 | Distinguish Bench/Integrated/Outdoor validation | P1 |

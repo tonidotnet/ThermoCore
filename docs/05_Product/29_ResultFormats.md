@@ -210,6 +210,12 @@ kpi.litersPerKwhSolarPrimary
 kpi.litersPerDayPerSquareMeterAperture
 kpi.waterRecoveryFraction
 kpi.desorptionCaptureFraction
+kpi.bareCoolingDeviceCOP
+kpi.coolingPlantCOP
+kpi.averageTemperatureLiftK
+kpi.averageDewPointMarginK
+energy.coolingPlant.thermalInputJ
+energy.coolingPlant.electricalJ
 battery.minimumSoc
 battery.finalSoc
 temperature.peltierHot.maximumK
@@ -221,6 +227,8 @@ balance.energy.maximumAbsoluteResidualJ
 `kpi.*` keys are omitted when the corresponding denominator is zero/undefined (never NaN).
 Solar primary energy (`energy.solar.totalJ` / `kpi.litersPerKwhSolarPrimary`) uses incident
 collector-aperture irradiance only; recovered internal heat is excluded.
+Cooling plant COP includes process-fan electrical during cooling-active steps; bare device COP
+excludes the fan.
 # 15. Diagnostics CSV
 
 Columns:

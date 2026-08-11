@@ -90,6 +90,36 @@ public static class AwgResultExporter
             scalars["kpi.desorptionCaptureFraction"] = capture;
         }
 
+        if (run.Summary.CoolingPlantThermalInputJ is { } coolTherm)
+        {
+            scalars["energy.coolingPlant.thermalInputJ"] = coolTherm;
+        }
+
+        if (run.Summary.CoolingPlantElectricalEnergyJ is { } coolElec)
+        {
+            scalars["energy.coolingPlant.electricalJ"] = coolElec;
+        }
+
+        if (run.Summary.BareCoolingDeviceCOP is { } bareCop)
+        {
+            scalars["kpi.bareCoolingDeviceCOP"] = bareCop;
+        }
+
+        if (run.Summary.CoolingPlantCOP is { } plantCop)
+        {
+            scalars["kpi.coolingPlantCOP"] = plantCop;
+        }
+
+        if (run.Summary.AverageTemperatureLiftK is { } lift)
+        {
+            scalars["kpi.averageTemperatureLiftK"] = lift;
+        }
+
+        if (run.Summary.AverageDewPointMarginK is { } margin)
+        {
+            scalars["kpi.averageDewPointMarginK"] = margin;
+        }
+
         return result with
         {
             Summary = result.Summary with { ScalarMetrics = scalars }

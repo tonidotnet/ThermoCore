@@ -103,4 +103,22 @@ public sealed record AwgRunSummary
 
     /// <summary>Wh_electric/L from integrated electrical energy. Null when water or energy ≤ 0.</summary>
     public double? WattHoursElectricPerLiter { get; init; }
+
+    /// <summary>Σ delivered condenser cooling · Δt (J).</summary>
+    public double? CoolingPlantThermalInputJ { get; init; }
+
+    /// <summary>Σ (device Pe + fan Pe during cooling) · Δt (J).</summary>
+    public double? CoolingPlantElectricalEnergyJ { get; init; }
+
+    /// <summary>Bare device COP = Σ Qc / Σ Pe (KPI-005). ~1 for ControllableHeatSource proxy.</summary>
+    public double? BareCoolingDeviceCOP { get; init; }
+
+    /// <summary>Plant COP = thermal input / plant electrical including fan (KPI-005).</summary>
+    public double? CoolingPlantCOP { get; init; }
+
+    /// <summary>Mean (T_hot − T_cold) over cooling-active samples (K).</summary>
+    public double? AverageTemperatureLiftK { get; init; }
+
+    /// <summary>Mean (T_dp,in − T_surface) over cooling-active samples (K).</summary>
+    public double? AverageDewPointMarginK { get; init; }
 }

@@ -66,6 +66,7 @@ public static class AwgRunSummaryBuilder
         var solar = ComputeSolarMetrics(built, options, engineResult);
         var battery = ComputeBatteryMetrics(built);
         var kpis = AwgPerformanceKpiCalculator.Compute(built, options, engineResult, tankContent);
+        var cooling = AwgCoolingMetricsCalculator.Compute(built, options, engineResult);
 
         return new AwgRunSummary
         {
@@ -108,7 +109,13 @@ public static class AwgRunSummaryBuilder
             LitersPerDayPerSquareMeterAperture = kpis.LitersPerDayPerSquareMeterAperture,
             WaterRecoveryFraction = kpis.WaterRecoveryFraction,
             DesorptionCaptureFraction = kpis.DesorptionCaptureFraction,
-            WattHoursElectricPerLiter = kpis.WattHoursElectricPerLiter
+            WattHoursElectricPerLiter = kpis.WattHoursElectricPerLiter,
+            CoolingPlantThermalInputJ = cooling.CoolingPlantThermalInputJ,
+            CoolingPlantElectricalEnergyJ = cooling.CoolingPlantElectricalEnergyJ,
+            BareCoolingDeviceCOP = cooling.BareCoolingDeviceCOP,
+            CoolingPlantCOP = cooling.CoolingPlantCOP,
+            AverageTemperatureLiftK = cooling.AverageTemperatureLiftK,
+            AverageDewPointMarginK = cooling.AverageDewPointMarginK
         };
     }
 

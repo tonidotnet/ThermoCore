@@ -17,10 +17,49 @@ L/kWh_solar_primary
 L/day/m² solar aperture
 WaterRecoveryFraction
 DesorptionCaptureFraction
-BareCoolingDeviceCOP          (R1-002)
-CoolingPlantCOP               (R1-002)
-AverageTemperatureLift        (R1-002)
-AverageDewPointMargin         (R1-002)
+BareCoolingDeviceCOP          (R1-002) — `BareCoolingDeviceCOP`
+CoolingPlantCOP               (R1-002) — `CoolingPlantCOP`
+AverageTemperatureLift        (R1-002) — `AverageTemperatureLiftK`
+AverageDewPointMargin         (R1-002) — `AverageDewPointMarginK`
+CoolingPlantElectricalEnergy  (R1-002) — `CoolingPlantElectricalEnergyJ`
+CoolingPlantThermalInput      (R1-002) — `CoolingPlantThermalInputJ`
+```
+
+## Cooling channels (R1-002 / KPI-005)
+
+| Channel | Formula | Null when |
+|---|---|---|
+| `CoolingPlantThermalInputJ` | Σ delivered condenser cooling \(Q_{c,\mathrm{del}}=\dot m_{da}(h_{in}-h_{out})\) · Δt | condenser moist-air ports not observed |
+| `CoolingPlantElectricalEnergyJ` | Σ \((P_{e,\mathrm{device}}+P_{e,\mathrm{fan}})\) · Δt during cooling-active steps | no device/fan electrical signal |
+| `BareCoolingDeviceCOP` | Σ \(Q_{c,\mathrm{device}}\) / Σ \(P_{e,\mathrm{device}}\) | device Pe ≤ 0 |
+| `CoolingPlantCOP` | `CoolingPlantThermalInputJ` / `CoolingPlantElectricalEnergyJ` | either ≤ 0 / missing |
+| `AverageTemperatureLiftK` | mean \((T_{hot}-T_{cold})\) over cooling-active samples | no cooling samples |
+| `AverageDewPointMarginK` | mean \((T_{dp,in}-T_{surface})\) over cooling-active samples | no cooling samples |
+
+### Device electrical / cold heat today
+
+AWG V3 uses `ControllableHeatSourceComponent` (`condenser-cooling`) as a **Qc capacity actuator**. The request heat is treated as a **COP≈1 electrical proxy** until a real TEC is wired into the graph:
+
+```text
+P_e,device ≈ Q_c,request
+BareCoolingDeviceCOP ≈ 1.0
+```
+
+When an `AnalyticalPeltierComponent` or `ConstantCopPeltierComponent` is present in the graph, device Qc/Pe are taken from `cold_heat` / electrical (or Pe = Qc/COPc for ConstantCop when the electrical port is not published).
+
+Fan electrical is included in plant COP per cooling-system rules (`ElectricalLoads` LoadId `"fan"`, else process-fan `LastElectricalPowerW`).
+
+Hot-side temperature for lift: TEC `hot_heat` when present, otherwise ambient as heat-sink proxy.
+
+### Scalar export keys
+
+```text
+energy.coolingPlant.thermalInputJ
+energy.coolingPlant.electricalJ
+kpi.bareCoolingDeviceCOP
+kpi.coolingPlantCOP
+kpi.averageTemperatureLiftK
+kpi.averageDewPointMarginK
 ```
 
 ## Definitions (R1-001)
@@ -84,7 +123,8 @@ Recovered internal heat                   ← never counted as new solar input
 | Surface | Location |
 |---|---|
 | Summary record | `AwgRunSummary` additive nullable fields |
-| Calculator | `AwgPerformanceKpiCalculator` |
+| Water/energy calculator | `AwgPerformanceKpiCalculator` |
+| Cooling calculator | `AwgCoolingMetricsCalculator` |
 | Console text | `AwgRunSummaryFormatter` |
 | Export scalars | `AwgResultExporter` → `kpi.*`, `energy.*`, `efficiency.whPerLiterApprox` |
 | API/Web | `SimulationSummaryResponse` additive fields |

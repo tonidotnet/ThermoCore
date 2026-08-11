@@ -53,4 +53,22 @@ public sealed record SimulationSummaryResponse
 
     /// <summary>Collected water / desorbed bed water when desorption occurred.</summary>
     public double? DesorptionCaptureFraction { get; init; }
+
+    /// <summary>Bare device COP = Σ Qc / Σ Pe (KPI-005).</summary>
+    public double? BareCoolingDeviceCOP { get; init; }
+
+    /// <summary>Plant COP including fan electrical (KPI-005).</summary>
+    public double? CoolingPlantCOP { get; init; }
+
+    /// <summary>Mean temperature lift over cooling-active samples (K).</summary>
+    public double? AverageTemperatureLiftK { get; init; }
+
+    /// <summary>Mean dew-point margin (T_dp − T_surface) over cooling-active samples (K).</summary>
+    public double? AverageDewPointMarginK { get; init; }
+
+    /// <summary>Σ cooling-plant electrical energy (J).</summary>
+    public double? CoolingPlantElectricalEnergyJ { get; init; }
+
+    /// <summary>Σ delivered condenser cooling (J).</summary>
+    public double? CoolingPlantThermalInputJ { get; init; }
 }

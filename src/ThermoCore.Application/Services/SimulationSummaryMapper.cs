@@ -50,7 +50,13 @@ public static class SimulationSummaryMapper
             LitersPerKwhSolarPrimary = run.Summary.LitersPerKwhSolarPrimary,
             LitersPerDayPerSquareMeterAperture = run.Summary.LitersPerDayPerSquareMeterAperture,
             WaterRecoveryFraction = run.Summary.WaterRecoveryFraction,
-            DesorptionCaptureFraction = run.Summary.DesorptionCaptureFraction
+            DesorptionCaptureFraction = run.Summary.DesorptionCaptureFraction,
+            BareCoolingDeviceCOP = run.Summary.BareCoolingDeviceCOP,
+            CoolingPlantCOP = run.Summary.CoolingPlantCOP,
+            AverageTemperatureLiftK = run.Summary.AverageTemperatureLiftK,
+            AverageDewPointMarginK = run.Summary.AverageDewPointMarginK,
+            CoolingPlantElectricalEnergyJ = run.Summary.CoolingPlantElectricalEnergyJ,
+            CoolingPlantThermalInputJ = run.Summary.CoolingPlantThermalInputJ
         };
     }
 }

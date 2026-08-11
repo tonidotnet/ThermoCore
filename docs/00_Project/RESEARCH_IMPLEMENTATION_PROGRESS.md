@@ -5,7 +5,7 @@
 | R0-001 | Capture current regression baseline | P0 | Done | none |
 | R1-001 | Add water/energy comparison KPIs | P0 | Done | R0-001 |
 | R1-002 | Add cooling COP/dew-point channels | P0 | Done | R0-001 |
-| R2-001 | Add TEC manufacturer profile schema | P0 | Planned | R1 |
+| R2-001 | Add TEC manufacturer profile schema | P0 | Done | R1 |
 | R2-002 | Add dew-point-tracking TEC controller | P0 | Planned | R2-001 |
 | R3-001 | Add prototype hardware metadata/CSV profile | P0 | Planned | R1 |
 | R3-002 | Add commercial Peltier black-box model | P1 | Planned | R3-001 |

@@ -29,14 +29,15 @@ The controller should request the lowest TEC drive that can maintain the target 
 
 ## Manufacturer TEC profiles
 
-The implementation shall support named hardware profiles instead of hard-coded generic TEC values.
+Named hardware profiles are implemented as `TecManufacturerProfile` (R2-001 / COOL-003).
+See `docs/08_ResearchAndEvolution/44_TecManufacturerProfileSchema.md`.
 
-Suggested initial profiles:
+Suggested / available profiles:
 
 ```text
-Generic TEC1-12706
-Industrial 40x40 mm TEC profile
-Measured commercial Peltier dehumidifier profile
+Generic TEC1-12706   ← TecManufacturerProfileCatalog.CreateGenericTec112706Reference()
+Industrial 40x40 mm TEC profile          (planned datasheet capture)
+Measured commercial Peltier dehumidifier profile  (R3)
 ```
 
 ## Sweep variables

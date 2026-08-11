@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0",
+  "profileId": "generic-tec1-12706",
+  "manufacturer": "Generic",
+  "model": "TEC1-12706",
+  "parameterModelType": "analyticalSteadyState",
+  "sourceIdentifier": "thermocore://profiles/generic-tec1-12706",
+  "sourceRevision": "2026-08-12",
+  "evidenceLevel": "provisionalEngineering",
+  "lengthMm": 40,
+  "widthMm": 40,
+  "heightMm": 3.6,
+  "maximumCurrentA": 6,
+  "maximumVoltageV": 15,
+  "maximumCoolingPowerW": 50,
+  "maximumTemperatureDifferenceK": 70,
+  "hotSideReferenceTemperatureK": 300,
+  "minimumColdSideTemperatureK": 250,
+  "maximumHotSideTemperatureK": 360,
+  "maximumElectricalPowerW": 60,
+  "analyticalCoefficients": {
+    "seebeckCoefficientVPerK": 0.05,
+    "electricalResistanceOhm": 2,
+    "thermalConductanceWPerK": 0.5
+  },
+  "fittingMethod": "Explicit provisional α,R,K identical to AnalyticalPeltierParameters.CreateProvisionalEngineeringDefaults(); not a manufacturer commitment.",
+  "notes": "Generic 40×40 mm class reference for ThermoCore tests. Replace with a datasheet-backed profile before predictive design."
+}

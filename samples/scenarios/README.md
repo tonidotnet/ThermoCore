@@ -58,3 +58,13 @@ dotnet run --project src/ThermoCore.Console -- summer-diurnal
 ```
 
 See `awg-summer-diurnal/SUMMARY.md` and `docs/07_Applications/31_AwgSummerDiurnalOperation.md`.
+
+## R0-001 regression baseline
+
+Machine-readable pre-research AWG regression baseline (DOC-022 + dry-sunny matrix):
+
+```bash
+dotnet run --project src/ThermoCore.Console -- capture-baseline --suite all
+```
+
+See [`../baselines/r0-001/README.md`](../baselines/r0-001/README.md).

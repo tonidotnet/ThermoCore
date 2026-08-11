@@ -9,6 +9,7 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- R0-001: capture machine-readable AWG regression baseline (`capture-baseline` → `samples/baselines/r0-001/`)
 - Summer diurnal 24 h AWG + PV/battery sizing for 0.5–3 L/day (`summer-diurnal`, DOC-031 modes)
 - Controlled Full AWG silica-mass and Peltier-power sweeps at 35 °C / 50% RH (`full-flow-silica-matrix`, `full-flow-peltier-matrix`)
 - Wire `RuleBasedAwgController` into `AwgSimulationRunner` (collector air-coupling gate + condenser cooling actuator)

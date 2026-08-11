@@ -53,6 +53,11 @@ dotnet run --project src/ThermoCore.Console -- full-flow-peltier-matrix
 # Summer diurnal 24h + PV/battery sizing for 0.5–3 L/day
 dotnet run --project src/ThermoCore.Console -- summer-diurnal
 
+# R0-001: capture AWG regression baseline (DOC-022 + dry-sunny matrix)
+dotnet run --project src/ThermoCore.Console -- capture-baseline --suite all
+dotnet run --project src/ThermoCore.Console -- regress
+dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
+
 # HTTP API
 dotnet run --project src/ThermoCore.Api
 # GET  /api/v1/health

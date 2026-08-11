@@ -62,6 +62,11 @@ internal static class DemoHost
             return RunAwgSimulation(args);
         }
 
+        if (args.Length >= 1 && args[0] is "capture-baseline" or "--capture-baseline")
+        {
+            return RunCaptureBaseline(args);
+        }
+
         if (args.Length >= 1 && args[0] is "regress" or "--regress")
         {
             return RunRegressionScenarios(args);
@@ -145,6 +150,7 @@ internal static class DemoHost
               dotnet run --project src/ThermoCore.Console -- demo
               dotnet run --project src/ThermoCore.Console -- config <path.json>
               dotnet run --project src/ThermoCore.Console -- run <path.json> [--duration 60] [--dt 1] [--export <dir>] [--db path.db]
+              dotnet run --project src/ThermoCore.Console -- capture-baseline [--suite default|dry-sunny-matrix|all] [--out samples/baselines/r0-001]
               dotnet run --project src/ThermoCore.Console -- regress [--dir samples/scenarios]
               dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix
               dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/full-awg-flow
@@ -170,6 +176,7 @@ internal static class DemoHost
               write-campaign [path]     Write synthetic multi-regime measurement CSV (M5 stand-in)
               config <path>             Load AWG JSON configuration and build the V3 graph
               run <path>                Run an AWG simulation and print a summary (APP-003/004)
+              capture-baseline          Capture R0-001 machine-readable AWG regression baseline
               regress                   Run DOC-022 / APP-006 regression scenarios
               full-flow                 Full AWG V3 path (HR+electrical) + station T/RH/W report
               full-flow-ambient-matrix  Full AWG T×RH matrix (20–35 °C × 30–60% RH) + summary table
@@ -1320,6 +1327,163 @@ internal static class DemoHost
         }
 
         return true;
+    }
+
+    private static int RunCaptureBaseline(string[] args)
+    {
+        try
+        {
+            var suite = "all";
+            var outDir = AwgRegressionBaselineCapture.DefaultBaselineDirectory;
+            for (var i = 1; i < args.Length; i++)
+            {
+                if (args[i] is "--suite")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --suite value.");
+                        return ExitUsageError;
+                    }
+
+                    suite = args[i];
+                }
+                else if (args[i] is "--out")
+                {
+                    if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[++i]))
+                    {
+                        System.Console.Error.WriteLine("Invalid --out path.");
+                        return ExitUsageError;
+                    }
+
+                    outDir = args[i];
+                }
+                else
+                {
+                    System.Console.Error.WriteLine($"Unknown capture-baseline option: {args[i]}");
+                    return ExitUsageError;
+                }
+            }
+
+            var gitSha = TryReadGitCommitSha();
+            Directory.CreateDirectory(outDir);
+            var documents = new List<AwgRegressionBaselineDocument>();
+            switch (suite.Trim().ToLowerInvariant())
+            {
+                case "default":
+                case "doc-022":
+                    documents.Add(AwgRegressionBaselineCapture.CaptureDefaultSuite(gitSha));
+                    break;
+                case "dry-sunny-matrix":
+                case "dry-sunny":
+                    documents.Add(AwgRegressionBaselineCapture.CaptureDrySunnyMatrixSuite(gitSha));
+                    break;
+                case "all":
+                    documents.Add(AwgRegressionBaselineCapture.CaptureDefaultSuite(gitSha));
+                    documents.Add(AwgRegressionBaselineCapture.CaptureDrySunnyMatrixSuite(gitSha));
+                    break;
+                default:
+                    System.Console.Error.WriteLine(
+                        "Unknown --suite. Use: default | dry-sunny-matrix | all");
+                    return ExitUsageError;
+            }
+
+            var failed = 0;
+            System.Console.WriteLine("=== R0-001 AWG regression baseline capture ===");
+            foreach (var document in documents)
+            {
+                var fileName = document.SuiteId + "-baseline.json";
+                AwgRegressionBaselineCapture.Write(document, outDir, fileName);
+                System.Console.WriteLine(
+                    $"{document.SuiteId}: {document.PassedCount}/{document.ScenarioCount} passed → {Path.Combine(outDir, fileName)}");
+                if (document.FailedCount > 0)
+                {
+                    failed += document.FailedCount;
+                    foreach (var entry in document.Scenarios.Where(s => !s.Passed))
+                    {
+                        System.Console.Error.WriteLine(
+                            $"  FAIL {entry.ScenarioId}: {string.Join("; ", entry.Failures)}");
+                    }
+                }
+            }
+
+            WriteBaselineReadme(outDir, documents, gitSha);
+            return failed == 0 ? ExitSuccess : ExitSimulationFailed;
+        }
+        catch (Exception ex) when (ex is ArgumentException or AwgConfigurationException or IOException or JsonException)
+        {
+            System.Console.Error.WriteLine($"capture-baseline error: {ex.Message}");
+            return ExitConfigurationFailed;
+        }
+    }
+
+    private static void WriteBaselineReadme(
+        string outDir,
+        IReadOnlyList<AwgRegressionBaselineDocument> documents,
+        string? gitSha)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("# R0-001 — AWG regression baseline");
+        sb.AppendLine();
+        sb.AppendLine("Pre-research machine-readable baseline for ThermoCore AWG regressions.");
+        sb.AppendLine();
+        sb.AppendLine("## Identifiers");
+        sb.AppendLine();
+        sb.AppendLine("| Field | Value |");
+        sb.AppendLine("|---|---|");
+        sb.AppendLine("| Task | `R0-001` |");
+        sb.AppendLine($"| Captured (UTC) | `{documents[0].CapturedUtc:O}` |");
+        sb.AppendLine($"| Git commit | `{(gitSha ?? "unknown")}` |");
+        sb.AppendLine();
+        sb.AppendLine("## Suites");
+        sb.AppendLine();
+        foreach (var document in documents)
+        {
+            sb.AppendLine($"- **{document.SuiteId}** → `{document.SuiteId}-baseline.json` ");
+            sb.AppendLine($"  ({document.PassedCount}/{document.ScenarioCount} passed) — {document.SuiteDescription}");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("## Reproduce");
+        sb.AppendLine();
+        sb.AppendLine("```bash");
+        sb.AppendLine("dotnet build ThermoCore.slnx -nologo");
+        sb.AppendLine("dotnet run --project src/ThermoCore.Console -- capture-baseline --suite all");
+        sb.AppendLine("dotnet run --project src/ThermoCore.Console -- regress");
+        sb.AppendLine("dotnet run --project src/ThermoCore.Console -- regress --dir samples/scenarios/dry-sunny-matrix");
+        sb.AppendLine("dotnet test tests/ThermoCore.AWG.Tests --filter FullyQualifiedName~AwgRegressionAndPvRearAirTests");
+        sb.AppendLine("```");
+        sb.AppendLine();
+        sb.AppendLine("Later research PRs should compare scenario fingerprints, residuals, and water/tank metrics against these JSON files.");
+        File.WriteAllText(Path.Combine(outDir, "README.md"), sb.ToString());
+    }
+
+    private static string? TryReadGitCommitSha()
+    {
+        try
+        {
+            var start = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "rev-parse HEAD",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = System.Diagnostics.Process.Start(start);
+            if (process is null)
+            {
+                return null;
+            }
+
+            var output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit(5_000);
+            return process.ExitCode == 0 && output.Length >= 7 ? output : null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static int RunRegressionScenarios(string[] args)

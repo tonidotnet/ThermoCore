@@ -2,7 +2,7 @@
 
 | ID | Task | Priority | Status | Dependencies |
 |---|---|---|---|---|
-| R0-001 | Capture current regression baseline | P0 | Ready | none |
+| R0-001 | Capture current regression baseline | P0 | Done | none |
 | R1-001 | Add water/energy comparison KPIs | P0 | Ready | R0-001 |
 | R1-002 | Add cooling COP/dew-point channels | P0 | Ready | R0-001 |
 | R2-001 | Add TEC manufacturer profile schema | P0 | Planned | R1 |

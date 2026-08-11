@@ -1,30 +1,36 @@
 {
-  "package": "ThermoCore_Documentation_Workspace_v1",
-  "containsImplementation": true,
-  "roots": [
-    "docs",
-    "ai",
-    "src",
-    "tests"
+  "package": "ThermoCore_Research_Evolution_Cursor_Package_v1",
+  "type": "additive-documentation-and-ai-implementation-plan",
+  "documents": [
+    "31_CurrentImplementationAudit.md",
+    "32_RequirementsTraceability.md",
+    "33_GapAnalysis.md",
+    "34_CoolingArchitectureEvolution.md",
+    "35_ThermoelectricCoolingOptimization.md",
+    "36_VaporCompressionCooling.md",
+    "37_AbsorptionCoolingResearch.md",
+    "38_HybridSorbentCoolingArchitecture.md",
+    "39_AWG_PerformanceMetrics.md",
+    "40_PrototypeValidationPlan.md",
+    "41_ExperimentalConfigurations.md",
+    "42_ResearchReferencesAndEvidence.md",
+    "43_DevelopmentRecommendations.md"
   ],
-  "repairedDocuments": [
-    "10_Condenser.md",
-    "11_HeatRecovery.md",
-    "12_BatteryAndPowerManagement.md",
-    "13_FanAndAirflow.md",
-    "25_NumericalMethods.md"
+  "adr": [
+    "ADR-016_AWG_CoolingPlant_Abstraction.md"
   ],
-  "newFoundationDocuments": [
-    "26_Constants.md",
-    "27_Units.md"
+  "cursorTasks": [
+    "R0-001_CaptureBaseline.md",
+    "R1-001_AddPerformanceKPIs.md",
+    "R1-002_AddCoolingChannels.md",
+    "R2-001_TecManufacturerProfiles.md",
+    "R2-002_DewPointTrackingTecControl.md",
+    "R3-001_PrototypeMeasurementProfile.md",
+    "R3-002_CommercialPeltierBlackBox.md",
+    "R4-001_CoolingPlantAbstraction.md",
+    "R5-001_VaporCompressionMap.md"
   ],
-  "restoredFromThermoCoreold": [
-    "04_MathematicalModel.md",
-    "05_Psychrometrics.md",
-    "06_SolarCollector.md",
-    "03_PhysicalArchitecture.md",
-    "01_ProjectVision.md",
-    "02_Architecture.md"
-  ],
-  "localReplacementRequired": []
+  "safeToOverlayRepositoryRoot": true,
+  "expectedOverwrites": [],
+  "recommendedFirstImplementationTask": "R0-001_CaptureBaseline.md"
 }

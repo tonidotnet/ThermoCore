@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "requirements": {
+    "COOL-001": "Preserve existing Peltier baseline",
+    "COOL-003": "Manufacturer TEC profiles",
+    "COOL-004": "Dew-point tracking",
+    "COOL-006": "Vapor compression map model",
+    "HYB-001": "Direct vs sorbent TEC",
+    "KPI-001": "L/kWh_electric",
+    "KPI-002": "L/kWh_solar_primary",
+    "KPI-003": "L/day/m2",
+    "VAL-001": "A/B/C prototype campaign"
+  }
+}

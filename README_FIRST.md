@@ -1,85 +1,55 @@
-# README_FIRST.md
+# ThermoCore Research Evolution Cursor Package v1
 
-## What this ZIP is
+This package is **additive**.
 
-This is the clean ThermoCore documentation workspace.
+Extract it over the ThermoCore repository root.
 
-It contains only:
-
-```text
-docs/
-ai/
-```
-
-It intentionally contains no source code, solution, test project or build configuration.
-
-## Extraction
-
-Extract the ZIP into the root of your future ThermoCore repository so that you get:
+It adds:
 
 ```text
-ThermoCore/
-├── docs/
-└── ai/
+docs/08_ResearchAndEvolution/
+docs/ADR/ADR-016_AWG_CoolingPlant_Abstraction.md
+docs/00_Project/RESEARCH_IMPLEMENTATION_PROGRESS.md
+ai/context/
+ai/graphs/
+ai/cursor/
 ```
 
-## Files you should copy from your local downloads
+It does not intentionally overwrite existing Core/AWG implementation specifications.
 
-The following detailed files were generated earlier, but were not available in the active file workspace when this package was assembled:
+## Recommended Git workflow
+
+```bash
+git switch main
+git pull
+git switch -c docs/research-evolution
+```
+
+Extract/copy the package, review it, commit the documentation, then merge it to `main`.
+
+For implementation, create one branch per task, starting with:
 
 ```text
-04_MathematicalModel.md
-05_Psychrometrics.md
-06_SolarCollector.md
-03_PhysicalArchitecture.md, if you already downloaded it
+R0-001
+R1-001
+R1-002
+R2-001
+R2-002
+...
 ```
 
-Copy them over their marked placeholders:
+## Cursor entry point
+
+Open:
 
 ```text
-docs/02_Mathematics/04_MathematicalModel.md
-docs/02_Mathematics/05_Psychrometrics.md
-docs/03_Components/06_SolarCollector.md
-docs/01_Architecture/03_PhysicalArchitecture.md
+ai/cursor/00_MASTER_IMPLEMENTATION_PROMPT.md
 ```
 
-## Repaired files
-
-The following previous short outlines were replaced by expanded versions:
+Then give Cursor exactly one task file from:
 
 ```text
-10_Condenser.md
-11_HeatRecovery.md
-12_BatteryAndPowerManagement.md
-13_FanAndAirflow.md
-25_NumericalMethods.md
+ai/cursor/tasks/
 ```
 
-New foundation documents:
-
-```text
-26_Constants.md
-27_Units.md
-```
-
-## Where to start
-
-1. Open `docs/00_Project/DOCUMENT_INVENTORY.md`.
-2. Replace the local-required placeholders.
-3. Open `docs/00_Project/IMPLEMENTATION_PROGRESS.md`.
-4. Generate the next grouped documentation set.
-5. Keep all AI-specific files under `ai/`.
-
-## Recommended next grouped package
-
-Foundation and testing group:
-
-```text
-22_TestStrategy.md
-14_ControlSystem.md
-15_SystemTopology.md
-16_SimulationEngine.md
-28_WeatherModel.md
-```
-
-These should be generated as detailed specifications, not outlines.
+Do not ask Cursor to implement the entire research track in one prompt.

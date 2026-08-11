@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "baseline": [
+    "AnalyticalPeltierComponent",
+    "CondenserComponent",
+    "SilicaGel",
+    "HeatRecovery",
+    "FanAndAirflow"
+  ],
+  "newNodes": [
+    "CoolingPlant",
+    "ThermoelectricCoolingPlantAdapter",
+    "CommercialPeltierDehumidifierModel",
+    "VaporCompressionCoolingPlant",
+    "AbsorptionCoolingResearchModel",
+    "DewPointTrackingController",
+    "CoolingPerformanceMetrics"
+  ],
+  "comparisonVariants": [
+    "DirectThermoelectric",
+    "SolarHeatControlThermoelectric",
+    "SorbentThermoelectric",
+    "DirectVaporCompression",
+    "SorbentVaporCompression"
+  ]
+}

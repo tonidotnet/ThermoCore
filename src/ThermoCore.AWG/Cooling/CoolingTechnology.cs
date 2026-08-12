@@ -12,6 +12,6 @@ public enum CoolingTechnology
     /// <summary>Vapor-compression map-based plant (R5-001 map + R5-002 adapter).</summary>
     VaporCompression = 2,
 
-    /// <summary>Reserved for R7 absorption research models.</summary>
+    /// <summary>Research-only absorption feasibility (R7-001 / COOL-008) — not selectable for production plants.</summary>
     AbsorptionResearch = 3
 }

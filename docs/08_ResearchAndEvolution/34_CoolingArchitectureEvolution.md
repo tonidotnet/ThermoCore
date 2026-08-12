@@ -22,11 +22,14 @@ ThermoCore.AWG/Cooling/
   ThermoelectricCoolingPlantAdapter
   CommercialPeltierCoolingPlantAdapter
   VaporCompressionCoolingPlantAdapter   // R5-002
-  AbsorptionCoolingResearchModel
+  AbsorptionCoolingResearchFacade       // R7-001 research-only (not ICoolingPlantModel)
 ```
 
 Vapor-compression **map contract** (R5-001): `ThermoCore.Core/Components/VaporCompression/`
 (`VaporCompressionPerformanceMap`, interpolator, evaluator, serializer, catalog).
+
+Absorption **research map** (R7-001): `ThermoCore.Core/Components/Absorption/`
+(`AbsorptionPerformanceMap`, `AbsorptionCoolingResearchModel`).
 
 Empirical commercial black-box physics already lives in Core (R3-002 / COOL-005):
 `CommercialPeltierDehumidifierProfile`, `…Model`, `…Component`, fitter from R3-001 packages.

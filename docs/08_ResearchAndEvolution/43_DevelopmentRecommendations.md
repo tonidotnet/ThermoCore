@@ -65,7 +65,8 @@ with common metrics.
 
 ## R7 — Absorption feasibility
 
-Keep documentation-only until TEC and compressor experiments establish the practical baseline.
+Research-only map scaffold delivered in R7-001; keep out of production plant selection (COOL-008)
+until TEC/compressor baselines and a real device dataset justify more.
 
 ## First implementation issues
 

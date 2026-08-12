@@ -9,7 +9,11 @@
 
 ## Status
 
-Research only.
+Research only (**R7-001 / COOL-008**).
+
+**Implemented scaffold:** Core `AbsorptionPerformanceMap` + `AbsorptionCoolingResearchModel`
+(performance-map feasibility screen). AWG exposes `AbsorptionCoolingResearchFacade`.
+`CoolingTechnology.AbsorptionResearch` is **not** selectable for production plants.
 
 ## Motivation
 

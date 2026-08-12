@@ -42,7 +42,7 @@ public sealed record AwgCoolingPlantConfiguration
         if (Technology == CoolingTechnology.AbsorptionResearch)
         {
             throw new ArgumentException(
-                $"Cooling technology '{Technology}' is reserved for a later research milestone.",
+                "AbsorptionResearch stays research-only (COOL-008). Use AbsorptionCoolingResearchModel / AbsorptionCoolingResearchFacade for feasibility screens; it is not an AWG production cooling plant.",
                 nameof(Technology));
         }
 

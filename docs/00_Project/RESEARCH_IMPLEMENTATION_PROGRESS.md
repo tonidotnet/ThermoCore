@@ -13,4 +13,4 @@
 | R5-001 | Add vapor-compression map contract | P1 | Done | R4-001 |
 | R5-002 | Add compressor plant model | P1 | Done | R5-001 |
 | R6-001 | Add hybrid comparison scenarios | P1 | Done | R4, R5 |
-| R7-001 | Absorption feasibility model | P3 | Deferred | R6 |
+| R7-001 | Absorption feasibility model | P3 | Done (research-only) | R6 |

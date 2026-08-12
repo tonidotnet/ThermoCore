@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0",
+  "profileId": "absorption-generic-solar-thermal-screen",
+  "manufacturer": "Generic",
+  "model": "SolarThermalAbsorptionScreen-Demo",
+  "hardwareClass": "absorption-research-module",
+  "sourceIdentifier": "thermocore://samples/absorption/generic-solar-thermal-screen",
+  "sourceRevision": "2026-08-12",
+  "evidenceLevel": "provisionalEngineering",
+  "validity": {
+    "minimumGeneratorTemperatureK": 343.15,
+    "maximumGeneratorTemperatureK": 363.15,
+    "minimumHeatSinkTemperatureK": 303.15,
+    "maximumHeatSinkTemperatureK": 313.15,
+    "minimumEvaporatorTemperatureK": 278.15,
+    "maximumEvaporatorTemperatureK": 283.15
+  },
+  "mapPoints": [
+    {
+      "generatorTemperatureK": 343.15,
+      "heatSinkTemperatureK": 303.15,
+      "evaporatorTemperatureK": 278.15,
+      "thermalInputW": 480,
+      "coolingOutputW": 244.8,
+      "thermalCop": 0.51,
+      "effectiveThermalCop": 0.51
+    },
+    {
+      "generatorTemperatureK": 343.15,
+      "heatSinkTemperatureK": 303.15,
+      "evaporatorTemperatureK": 283.15,
+      "thermalInputW": 480,
+      "coolingOutputW": 264,
+      "thermalCop": 0.55,
+      "effectiveThermalCop": 0.55
+    },
+    {
+      "generatorTemperatureK": 343.15,
+      "heatSinkTemperatureK": 313.15,
+      "evaporatorTemperatureK": 278.15,
+      "thermalInputW": 460,
+      "coolingOutputW": 179.4,
+      "thermalCop": 0.39,
+      "effectiveThermalCop": 0.39
+    },
+    {
+      "generatorTemperatureK": 343.15,
+      "heatSinkTemperatureK": 313.15,
+      "evaporatorTemperatureK": 283.15,
+      "thermalInputW": 460,
+      "coolingOutputW": 197.8,
+      "thermalCop": 0.43000000000000005,
+      "effectiveThermalCop": 0.43000000000000005
+    },
+    {
+      "generatorTemperatureK": 363.15,
+      "heatSinkTemperatureK": 303.15,
+      "evaporatorTemperatureK": 278.15,
+      "thermalInputW": 520,
+      "coolingOutputW": 306.80000000000007,
+      "thermalCop": 0.5900000000000001,
+      "effectiveThermalCop": 0.5900000000000001
+    },
+    {
+      "generatorTemperatureK": 363.15,
+      "heatSinkTemperatureK": 303.15,
+      "evaporatorTemperatureK": 283.15,
+      "thermalInputW": 520,
+      "coolingOutputW": 327.6,
+      "thermalCop": 0.63,
+      "effectiveThermalCop": 0.63
+    },
+    {
+      "generatorTemperatureK": 363.15,
+      "heatSinkTemperatureK": 313.15,
+      "evaporatorTemperatureK": 278.15,
+      "thermalInputW": 500,
+      "coolingOutputW": 235.00000000000003,
+      "thermalCop": 0.47000000000000003,
+      "effectiveThermalCop": 0.47000000000000003
+    },
+    {
+      "generatorTemperatureK": 363.15,
+      "heatSinkTemperatureK": 313.15,
+      "evaporatorTemperatureK": 283.15,
+      "thermalInputW": 500,
+      "coolingOutputW": 255,
+      "thermalCop": 0.51,
+      "effectiveThermalCop": 0.51
+    }
+  ],
+  "extrapolationPolicy": "clampWithDiagnostic",
+  "workingPair": "H2O/LiBr",
+  "fittingMethod": "Synthetic feasibility screen; IDW interpolation; research-only.",
+  "notes": "Not for design. Replace with measured device data before any production path.",
+  "researchOnly": true
+}

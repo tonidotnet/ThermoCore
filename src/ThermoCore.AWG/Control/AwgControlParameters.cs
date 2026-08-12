@@ -38,6 +38,31 @@ public sealed record AwgControlParameters
 
     public double NominalPeltierPowerRequestW { get; init; } = 100.0;
 
+    /// <summary>Lower clamp when actively cooling toward a warm surface (W).</summary>
+    public double MinimumPeltierPowerRequestW { get; init; }
+
+    /// <summary>Upper power clamp (W). Null ⇒ <see cref="NominalPeltierPowerRequestW"/>.</summary>
+    public double? MaximumPeltierPowerRequestW { get; init; }
+
+    /// <summary>
+    /// Optional current limit. Combined with <see cref="TecOperatingVoltageV"/> as an electrical power cap.
+    /// </summary>
+    public double? MaximumPeltierCurrentA { get; init; }
+
+    /// <summary>Operating voltage used with <see cref="MaximumPeltierCurrentA"/> (V).</summary>
+    public double? TecOperatingVoltageV { get; init; }
+
+    /// <summary>
+    /// Maximum |ΔP|/Δt for anti-chatter. Non-finite ⇒ slew limiting disabled (default).
+    /// </summary>
+    public double PeltierPowerRampLimitWPerSecond { get; init; } = double.PositiveInfinity;
+
+    /// <summary>Reduced hold fraction of nominal when surface is already at/below target.</summary>
+    public double HoldPowerFractionWhenAtOrBelowTarget { get; init; } = 0.35;
+
+    /// <summary>Hard floor for commanded condenser surface temperature (K).</summary>
+    public double MinimumCondenserSurfaceTemperatureK { get; init; } = 255.0;
+
     public double MinimumSolarIrradianceForRegenerationWPerSquareMeter { get; init; } = 200.0;
 
     public double ReservePeltierDerateFraction { get; init; } = 0.25;
@@ -63,6 +88,57 @@ public sealed record AwgControlParameters
         FiniteNumber.RequirePositive(MinimumSafeDryAirMassFlowKgPerSecond, nameof(MinimumSafeDryAirMassFlowKgPerSecond));
         FiniteNumber.Require(NominalFanControlFraction, nameof(NominalFanControlFraction));
         FiniteNumber.RequireNonNegative(NominalPeltierPowerRequestW, nameof(NominalPeltierPowerRequestW));
+        FiniteNumber.RequireNonNegative(MinimumPeltierPowerRequestW, nameof(MinimumPeltierPowerRequestW));
+        FiniteNumber.RequirePositive(MinimumCondenserSurfaceTemperatureK, nameof(MinimumCondenserSurfaceTemperatureK));
+        FiniteNumber.Require(HoldPowerFractionWhenAtOrBelowTarget, nameof(HoldPowerFractionWhenAtOrBelowTarget));
+        if (HoldPowerFractionWhenAtOrBelowTarget is < 0.0 or > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(HoldPowerFractionWhenAtOrBelowTarget),
+                "Hold fraction must be in [0, 1].");
+        }
+
+        if (MaximumPeltierPowerRequestW is { } maxPower)
+        {
+            FiniteNumber.RequirePositive(maxPower, nameof(MaximumPeltierPowerRequestW));
+            if (MinimumPeltierPowerRequestW > maxPower)
+            {
+                throw new ArgumentException("Minimum Peltier power exceeds maximum Peltier power.");
+            }
+        }
+        else if (MinimumPeltierPowerRequestW > NominalPeltierPowerRequestW)
+        {
+            throw new ArgumentException("Minimum Peltier power exceeds nominal Peltier power.");
+        }
+
+        if (MaximumPeltierCurrentA is { } imax)
+        {
+            FiniteNumber.RequirePositive(imax, nameof(MaximumPeltierCurrentA));
+        }
+
+        if (TecOperatingVoltageV is { } voltage)
+        {
+            FiniteNumber.RequirePositive(voltage, nameof(TecOperatingVoltageV));
+        }
+
+        if (MaximumPeltierCurrentA is not null && TecOperatingVoltageV is null
+            || MaximumPeltierCurrentA is null && TecOperatingVoltageV is not null)
+        {
+            throw new ArgumentException(
+                "MaximumPeltierCurrentA and TecOperatingVoltageV must be set together.");
+        }
+
+        if (double.IsFinite(PeltierPowerRampLimitWPerSecond))
+        {
+            FiniteNumber.RequirePositive(PeltierPowerRampLimitWPerSecond, nameof(PeltierPowerRampLimitWPerSecond));
+        }
+        else if (double.IsNaN(PeltierPowerRampLimitWPerSecond) || double.IsNegativeInfinity(PeltierPowerRampLimitWPerSecond))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(PeltierPowerRampLimitWPerSecond),
+                "Ramp limit must be positive finite or +∞.");
+        }
+
         FiniteNumber.RequireNonNegative(MinimumSolarIrradianceForRegenerationWPerSquareMeter, nameof(MinimumSolarIrradianceForRegenerationWPerSquareMeter));
         FiniteNumber.Require(ReservePeltierDerateFraction, nameof(ReservePeltierDerateFraction));
         FiniteNumber.Require(DefaultRecirculationFraction, nameof(DefaultRecirculationFraction));

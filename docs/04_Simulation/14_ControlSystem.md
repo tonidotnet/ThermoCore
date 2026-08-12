@@ -289,6 +289,22 @@ T_{dp,in}
 \Delta T_{approach,target}
 \]
 
+COOL-004 / R2-002 additions:
+
+```text
+Configurable TargetDewPointApproachK (margin)
+MinimumPeltierPowerRequestW / MaximumPeltierPowerRequestW
+Optional MaximumPeltierCurrentA × TecOperatingVoltageV electrical cap
+PeltierPowerRampLimitWPerSecond (anti-chatter; +∞ disables)
+MinimumCondenserSurfaceTemperatureK
+HoldPowerFractionWhenAtOrBelowTarget
+Diagnostics: CTRL.PELTIER_POWER_SATURATED, CTRL.PELTIER_TARGET_UNREACHABLE,
+             CTRL.PELTIER_RAMP_LIMIT, CTRL.PELTIER_HOT_SIDE_LIMIT
+```
+
+Higher inlet dew point reduces the required temperature lift and therefore the proportional drive
+for the same observed surface temperature (optimize water/energy, not minimum cold temperature).
+
 # 15. Fan control strategies
 
 Supported modes:

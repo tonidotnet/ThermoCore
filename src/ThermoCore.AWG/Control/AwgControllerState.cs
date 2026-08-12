@@ -19,6 +19,9 @@ public sealed record AwgControllerState
 
     public AwgFaultCode ActiveFaultCode { get; init; } = AwgFaultCode.None;
 
+    /// <summary>Previous TEC power request for slew-rate limiting (COOL-004).</summary>
+    public double LastPeltierPowerRequestW { get; init; }
+
     public static AwgControllerState CreateInitial(AwgOperatingMode mode = AwgOperatingMode.Off)
         => new()
         {
@@ -28,6 +31,7 @@ public sealed record AwgControllerState
             ConsecutiveFaultCount = 0,
             IsLatchedFault = false,
             LastTransitionReasonCode = "INIT",
-            ActiveFaultCode = AwgFaultCode.None
+            ActiveFaultCode = AwgFaultCode.None,
+            LastPeltierPowerRequestW = 0.0
         };
 }

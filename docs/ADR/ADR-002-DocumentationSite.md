@@ -28,7 +28,10 @@ Site configuration lives in repository-root `mkdocs.yml`. Dependencies are pinne
 ## Consequences
 
 - Local preview: `pip install -r requirements-docs.txt && mkdocs serve`
-- CI publishes `mkdocs build` output to GitHub Pages.
+- CI publishes `mkdocs build` output to GitHub Pages via `.github/workflows/docs.yml`
+  (`upload-pages-artifact@v5` + `deploy-pages@v5`).
+- **One-time repo setting:** Settings → Pages → Source = **GitHub Actions**.
+  Without this, `deploy-pages` returns HTTP 404 (`Creating Pages deployment failed`).
 - Existing `docs/**/*.md` paths remain the source of truth; MkDocs navigation is a curated subset plus folder browse where listed.
 
 ## Related documents

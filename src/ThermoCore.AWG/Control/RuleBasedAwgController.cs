@@ -63,7 +63,8 @@ public sealed class RuleBasedAwgController : IAwgController
                 ConsecutiveFaultCount = faultCount,
                 IsLatchedFault = latch && safety.Value.Mode == AwgOperatingMode.Fault,
                 LastTransitionReasonCode = safety.Value.ReasonCode,
-                ActiveFaultCode = safety.Value.FaultCode
+                ActiveFaultCode = safety.Value.FaultCode,
+                LastPeltierPowerRequestW = currentState.LastPeltierPowerRequestW
             };
 
             trace.Add(new AwgDecisionTraceEntry
@@ -75,17 +76,22 @@ public sealed class RuleBasedAwgController : IAwgController
                 ScalarInputs = scalars
             });
 
+            var safetyRequest = BuildRequest(
+                safety.Value.Mode,
+                observation,
+                parameters,
+                safety.Value.ReasonCode,
+                safety.Value.FaultCode,
+                waterTankFull: observation.WaterTankLevelFraction >= 1.0,
+                reserveSoc: observation.BatteryStateOfChargeFraction <= parameters.ReserveBatterySocFraction,
+                previousPeltierPowerW: currentState.LastPeltierPowerRequestW,
+                timeStep: timeStep,
+                diagnostics: diagnostics);
+
             return new AwgControlStepResult
             {
-                Request = BuildRequest(
-                    safety.Value.Mode,
-                    observation,
-                    parameters,
-                    safety.Value.ReasonCode,
-                    safety.Value.FaultCode,
-                    waterTankFull: observation.WaterTankLevelFraction >= 1.0,
-                    reserveSoc: observation.BatteryStateOfChargeFraction <= parameters.ReserveBatterySocFraction),
-                ProposedState = proposed,
+                Request = safetyRequest,
+                ProposedState = proposed with { LastPeltierPowerRequestW = safetyRequest.PeltierPowerRequestW },
                 Diagnostics = diagnostics,
                 DecisionTrace = trace
             };
@@ -474,6 +480,18 @@ public sealed class RuleBasedAwgController : IAwgController
         _ = forceTransition;
 
         var modeChanged = mode != currentState.CurrentMode;
+        var request = BuildRequest(
+            mode,
+            observation,
+            parameters,
+            reasonCode,
+            faultCode,
+            waterTankFull: observation.WaterTankLevelFraction >= 1.0,
+            reserveSoc: observation.BatteryStateOfChargeFraction <= parameters.ReserveBatterySocFraction,
+            previousPeltierPowerW: currentState.LastPeltierPowerRequestW,
+            timeStep: timeStep,
+            diagnostics: diagnostics);
+
         var proposed = new AwgControllerState
         {
             CurrentMode = mode,
@@ -482,19 +500,13 @@ public sealed class RuleBasedAwgController : IAwgController
             ConsecutiveFaultCount = faultCode == AwgFaultCode.None ? 0 : currentState.ConsecutiveFaultCount,
             IsLatchedFault = currentState.IsLatchedFault,
             LastTransitionReasonCode = reasonCode,
-            ActiveFaultCode = faultCode
+            ActiveFaultCode = faultCode,
+            LastPeltierPowerRequestW = request.PeltierPowerRequestW
         };
 
         return new AwgControlStepResult
         {
-            Request = BuildRequest(
-                mode,
-                observation,
-                parameters,
-                reasonCode,
-                faultCode,
-                waterTankFull: observation.WaterTankLevelFraction >= 1.0,
-                reserveSoc: observation.BatteryStateOfChargeFraction <= parameters.ReserveBatterySocFraction),
+            Request = request,
             ProposedState = proposed,
             Diagnostics = diagnostics,
             DecisionTrace = trace
@@ -508,7 +520,10 @@ public sealed class RuleBasedAwgController : IAwgController
         string reasonCode,
         AwgFaultCode faultCode,
         bool waterTankFull,
-        bool reserveSoc)
+        bool reserveSoc,
+        double previousPeltierPowerW,
+        TimeSpan timeStep,
+        List<SimulationDiagnostic> diagnostics)
     {
         var fan = mode is AwgOperatingMode.Off or AwgOperatingMode.Fault or AwgOperatingMode.ControlledShutdown
             ? 0.0
@@ -563,13 +578,20 @@ public sealed class RuleBasedAwgController : IAwgController
             ActiveFaultCode = faultCode
         };
 
-        // Refine actuator setpoints through dedicated controllers (AWG-009/010/011).
+        var peltierResult = AwgPeltierController.Resolve(
+            baseRequest,
+            observation,
+            parameters,
+            previousPowerRequestW: previousPeltierPowerW,
+            timeStep: timeStep);
+        diagnostics.AddRange(peltierResult.Diagnostics);
+
+        // Refine actuator setpoints through dedicated controllers (AWG-009/010/011 / COOL-004).
         return baseRequest with
         {
             FanControlFraction = AwgFanController.ResolveControlFraction(
                 baseRequest, observation, parameters),
-            PeltierPowerRequestW = AwgPeltierController.ResolvePowerRequestW(
-                baseRequest, observation, parameters),
+            PeltierPowerRequestW = peltierResult.PowerRequestW,
             RecirculationFraction = AwgRecirculationController.ResolveRecirculationFraction(
                 baseRequest, observation, parameters)
         };

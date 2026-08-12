@@ -22,10 +22,19 @@ not the lowest possible cold-side temperature.
 Target:
 
 ```text
-Tsurface,target = Tdewpoint,in - 2...5 K
+Tsurface,target = Tdewpoint,in - configuredMargin
 ```
 
+Implemented by `AwgPeltierController` (COOL-004 / R2-002):
+
+- configurable `TargetDewPointApproachK`;
+- min/max power and optional I×V electrical cap;
+- hot-side + minimum surface safety limits;
+- optional power slew-rate limit;
+- diagnostics when saturated or target unreachable.
+
 The controller should request the lowest TEC drive that can maintain the target inside safety limits.
+Higher dew point at fixed surface temperature ⇒ less drive.
 
 ## Manufacturer TEC profiles
 

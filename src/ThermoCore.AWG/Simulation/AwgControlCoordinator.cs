@@ -59,6 +59,7 @@ public sealed class AwgControlCoordinator : ISimulationStepHook
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(committedPortStates);
 
+        var previousPeltierW = _state.LastPeltierPowerRequestW;
         var observation = context.StepIndex == 0
             ? AwgSystemObservationBuilder.CreateSeed(_built, context.SimulationStart)
             : AwgSystemObservationBuilder.CreateFromCommittedState(_built, context, committedPortStates);
@@ -68,13 +69,14 @@ public sealed class AwgControlCoordinator : ISimulationStepHook
         LastRequest = result.Request;
         _decisionTrace.AddRange(result.DecisionTrace);
 
-        Apply(result.Request, observation, context.TimeStep);
+        Apply(result.Request, observation, context.TimeStep, previousPeltierW);
     }
 
     private void Apply(
         AwgControlRequest request,
         AwgSystemObservation observation,
-        TimeSpan timeStep)
+        TimeSpan timeStep,
+        double previousPeltierPowerW)
     {
         _targetAirCouplingFraction = request.RegenerationHeatEnabled ? 1.0 : 0.0;
         // Soft-ramp collector coupling over ~3 minutes to keep heat-recovery tears stable.
@@ -97,17 +99,28 @@ public sealed class AwgControlCoordinator : ISimulationStepHook
             && request.RequestedMode == AwgOperatingMode.Regeneration
             && observation.AvailableElectricalPowerW > 0.0)
         {
-            coolingW = Math.Min(
-                _parameters.NominalPeltierPowerRequestW,
-                observation.AvailableElectricalPowerW);
+            var seed = request with
+            {
+                CondenserEnabled = true,
+                PeltierPowerRequestW = Math.Min(
+                    _parameters.NominalPeltierPowerRequestW,
+                    observation.AvailableElectricalPowerW)
+            };
+            coolingW = AwgPeltierController.ResolvePowerRequestW(
+                seed,
+                observation,
+                _parameters,
+                previousPowerRequestW: previousPeltierPowerW,
+                timeStep: timeStep);
+            _state = _state with { LastPeltierPowerRequestW = coolingW };
         }
 
+        var targetSurfaceK =
+            observation.CondenserInletDewPointTemperatureK - _parameters.TargetDewPointApproachK;
         var surfaceK = coolingW > 0.0
             ? Math.Min(
                 _built.Configuration.Condenser.FallbackSurfaceTemperatureK,
-                Math.Max(
-                    255.0,
-                    observation.CondenserInletDewPointTemperatureK - _parameters.TargetDewPointApproachK))
+                Math.Max(_parameters.MinimumCondenserSurfaceTemperatureK, targetSurfaceK))
             : _built.Configuration.Condenser.FallbackSurfaceTemperatureK;
 
         _condenserCooling.Set(coolingW, surfaceK);

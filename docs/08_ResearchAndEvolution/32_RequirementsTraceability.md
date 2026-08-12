@@ -14,7 +14,7 @@
 | COOL-001 | Preserve existing Peltier baseline and regressions | P0 |
 | COOL-002 | Add AWG cooling-technology selection without breaking existing configs | P0 |
 | COOL-003 | Add manufacturer TEC profile support | P0 | Done (R2-001) |
-| COOL-004 | Add dew-point-tracking TEC control | P0 |
+| COOL-004 | Add dew-point-tracking TEC control | P0 | Done (R2-002) |
 | COOL-005 | Add commercial Peltier dehumidifier black-box model | P1 |
 | COOL-006 | Add vapor-compression performance-map model | P1 |
 | COOL-007 | Add compressor cycling/minimum runtime behavior | P1 |

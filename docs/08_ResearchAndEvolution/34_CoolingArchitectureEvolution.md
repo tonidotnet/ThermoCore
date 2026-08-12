@@ -27,6 +27,11 @@ ThermoCore.AWG/Cooling/
 
 Empirical commercial black-box physics already lives in Core (R3-002 / COOL-005):
 `CommercialPeltierDehumidifierProfile`, `…Model`, `…Component`, fitter from R3-001 packages.
+
+AWG orchestration (R4-001 / COOL-002) lives in `ThermoCore.AWG/Cooling/` with
+`CoolingPlantFactory` selecting thermoelectric vs commercial adapters from optional
+`system.cooling.technology` (default `Thermoelectric` for old configs).
+
 Do not move the AWG cooling-plant abstraction to Core until another application demonstrates reuse.
 
 ## Common orchestration result

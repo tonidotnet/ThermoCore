@@ -1,5 +1,7 @@
 # R4-001 — Backward-Compatible AWG Cooling Plant Abstraction
 
+**Status:** Done
+
 Requirements:
 COOL-001, COOL-002.
 

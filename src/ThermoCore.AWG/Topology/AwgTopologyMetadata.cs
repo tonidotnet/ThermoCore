@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Cooling;
 using ThermoCore.Core.Diagnostics;
 using ThermoCore.Core.Graph;
 
@@ -15,6 +16,9 @@ public sealed record AwgTopologyMetadata
     public required bool EnableHeatRecovery { get; init; }
 
     public required bool EnableElectricalSubsystem { get; init; }
+
+    /// <summary>Selected cooling-plant technology (R4-001). Graph path remains TEC unless a later milestone rewires it.</summary>
+    public CoolingTechnology CoolingTechnology { get; init; } = CoolingTechnology.Thermoelectric;
 
     public required IReadOnlyDictionary<string, string> ComponentModelSelections { get; init; }
 

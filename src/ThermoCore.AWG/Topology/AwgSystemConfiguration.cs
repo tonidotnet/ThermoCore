@@ -1,3 +1,4 @@
+using ThermoCore.AWG.Cooling;
 using ThermoCore.Core.Components.Adsorption;
 using ThermoCore.Core.Components.Power;
 
@@ -21,6 +22,12 @@ public sealed record AwgSystemConfiguration
     public required SilicaGelParameters SilicaGel { get; init; }
 
     public required AwgCondenserParameters Condenser { get; init; }
+
+    /// <summary>
+    /// Cooling-plant technology selection (R4-001 / COOL-002). Defaults to thermoelectric
+    /// so existing JSON configs keep the ControllableHeatSource + Condenser path.
+    /// </summary>
+    public AwgCoolingPlantConfiguration Cooling { get; init; } = new();
 
     public required AwgWaterTankParameters WaterTank { get; init; }
 
@@ -55,6 +62,7 @@ public sealed record AwgSystemConfiguration
         SolarCollector.Validate();
         SilicaGel.Validate();
         Condenser.Validate();
+        Cooling.Validate();
         WaterTank.Validate();
         HeatRecovery.Validate();
         Pv.Validate();

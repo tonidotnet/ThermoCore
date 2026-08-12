@@ -78,6 +78,7 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             EnableRecirculation = configuration.Topology.EnableRecirculation,
             EnableHeatRecovery = configuration.Topology.EnableHeatRecovery,
             EnableElectricalSubsystem = configuration.Topology.EnableElectricalSubsystem,
+            CoolingTechnology = configuration.Cooling.Technology,
             ComponentModelSelections = configuration.Topology.ComponentModelSelections,
             GraphFingerprint = ComputeFingerprint(configuration, connections)
         };
@@ -585,7 +586,8 @@ public sealed class AwgV3SystemGraphBuilder : IAwgSystemGraphBuilder
             .Append(configuration.Topology.EnableRecirculation).Append('|')
             .Append(configuration.Topology.EnableHeatRecovery).Append('|')
             .Append(configuration.Topology.EnablePvRearAirChannel).Append('|')
-            .Append(configuration.Topology.EnableElectricalSubsystem).Append('|');
+            .Append(configuration.Topology.EnableElectricalSubsystem).Append('|')
+            .Append(configuration.Cooling.Technology).Append('|');
 
         foreach (var pair in configuration.Topology.ComponentModelSelections.OrderBy(p => p.Key, StringComparer.Ordinal))
         {

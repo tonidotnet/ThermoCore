@@ -72,3 +72,11 @@ retained in sorbent
 ```
 
 The hybrid is justified only if total-system performance improves under fair solar-resource accounting.
+
+## Software comparison suite (R6-001)
+
+`ThermoCore.AWG/Hybrid/` runs variants A–E through the shared cooling-plant contract
+(`HybridComparisonRunner`) with common KPIs (condensed water, exhausted vapor, desorbed
+delta, L/kWh_electric, plant COP, dew-point margin). Regeneration streams are approximate
+high-dew-point boundary conditions for early comparison; full AWG adsorption cycle coupling
+remains available via existing V3 topology.

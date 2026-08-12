@@ -19,9 +19,9 @@
 | COOL-006 | Add vapor-compression performance-map model | P1 | Done (R5-001 map + R5-002 plant) |
 | COOL-007 | Add compressor cycling/minimum runtime behavior | P1 | Done (R5-002) |
 | COOL-008 | Keep absorption cooling research-only initially | P3 |
-| HYB-001 | Compare direct TEC vs sorbent+TEC | P0 |
-| HYB-002 | Compare direct compressor vs sorbent+compressor | P1 |
-| HYB-003 | Track exhausted regeneration vapor explicitly | P0 |
+| HYB-001 | Compare direct TEC vs sorbent+TEC | P0 | Done (R6-001) |
+| HYB-002 | Compare direct compressor vs sorbent+compressor | P1 | Done (R6-001) |
+| HYB-003 | Track exhausted regeneration vapor explicitly | P0 | Done (R6-001) |
 | KPI-001 | Add L/kWh_electric | P0 | Done (R1-001) |
 | KPI-002 | Add L/kWh_solar_primary | P0 | Done (R1-001) |
 | KPI-003 | Add L/day/m² solar aperture | P0 | Done (R1-001) |

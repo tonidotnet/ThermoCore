@@ -22,6 +22,21 @@ public sealed record CoolingPlantRequest
     /// <summary>Cold surface / apparatus dew-point approach temperature (K).</summary>
     public double? ColdSurfaceTemperatureK { get; init; }
 
+    /// <summary>Evaporating temperature for vapor-compression maps (K). Falls back to <see cref="ColdSurfaceTemperatureK"/>.</summary>
+    public double? EvaporatingTemperatureK { get; init; }
+
+    /// <summary>Condensing / rejection temperature for vapor-compression maps (K).</summary>
+    public double? CondensingTemperatureK { get; init; }
+
+    /// <summary>Normalized compressor speed for vapor-compression maps in [0, 1].</summary>
+    public double? CompressorSpeedFraction { get; init; }
+
+    /// <summary>Explicit compressor enable request; null means inferred from speed/power.</summary>
+    public bool? CompressorRequested { get; init; }
+
+    /// <summary>Optional discharge-gas temperature for VC safety diagnostics (K).</summary>
+    public double? DischargeTemperatureK { get; init; }
+
     /// <summary>Optional process-fan electrical power for plant-level COP (W).</summary>
     public double? FanElectricalPowerW { get; init; }
 }

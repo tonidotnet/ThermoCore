@@ -16,8 +16,8 @@
 | COOL-003 | Add manufacturer TEC profile support | P0 | Done (R2-001) |
 | COOL-004 | Add dew-point-tracking TEC control | P0 | Done (R2-002) |
 | COOL-005 | Add commercial Peltier dehumidifier black-box model | P1 | Done (R3-002) |
-| COOL-006 | Add vapor-compression performance-map model | P1 | Done (R5-001 map contract; plant R5-002) |
-| COOL-007 | Add compressor cycling/minimum runtime behavior | P1 | Partial (R5-001 contract limits; plant R5-002) |
+| COOL-006 | Add vapor-compression performance-map model | P1 | Done (R5-001 map + R5-002 plant) |
+| COOL-007 | Add compressor cycling/minimum runtime behavior | P1 | Done (R5-002) |
 | COOL-008 | Keep absorption cooling research-only initially | P3 |
 | HYB-001 | Compare direct TEC vs sorbent+TEC | P0 |
 | HYB-002 | Compare direct compressor vs sorbent+compressor | P1 |

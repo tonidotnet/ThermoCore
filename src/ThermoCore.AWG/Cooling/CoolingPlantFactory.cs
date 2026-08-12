@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using ThermoCore.AWG.Topology;
 using ThermoCore.Core.Calibration;
 using ThermoCore.Core.Components.Thermoelectric;
+using ThermoCore.Core.Components.VaporCompression;
 using ThermoCore.Core.Psychrometrics;
 
 namespace ThermoCore.AWG.Cooling;
@@ -24,6 +25,13 @@ public sealed record AwgCoolingPlantConfiguration
     [JsonIgnore]
     public CommercialPeltierDehumidifierProfile? CommercialProfile { get; init; }
 
+    /// <summary>Optional path to a vapor-compression performance-map JSON (R5-001 schema).</summary>
+    public string? VaporCompressionMapPath { get; init; }
+
+    /// <summary>Inline VC map (tests / advanced callers). Takes precedence over path.</summary>
+    [JsonIgnore]
+    public VaporCompressionPerformanceMap? VaporCompressionMap { get; init; }
+
     public AwgCoolingPlantConfiguration Validate()
     {
         if (!Enum.IsDefined(Technology))
@@ -31,12 +39,10 @@ public sealed record AwgCoolingPlantConfiguration
             throw new ArgumentOutOfRangeException(nameof(Technology), Technology, "Unknown cooling technology.");
         }
 
-        if (Technology is CoolingTechnology.VaporCompression or CoolingTechnology.AbsorptionResearch)
+        if (Technology == CoolingTechnology.AbsorptionResearch)
         {
             throw new ArgumentException(
-                Technology == CoolingTechnology.VaporCompression
-                    ? "VaporCompression plant adapter arrives in R5-002; Core map contract is VaporCompressionPerformanceMap."
-                    : $"Cooling technology '{Technology}' is reserved for a later research milestone.",
+                $"Cooling technology '{Technology}' is reserved for a later research milestone.",
                 nameof(Technology));
         }
 
@@ -47,6 +53,15 @@ public sealed record AwgCoolingPlantConfiguration
             throw new ArgumentException(
                 "CommercialPeltierDehumidifier requires CommercialProfile or CommercialCampaignDocumentPath.",
                 nameof(CommercialCampaignDocumentPath));
+        }
+
+        if (Technology == CoolingTechnology.VaporCompression
+            && VaporCompressionMap is null
+            && string.IsNullOrWhiteSpace(VaporCompressionMapPath))
+        {
+            throw new ArgumentException(
+                "VaporCompression requires VaporCompressionMap or VaporCompressionMapPath.",
+                nameof(VaporCompressionMapPath));
         }
 
         return this;
@@ -80,6 +95,11 @@ public static class CoolingPlantFactory
                 new ThermoelectricCoolingPlantAdapter(condenserParameters, calculator),
             CoolingTechnology.CommercialPeltierDehumidifier =>
                 new CommercialPeltierCoolingPlantAdapter(ResolveCommercialProfile(cooling), calculator),
+            CoolingTechnology.VaporCompression =>
+                new VaporCompressionCoolingPlantAdapter(
+                    ResolveVaporCompressionMap(cooling),
+                    condenserParameters,
+                    calculator),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(cooling),
                 cooling.Technology,
@@ -103,13 +123,30 @@ public static class CoolingPlantFactory
                 nameof(cooling));
         }
 
-        var path = cooling.CommercialCampaignDocumentPath;
-        if (!Path.IsPathRooted(path))
-        {
-            path = Path.GetFullPath(path);
-        }
-
+        var path = ResolvePath(cooling.CommercialCampaignDocumentPath);
         var package = PrototypeWideCsvImporter.ImportPackageFromFiles(path);
         return CommercialPeltierDehumidifierProfileFitter.FromPackage(package);
     }
+
+    public static VaporCompressionPerformanceMap ResolveVaporCompressionMap(
+        AwgCoolingPlantConfiguration cooling)
+    {
+        ArgumentNullException.ThrowIfNull(cooling);
+        if (cooling.VaporCompressionMap is { } inline)
+        {
+            return inline.Validate();
+        }
+
+        if (string.IsNullOrWhiteSpace(cooling.VaporCompressionMapPath))
+        {
+            throw new ArgumentException(
+                "Vapor-compression map path is required when no inline map is supplied.",
+                nameof(cooling));
+        }
+
+        return VaporCompressionPerformanceMapSerializer.LoadFromFile(ResolvePath(cooling.VaporCompressionMapPath));
+    }
+
+    private static string ResolvePath(string path)
+        => Path.IsPathRooted(path) ? path : Path.GetFullPath(path);
 }

@@ -15,4 +15,4 @@ var result = new VaporCompressionMapEvaluator(map).Evaluate(
     speedFraction: 1.0);
 ```
 
-Extrapolation: `clampWithDiagnostic` (default) or `reject`. Cycling min runtime/off-time and frost/high-side limits are part of the contract; the AWG plant adapter is R5-002.
+Extrapolation: `clampWithDiagnostic` (default) or `reject`. Cycling min runtime/off-time and frost/high-side limits are on the map; plant evaluation is `VaporCompressionCoolingPlantModel` / AWG `VaporCompressionCoolingPlantAdapter` (R5-002).

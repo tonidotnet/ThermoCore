@@ -21,7 +21,7 @@ ThermoCore.AWG/Cooling/
   CoolingPlantResult
   ThermoelectricCoolingPlantAdapter
   CommercialPeltierCoolingPlantAdapter
-  VaporCompressionCoolingPlant          // R5-002; map contract in Core (R5-001)
+  VaporCompressionCoolingPlantAdapter   // R5-002
   AbsorptionCoolingResearchModel
 ```
 

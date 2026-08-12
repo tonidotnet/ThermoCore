@@ -133,6 +133,16 @@ public class AwgCoolingPlantAbstractionTests
     {
         var cooling = new AwgCoolingPlantConfiguration
         {
+            Technology = CoolingTechnology.AbsorptionResearch
+        };
+        Assert.ThrowsAny<ArgumentException>(() => cooling.Validate());
+    }
+
+    [Fact]
+    public void VaporCompression_RequiresMap()
+    {
+        var cooling = new AwgCoolingPlantConfiguration
+        {
             Technology = CoolingTechnology.VaporCompression
         };
         Assert.ThrowsAny<ArgumentException>(() => cooling.Validate());

@@ -18,7 +18,9 @@ Use a manufacturer performance map.
 **Implemented (R5-001 / Core):** `VaporCompressionPerformanceMap` with IDW interpolation,
 `ClampWithDiagnostic` | `Reject` extrapolation, cycling limits, frost/high-side diagnostics.
 Sample: `samples/vapor-compression/generic-small-dc-module.r5-001.json`.
-Full AWG plant adapter: R5-002.
+
+**Plant (R5-002):** `VaporCompressionCoolingPlantModel` + AWG `VaporCompressionCoolingPlantAdapter`
+(map capacity drives the existing condenser psychrometric coil; cycling enforces min runtime/off-time).
 
 Inputs:
 

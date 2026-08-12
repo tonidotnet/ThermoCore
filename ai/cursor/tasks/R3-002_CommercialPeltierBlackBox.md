@@ -1,5 +1,7 @@
 # R3-002 — Commercial Peltier Dehumidifier Black-Box Model
 
+**Status:** Done
+
 Requirements:
 COOL-005.
 

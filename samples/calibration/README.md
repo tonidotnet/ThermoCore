@@ -48,6 +48,20 @@ var longFormat = PrototypeMeasurementBridge.ToMeasurementDataset(package);
 
 Validation levels: `benchValidated` | `integratedValidated` | `outdoorValidated`.
 
+## Commercial Peltier black-box fit (R3-002 / COOL-005)
+
+Fit an empirical dehumidifier map from the R3-001 package (Core-only; not wired into AWG V3 — that is R4):
+
+```csharp
+var package = PrototypeWideCsvImporter.ImportPackageFromFiles(
+    "samples/calibration/prototype-campaign.r3-001.json");
+var profile = CommercialPeltierDehumidifierProfileFitter.FromPackage(package);
+var model = new CommercialPeltierDehumidifierModel(profile);
+// Queries outside Validity are clamped; diagnostics include COMMERCIAL_PELTIER.OUTSIDE_VALIDITY.
+```
+
+KPI helpers (`CommercialPeltierBlackBoxKpis`) share L/kWh_electric and bare cooling COP definitions with the analytical TEC path.
+
 ## Synthetic multi-regime campaign
 
 `awg-mvp-campaign-synthetic.csv` is a **software stand-in** (three ambient/solar regimes, condenser outlet temperature). Not field data.

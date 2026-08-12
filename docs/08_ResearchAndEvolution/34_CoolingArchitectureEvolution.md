@@ -20,12 +20,14 @@ ThermoCore.AWG/Cooling/
   CoolingPlantRequest
   CoolingPlantResult
   ThermoelectricCoolingPlantAdapter
-  CommercialPeltierDehumidifierModel
+  CommercialPeltierDehumidifierModel   // adapter over Core black-box (R4)
   VaporCompressionCoolingPlant
   AbsorptionCoolingResearchModel
 ```
 
-Do not move this abstraction to Core until another application demonstrates reuse.
+Empirical commercial black-box physics already lives in Core (R3-002 / COOL-005):
+`CommercialPeltierDehumidifierProfile`, `…Model`, `…Component`, fitter from R3-001 packages.
+Do not move the AWG cooling-plant abstraction to Core until another application demonstrates reuse.
 
 ## Common orchestration result
 

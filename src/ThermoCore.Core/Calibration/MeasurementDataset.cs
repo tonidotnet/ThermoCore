@@ -10,4 +10,9 @@ public sealed record MeasurementDataset
     public IReadOnlyList<string> ChannelIds { get; init; } = Array.Empty<string>();
 
     public IReadOnlyList<string> Warnings { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Optional prototype campaign metadata when the dataset was bridged from a wide CSV package (R3-001).
+    /// </summary>
+    public PrototypeCampaignDocument? Campaign { get; init; }
 }

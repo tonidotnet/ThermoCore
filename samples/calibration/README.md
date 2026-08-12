@@ -29,6 +29,25 @@ dotnet run --project src/ThermoCore.Console -- holdout samples/calibration/awg-m
 
 Physical prototype campaign checklist: `PROTOTYPE_CAMPAIGN.md`.
 
+## Prototype wide CSV + hardware metadata (R3-001 / VAL-001…003)
+
+Commercial Peltier / prototype campaigns use a **wide** CSV plus a provenance JSON document.
+This extends the existing calibration pipeline; it does **not** replace long-format import.
+
+| Artifact | Role |
+|---|---|
+| `prototype-campaign.r3-001.json` | Hardware identity, sensor calibration IDs, validation level |
+| `prototype-commercial-peltier-wide.csv` | Wide measurement rows (DOC-040 fields) |
+
+```csharp
+var package = PrototypeWideCsvImporter.ImportPackageFromFiles(
+    "samples/calibration/prototype-campaign.r3-001.json");
+var longFormat = PrototypeMeasurementBridge.ToMeasurementDataset(package);
+// longFormat plugs into existing validate / holdout / calibrate runners
+```
+
+Validation levels: `benchValidated` | `integratedValidated` | `outdoorValidated`.
+
 ## Synthetic multi-regime campaign
 
 `awg-mvp-campaign-synthetic.csv` is a **software stand-in** (three ambient/solar regimes, condenser outlet temperature). Not field data.

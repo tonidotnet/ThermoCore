@@ -1,6 +1,6 @@
 **Project:** ThermoCore  
 **Track:** AWG Cooling Research & Evolution  
-**Status:** Proposed / Ready for implementation planning  
+**Status:** Implemented (R3-001 wide CSV + metadata)  
 **Baseline:** Existing ThermoCore `main` with Core, AWG, API/Web, calibration/optimization and SolarAirHeater app already implemented.
 
 ---
@@ -80,3 +80,16 @@ BenchValidated
 IntegratedValidated
 OutdoorValidated
 ```
+
+Encoded as `PrototypeValidationLevel` on `PrototypeCampaignDocument` (VAL-003).
+
+## Implementation (R3-001)
+
+| Type | Role |
+|---|---|
+| `PrototypeCampaignDocument` | Hardware identity, sensor calibration IDs, validation level, CSV path |
+| `PrototypeWideCsvImporter` | Import DOC-040 wide CSV |
+| `PrototypeMeasurementBridge` | Wide → existing long-format `MeasurementDataset` |
+| Sample | `samples/calibration/prototype-campaign.r3-001.json` |
+
+Long-format `MeasurementCsvImporter` remains the simulation comparison path; the wide schema is an adapter only.

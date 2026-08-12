@@ -48,11 +48,12 @@ Acceptance for a campaign release:
 
 | Item | Status |
 |---|---|
-| CSV schema + import | Done |
+| CSV schema + import (long format) | Done |
+| Prototype wide CSV + hardware metadata (R3-001) | Done (`prototype-campaign.r3-001.json`) |
 | Synthetic ambient smoke | Done (`awg-mvp-ambient-smoke.csv`) |
 | Synthetic three-regime campaign stand-in | Done (`awg-mvp-campaign-synthetic.csv` / `write-campaign`) |
 | Holdout runner / console | Done |
-| Physical prototype CSV in repo | **Open** (required for M5 closure) |
+| Physical prototype CSV in repo | **Open** (replace R3-001 synthetic stand-in with measured data for M5 closure) |
 
 Regenerate the synthetic stand-in:
 

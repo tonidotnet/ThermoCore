@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "campaignId": "r3-001-commercial-peltier-bench",
+  "validationLevel": "benchValidated",
+  "hardware": {
+    "manufacturer": "Generic",
+    "model": "CommercialPeltierDehumidifier-Demo",
+    "serialNumber": "SYN-0001",
+    "hardwareClass": "commercial-peltier-dehumidifier",
+    "notes": "Synthetic stand-in for R3-001 schema tests. Replace with measured unit metadata."
+  },
+  "sensors": [
+    {
+      "role": "inlet-temperature",
+      "calibrationId": "T-IN-CAL-001",
+      "quantity": "temperature",
+      "unit": "C"
+    },
+    {
+      "role": "inlet-rh",
+      "calibrationId": "RH-IN-CAL-001",
+      "quantity": "relativeHumidity",
+      "unit": "%"
+    },
+    {
+      "role": "power-meter",
+      "calibrationId": "PWR-CAL-001",
+      "quantity": "electricalPower",
+      "unit": "W"
+    },
+    {
+      "role": "water-scale",
+      "calibrationId": "MASS-CAL-001",
+      "quantity": "mass",
+      "unit": "g"
+    }
+  ],
+  "measurementCsvPath": "prototype-commercial-peltier-wide.csv",
+  "variantId": "commercial-peltier-A",
+  "testProtocolId": "VAL-001-phase1",
+  "sourceIdentifier": "thermocore://samples/calibration/r3-001",
+  "sourceRevision": "2026-08-12",
+  "notes": "BenchValidated synthetic commercial Peltier baseline for pipeline smoke tests."
+}

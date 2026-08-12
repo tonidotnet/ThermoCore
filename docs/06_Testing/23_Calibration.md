@@ -65,6 +65,32 @@ Sample dataset:
 samples/calibration/awg-mvp-ambient-smoke.csv
 ```
 
+## 3.1 Prototype wide CSV + campaign metadata (R3-001 / VAL-001…003)
+
+Commercial Peltier / physical campaigns may use a **wide** row schema
+(`timestampUtc`, inlet/outlet T/RH, voltage/current/power, water mass, optional airflow/surfaces)
+plus a `PrototypeCampaignDocument` JSON file that stores:
+
+- hardware identity (manufacturer / model / class / serial);
+- sensor calibration IDs;
+- validation level (`benchValidated` / `integratedValidated` / `outdoorValidated`).
+
+Import path:
+
+```text
+PrototypeWideCsvImporter → PrototypeMeasurementPackage
+PrototypeMeasurementBridge → MeasurementDataset   (existing long format)
+```
+
+Sample:
+
+```text
+samples/calibration/prototype-campaign.r3-001.json
+samples/calibration/prototype-commercial-peltier-wide.csv
+```
+
+This extends the existing pipeline; it does not create a parallel calibration subsystem.
+
 ---
 
 # 4. Import and alignment (CAL-003 / CAL-004)

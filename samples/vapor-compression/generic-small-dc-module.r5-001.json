@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0",
+  "profileId": "vc-generic-small-dc-module",
+  "manufacturer": "Generic",
+  "model": "SmallDcRefrigerationModule-Demo",
+  "hardwareClass": "vapor-compression-module",
+  "sourceIdentifier": "thermocore://samples/vapor-compression/generic-small-dc-module",
+  "sourceRevision": "2026-08-12",
+  "evidenceLevel": "provisionalEngineering",
+  "validity": {
+    "minimumEvaporatingTemperatureK": 278.15,
+    "maximumEvaporatingTemperatureK": 283.15,
+    "minimumCondensingTemperatureK": 308.15,
+    "maximumCondensingTemperatureK": 318.15,
+    "minimumSpeedFraction": 0.5,
+    "maximumSpeedFraction": 1
+  },
+  "mapPoints": [
+    {
+      "evaporatingTemperatureK": 278.15,
+      "condensingTemperatureK": 308.15,
+      "speedFraction": 0.5,
+      "coolingCapacityW": 72.5,
+      "electricalPowerW": 47,
+      "cop": 1.5425531914893618,
+      "effectiveCop": 1.5425531914893618
+    },
+    {
+      "evaporatingTemperatureK": 278.15,
+      "condensingTemperatureK": 308.15,
+      "speedFraction": 1,
+      "coolingCapacityW": 145,
+      "electricalPowerW": 94,
+      "cop": 1.5425531914893618,
+      "effectiveCop": 1.5425531914893618
+    },
+    {
+      "evaporatingTemperatureK": 278.15,
+      "condensingTemperatureK": 318.15,
+      "speedFraction": 0.5,
+      "coolingCapacityW": 60,
+      "electricalPowerW": 51,
+      "cop": 1.1764705882352942,
+      "effectiveCop": 1.1764705882352942
+    },
+    {
+      "evaporatingTemperatureK": 278.15,
+      "condensingTemperatureK": 318.15,
+      "speedFraction": 1,
+      "coolingCapacityW": 120,
+      "electricalPowerW": 102,
+      "cop": 1.1764705882352942,
+      "effectiveCop": 1.1764705882352942
+    },
+    {
+      "evaporatingTemperatureK": 283.15,
+      "condensingTemperatureK": 308.15,
+      "speedFraction": 0.5,
+      "coolingCapacityW": 78.75,
+      "electricalPowerW": 45,
+      "cop": 1.75,
+      "effectiveCop": 1.75
+    },
+    {
+      "evaporatingTemperatureK": 283.15,
+      "condensingTemperatureK": 308.15,
+      "speedFraction": 1,
+      "coolingCapacityW": 157.5,
+      "electricalPowerW": 90,
+      "cop": 1.75,
+      "effectiveCop": 1.75
+    },
+    {
+      "evaporatingTemperatureK": 283.15,
+      "condensingTemperatureK": 318.15,
+      "speedFraction": 0.5,
+      "coolingCapacityW": 66.25,
+      "electricalPowerW": 49,
+      "cop": 1.3520408163265305,
+      "effectiveCop": 1.3520408163265305
+    },
+    {
+      "evaporatingTemperatureK": 283.15,
+      "condensingTemperatureK": 318.15,
+      "speedFraction": 1,
+      "coolingCapacityW": 132.5,
+      "electricalPowerW": 98,
+      "cop": 1.3520408163265305,
+      "effectiveCop": 1.3520408163265305
+    }
+  ],
+  "extrapolationPolicy": "clampWithDiagnostic",
+  "cycling": {
+    "minimumRuntime": "00:03:00",
+    "minimumOffTime": "00:03:00"
+  },
+  "safety": {
+    "frostThresholdEvaporatingTemperatureK": 273.15,
+    "maximumCondensingTemperatureK": 328.15,
+    "maximumDischargeTemperatureK": 368.15
+  },
+  "evaporatorUaWPerK": 35,
+  "condenserUaWPerK": 45,
+  "fanElectricalPowerW": 8,
+  "refrigerant": "R134a",
+  "fittingMethod": "Synthetic manufacturer grid; inverse-distance interpolation; clamp-out-of-range.",
+  "notes": "Stand-in map for R5-001 contract tests. Replace with measured module datasheet points."
+}

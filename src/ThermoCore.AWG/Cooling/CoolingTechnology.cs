@@ -9,7 +9,7 @@ public enum CoolingTechnology
     /// <summary>Empirical commercial Peltier dehumidifier black-box (Core R3-002).</summary>
     CommercialPeltierDehumidifier = 1,
 
-    /// <summary>Reserved for R5 vapor-compression maps.</summary>
+    /// <summary>Vapor-compression performance map (R5-001); plant adapter in R5-002.</summary>
     VaporCompression = 2,
 
     /// <summary>Reserved for R7 absorption research models.</summary>

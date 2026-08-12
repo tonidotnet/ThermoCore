@@ -34,7 +34,9 @@ public sealed record AwgCoolingPlantConfiguration
         if (Technology is CoolingTechnology.VaporCompression or CoolingTechnology.AbsorptionResearch)
         {
             throw new ArgumentException(
-                $"Cooling technology '{Technology}' is reserved for a later research milestone.",
+                Technology == CoolingTechnology.VaporCompression
+                    ? "VaporCompression plant adapter arrives in R5-002; Core map contract is VaporCompressionPerformanceMap."
+                    : $"Cooling technology '{Technology}' is reserved for a later research milestone.",
                 nameof(Technology));
         }
 

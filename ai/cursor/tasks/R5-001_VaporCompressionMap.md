@@ -1,5 +1,7 @@
 # R5-001 — Vapor Compression Performance-Map Contract
 
+**Status:** Done
+
 Requirements:
 COOL-006, COOL-007.
 

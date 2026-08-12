@@ -15,6 +15,11 @@ Define the next active cooling technology after the Peltier demonstrator.
 
 Use a manufacturer performance map.
 
+**Implemented (R5-001 / Core):** `VaporCompressionPerformanceMap` with IDW interpolation,
+`ClampWithDiagnostic` | `Reject` extrapolation, cycling limits, frost/high-side diagnostics.
+Sample: `samples/vapor-compression/generic-small-dc-module.r5-001.json`.
+Full AWG plant adapter: R5-002.
+
 Inputs:
 
 ```text

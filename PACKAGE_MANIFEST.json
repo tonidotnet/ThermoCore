@@ -1,36 +1,5 @@
 {
-  "package": "ThermoCore_Research_Evolution_Cursor_Package_v1",
-  "type": "additive-documentation-and-ai-implementation-plan",
-  "documents": [
-    "31_CurrentImplementationAudit.md",
-    "32_RequirementsTraceability.md",
-    "33_GapAnalysis.md",
-    "34_CoolingArchitectureEvolution.md",
-    "35_ThermoelectricCoolingOptimization.md",
-    "36_VaporCompressionCooling.md",
-    "37_AbsorptionCoolingResearch.md",
-    "38_HybridSorbentCoolingArchitecture.md",
-    "39_AWG_PerformanceMetrics.md",
-    "40_PrototypeValidationPlan.md",
-    "41_ExperimentalConfigurations.md",
-    "42_ResearchReferencesAndEvidence.md",
-    "43_DevelopmentRecommendations.md"
-  ],
-  "adr": [
-    "ADR-016_AWG_CoolingPlant_Abstraction.md"
-  ],
-  "cursorTasks": [
-    "R0-001_CaptureBaseline.md",
-    "R1-001_AddPerformanceKPIs.md",
-    "R1-002_AddCoolingChannels.md",
-    "R2-001_TecManufacturerProfiles.md",
-    "R2-002_DewPointTrackingTecControl.md",
-    "R3-001_PrototypeMeasurementProfile.md",
-    "R3-002_CommercialPeltierBlackBox.md",
-    "R4-001_CoolingPlantAbstraction.md",
-    "R5-001_VaporCompressionMap.md"
-  ],
-  "safeToOverlayRepositoryRoot": true,
-  "expectedOverwrites": [],
-  "recommendedFirstImplementationTask": "R0-001_CaptureBaseline.md"
+  "package": "ThermoCore_R8_Physical_Validation_v1",
+  "overlaySafe": true,
+  "recommendedFirstTask": "R8-001_InstrumentationDataContract.md"
 }

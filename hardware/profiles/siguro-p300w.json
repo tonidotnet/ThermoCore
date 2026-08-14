@@ -1,0 +1,10 @@
+{
+  "hardwareProfileId": "siguro-sgr-dh-p300w",
+  "technology": "VaporCompressionDehumidifier",
+  "manufacturer": "Siguro",
+  "model": "DH-P300W Orca 20 l WiFi",
+  "ratedInputPowerW": 330,
+  "ratedDehumidificationLPerDay": 20,
+  "tankVolumeL": 6.5,
+  "evidence": "Manufacturer product specification"
+}

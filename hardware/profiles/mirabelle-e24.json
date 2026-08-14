@@ -1,0 +1,12 @@
+{
+  "hardwareProfileId": "mirabelle-e24-7706-11000000",
+  "technology": "ThermoelectricBlackBox",
+  "manufacturer": "Mirabelle",
+  "model": "Electric Cooler E 24",
+  "typeNumber": "7706 11000000",
+  "ratedVoltageV": 12,
+  "ratedInputPowerW": 48,
+  "climateClass": "N",
+  "internalTecModel": null,
+  "evidence": "Physical device label supplied by owner"
+}
